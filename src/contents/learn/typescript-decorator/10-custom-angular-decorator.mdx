@@ -1,0 +1,96 @@
+---
+id: 9
+title: '10. A Useful Custom Decorator in Angular'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-03-05'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+By customizing the `getter/setter` interception scheme to convert data, we got this decorator.
+
+## Basic implementation
+
+```ts
+export function ObservableInput<
+  T = any,
+  SK extends keyof T = any,
+  K extends keyof T = any
+>(propertyKey?: K | boolean, initialValue?: SubjectType<T[SK]>) {
+  return (target: T, sPropertyKey: SK) => {
+    const symbol = Symbol();
+
+    type ST = SubjectType<T[SK]>;
+
+    type Mixed = T & {
+      [symbol]: BehaviorSubject<ST>;
+    } & Record<SK, BehaviorSubject<ST>>;
+
+    Object.defineProperty(target, sPropertyKey, {
+      enumerable: true,
+      configurable: true,
+      get(this: Mixed) {
+        return (
+          this[symbol] || (this[symbol] = new BehaviorSubject<ST>(initialValue))
+        );
+      },
+      set(this: Mixed, value: ST) {
+        this[sPropertyKey].next(value);
+      },
+    });
+
+    if (!propertyKey) {
+      return;
+    }
+
+    if (propertyKey === true) {
+      // Automatically match attribute names and remove the trailing $ symbol.
+      propertyKey = (sPropertyKey as string).replace(/\$+$/, '') as K; 
+    }
+
+    Object.defineProperty(target, propertyKey, {
+      enumerable: true,
+      configurable: true,
+      get(this: Mixed) {
+        return this[sPropertyKey].getValue();
+      },
+      set(this: Mixed, value: ST) {
+        this[sPropertyKey].next(value);
+      },
+    });
+  };
+}
+```
+
+## Usages
+
+```ts
+// Usage one
+@Component({})
+export class DemoComponent {
+  @ObservableInput() // Automatically bind the value of "name", that is, remove the "$" symbol at the end of "name$$".
+  @Input('name')
+  name$$: Observable<string>;
+
+  name: string;
+}
+
+// Usage three
+@Component({})
+export class DemoComponent {
+  @ObservableInput('nameValue') // Automatically bind the value of nameValue Input.
+  name$$: Observable<string>;
+
+  @Input()
+  nameValue: string;
+}
+```
+
+## One more thing
+
+You can find out this decorator in [ObservableInput](https://github.com/rx-ts/ngrx/blob/master/src/utils/decorators.ts#L56), or similar decorator in [ngx-observable-input](https://github.com/Futhark/ngx-observable-input).

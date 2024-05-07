@@ -1,0 +1,96 @@
+---
+id: 4
+title: '5. Parameter Decorator'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-03-05'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+Each method in a class can also have its own decorators.
+
+> Similar to property decorators, parameter decorators are generally not used alone, but are used in combination with class or method decorators.
+
+## Parameters
+
+1. *target* is the constructor of the class for static members, and the prototype object of the class for instance members.
+
+2. *key* method name
+
+3. *index* position in the parameter array
+
+For example, if we need to format the parameters of a method, we can create a decorator specifically for formatting.
+```typescript
+// Parameter formatting configuration
+const parseConf: ((...args: any[]) => any)[] = [];
+
+export const parse =
+    (parseTo: (...args: any[]) => any) =>
+    (target: any, propertyName: string, index: number) => {
+        parseConf[index] = parseTo;
+    };
+
+// Perform formatting operations before function call.
+export const parseDecorator = (
+    target: any,
+    propertyName: string,
+    descriptor: PropertyDescriptor,
+): PropertyDescriptor => {
+    console.log('Start formatting data.');
+    return {
+        ...descriptor,
+        value(...args: any[]) {
+            // Get the formatted parameter list.
+            const newArgs = args.map((v, i) =>
+                parseConf[i] ? parseConf[i](v) : v,
+            );
+            console.log('Finished formatting data.');
+            return descriptor.value.apply(this, newArgs);
+        },
+    };
+};
+
+export interface UserType {
+    id: number;
+    username: string;
+}
+
+class UserService {
+    private users: UserType[] = [
+        { id: 1, username: 'admin' },
+        { id: 2, username: 'brian' },
+    ];
+
+    getUsers() {
+        return this.users;
+    }
+
+    @parseDecorator
+    delete(@parse((arg: any) => Number(arg)) id: number) {
+        this.users = this.users.filter((userObj) => userObj.id !== id);
+        return this;
+    }
+}
+
+export const exp78 = () => {
+    console.log();
+    console.log(
+        '-----------------------Parameter decorator--------------------',
+    );
+    console.log('---------------Formatting parameters-----------------');
+    console.log();
+    const userService = new UserService();
+    userService.delete(1);
+    console.log(userService.getUsers());
+    console.log();
+    console.log('---------------End-----------------------');
+};
+
+
+// console: [ { id: 2, username: 'brian' } ]
+```

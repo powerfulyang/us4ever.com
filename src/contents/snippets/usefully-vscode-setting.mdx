@@ -1,0 +1,29 @@
+---
+title: Useful VSCode Settings
+description: A list of useful VSCode settings that I use
+slug: usefully-vscode-setting
+date: '2024-03-06'
+featured: false
+type: vscode
+draft: true
+---
+
+```typescript
+{
+    "workbench.tree.enableStickyScroll": true, // Enable sticky scroll in the file explorer
+    "editor.formatOnSave": true, // Format on save automatically
+  	"editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit", // Fix all eslint errors on save
+      "source.fixAll.stylelint": "explicit" // Fix all stylelint errors on save
+  	},
+    "editor.guides.bracketPairs": "active", // or true
+    "javascript.updateImportsOnFileMove.enabled": "always",
+		"typescript.updateImportsOnFileMove.enabled": "always",
+}
+```
+
+#### **Bracket Pairs**
+
+"editor.guides.bracketPairs" Both "true" and "active" can be selected, and the specific effects are compared as follows:
+
+![Enable bracket pair colorization in VSCode.](https://raw.githubusercontent.com/BrianShenCC/pictures/main/image-20240305222622885.png)

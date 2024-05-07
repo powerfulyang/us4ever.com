@@ -1,0 +1,125 @@
+---
+title: 'Rxjs'
+description: 'Rxjs examples and reuable operators'
+slug: rxjs
+date: '2024-05-01'
+featured: false
+type: rxjs
+draft: false
+---
+
+## publishRef
+
+Use this operator to cache data, otherwise if the source is subscribe by multiple times , it could run multiple times
+It's better than the shareReplay, because it has more options to control the behavior of the cache
+
+```typescript
+import { ReplaySubject, share, TimestampProvider } from 'rxjs';
+
+export type PublishRefConfig<T> =
+  | number
+  | (import('rxjs/internal/operators/share').ShareConfig<T> & {
+      bufferSize?: number;
+      windowTime?: number;
+      timestampProvider?: TimestampProvider;
+    });
+
+/**
+ * this operators is used for cache data, otherwise if the source is subscribe by multiple times , it could run multiple times
+ *
+ * @template T
+ * @param {PublishRefConfig<T>} [bufferSizeOrConfig={}]
+ * @return {*}
+ */
+export const publishRef = <T>(bufferSizeOrConfig: PublishRefConfig<T> = {}) => {
+  const {
+    bufferSize = 1,
+    windowTime,
+    timestampProvider,
+    connector = () => new ReplaySubject(bufferSize, windowTime, timestampProvider),
+    resetOnError = false,
+    resetOnComplete = false,
+    resetOnRefCountZero = true
+  } = typeof bufferSizeOrConfig === 'number'
+    ? ({
+        bufferSize: bufferSizeOrConfig
+      } as Exclude<PublishRefConfig<T>, number>)
+    : bufferSizeOrConfig;
+  return share<T>({
+    connector,
+    resetOnError,
+    resetOnComplete,
+    resetOnRefCountZero
+  });
+};
+```
+
+## debounceAllButFirst
+
+Use this operator to debounce function calls, but the function will be called immediately when it's first called
+
+```typescript
+import { debounceTime, first, merge, Observable, OperatorFunction, skip } from 'rxjs';
+
+export function debounceAllButFirst<T>(dueTime: number): OperatorFunction<T, T> {
+  return (source: Observable<T>) => {
+    return merge(source.pipe(first()), source.pipe(skip(1), debounceTime(dueTime)));
+  };
+}
+```
+
+## httpQuery
+
+It's a similar operator to react-query in react, it's used to handle loading and error
+
+```typescript
+
+import { catchError, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { publishRef, PublishRefConfig } from './publishRef';
+
+export interface HttpQueryState<T, E = unknown> {
+  loading: boolean;
+  data: T;
+  error: E;
+}
+
+export function httpQuery<T, R>(
+  funCall: (param: T) => Observable<R>,
+  defaultValue: R,
+  cacheConfig?: PublishRefConfig<HttpQueryState<R>>
+): (source$: Observable<T>) => Observable<HttpQueryState<R>> {
+  return (source$) =>
+    source$.pipe(
+      switchMap((param: T) => {
+        let prevData = defaultValue;
+        return funCall(param).pipe(
+          map((data) => {
+            prevData = data;
+            return { loading: false, data, error: null };
+          }),
+          startWith({ loading: true, data: prevData, error: null }),
+          catchError((error) => of({ loading: false, data: prevData, error })) // when error, keep the previous value
+        );
+      }),
+      startWith({ loading: true, data: defaultValue, error: null }),
+      publishRef(cacheConfig)
+    );
+}
+// usage
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UserService {
+  readonly query$: Subject<string> = new Subject<string>();
+
+  constructor(private http: HttpClient) {}
+
+  queryUsers = (query: string) => {
+    const url = `${environment.api}/user-list`;
+    return this.http.get<User[]>(url, { params: { query } });
+  };
+
+  readonly classesForInsights$ = this.query$.pipe(httpQuery(this.queryUsers, []));
+}
+```

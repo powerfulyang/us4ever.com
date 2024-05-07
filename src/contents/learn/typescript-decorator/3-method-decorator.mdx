@@ -1,0 +1,92 @@
+---
+id: 3
+title: '4. Method Decorator'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-03-05'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+At the beginning, we introduced the principle of decorators, which is actually the original implementation of method decorators. Unlike property decorators, method decorators accept three parameters.
+
+> One thing to note when overloading method decorators is that the value must be defined using a function, not an arrow function. This is because we use this when calling the original old method, such as method.apply(this, args), and the this here needs to be defined using a function.
+
+## Parameters
+
+**target** For static members, it is the constructor of the class; for instance members, it is the prototype object of the class. **key** The name of the method. **descriptor: PropertyDescriptor** The property descriptor of the method (the most important parameter).
+
+## Attribute descriptor
+
+The attribute description includes the following attributes:
+
+- *configurable?: boolean;* Whether it can be deleted, whether method characteristics can be modified, or whether accessor properties can be modified.
+
+- *enumerable?: boolean;* Whether it exists when iterating through objects.
+
+- *value?: any;* Used to define a new method to replace the old method.
+
+- *writable?: boolean;* Whether it is writable.
+
+- *get?(): any;* Accessor.
+
+- *set?(v: any): void;* Accessor.
+
+Next, we use method decorators to modify the login logger in the original decorator principle.
+
+```typescript
+const loggerDecorator = () => {
+    return function logMethod(
+        target: any,
+        propertyName: string,
+        propertyDescriptor: PropertyDescriptor,
+    ): PropertyDescriptor {
+        const method = propertyDescriptor.value;
+
+        // Overloaded original method
+        propertyDescriptor.value = function async(...args: any[]) {
+            try {
+                return method.apply(this, args); // Call the original function.
+            } finally {
+                const now = new Date().valueOf();
+                console.log(`lasted logged in ${now}`);
+            }
+        };
+        return propertyDescriptor;
+    };
+};
+
+class UserService {
+    @loggerDecorator()
+    async login() {
+        console.log('login success');
+        await new Promise((resolve) => {
+            setTimeout(resolve, 100);
+        });
+    }
+}
+
+export const exp6 = () => {
+    console.log();
+    console.log(
+        '-----------------------Method Decorator-----------------------',
+    );
+    console.log(
+        '-----------------------Automatically print logs after invoke login.----------------------',
+    );
+    console.log();
+    const user = new UserService();
+    user.login();
+    console.log();
+    console.log('-----------------------End-----------------------');
+};
+
+// console
+// login success
+// Pause for 100ms.
+// lasted logged in 1571771681793
+```

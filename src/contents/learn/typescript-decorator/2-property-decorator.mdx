@@ -1,0 +1,78 @@
+---
+id: 2
+title: '3. Property Decorator'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-03-05'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+Property decorators are generally not used alone, but are mainly used in combination with class or method decorators for composite decoration.
+
+## Parameters
+
+- The property decorator function has two parameters: **target**
+
+  - For regular properties, *target* is the prototype of the current object. In other words, if *Employee* is an object, then *target* is `Employee.prototype`.
+
+  - For static properties, *target* is the class of the current object.
+
+**propertyKey**
+
+```typescript
+const userRoles: string[] = [];
+
+// Assign the role to userRoles through property decorators.
+const RoleDecorator = (roles: string[]) => (target: any, key: string) => {
+    roles.forEach((role) => userRoles.push(role));
+};
+
+// Generate a Roles object based on userRoles and assign it to the roles property of the class prototype.
+const SetRoleDecorator = <
+    T extends new (...args: any[]) => {
+        [key: string]: any;
+    },
+    >(
+    constructor: T,
+) => {
+    const roles = [
+        { name: 'super-admin', desc: 'Super administrator' },
+        { name: 'admin', desc: 'Administrator' },
+        { name: 'user', desc: 'Client' },
+    ];
+    return class extends constructor {
+        constructor(...args: any) {
+            super(...args);
+            this.roles = roles.filter((role) => userRoles.includes(role.name));
+        }
+    };
+};
+
+@SetRoleDecorator
+class UserEntity {
+    @RoleDecorator(['admin', 'user'])
+    roles: string[] = [];
+}
+
+export const exp5 = () => {
+    console.log();
+    console.log(
+        '-----------------------Property decorator-----------------------',
+    );
+    console.log(
+        '-----------------------Filter user list based on permissions using decorators.--------------------',
+    );
+    console.log();
+    const user = new UserEntity();
+    console.log(user.roles);
+    console.log();
+    console.log('-----------------------End-----------------------');
+};
+
+// console [ { name: 'admin', desc: 'Administrator' }, { name: 'user', desc: 'Client' } ]
+```

@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://us4ever.com
+
+# Sitemaps
+Sitemap: https://us4ever.com/sitemap.xml

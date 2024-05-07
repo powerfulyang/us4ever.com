@@ -1,0 +1,95 @@
+---
+id: 6
+title: '7. Create A Decorator'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-03-05'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+There are many ways to overload methods through decorators, you can choose according to your own preferences. The following are a few examples.
+
+## With Extends
+
+Usually used to add attributes or methods in class decorators, for example:
+
+```typescript
+ return <T extends new (...args: any[]) => any>(target: T) => {
+    return class extends target {
+      getMyName() {
+        return this._name;
+      }
+    };
+  };
+```
+
+
+
+## With Prototype
+
+Usually used to overload constructors and add properties or methods on class decorators, for example:
+
+```typescript
+const ProfileDerorator = (profile: UserProfile) => {
+  return (target: any) => {
+    const original = target;
+    function constructor(...args: any[]) {
+      console.log('contruct has been changed');
+      return new original(...args);
+    }
+    // copy prototype
+    constructor.prototype = original.prototype;
+    // Add a static property
+    constructor.myinfo = `myinfo ${userinfo}`;
+    return constructor as typeof original;
+  };
+};
+```
+
+
+## With Assignment
+
+Generally used to modify a descriptor on a method decorator, for example:
+
+```typescript
+const loggerDecorator = () => {
+  return function logMethod(
+    target: Object,
+    propertyName: string,
+    propertyDescriptor: PropertyDescriptor,
+  ): PropertyDescriptor {
+    const method = propertyDescriptor.value;
+    // Overwrite method
+    propertyDescriptor.value = function async (...args: any[]) {...};
+    return propertyDescriptor;
+  };
+};
+```
+
+
+
+## With ES6 Spread Operator
+
+Similar to the assignment method, but using the ES6+ spread syntax, it is easier to understand and use, for example:
+
+```typescript
+const parseFunc = (
+  target: Object,
+  propertyName: string,
+  descriptor: PropertyDescriptor,
+): PropertyDescriptor => {
+  return {
+    ...descriptor,
+    value(...args: any[]) {
+      const newArgs = parseConf.map((toParse, index) => toParse(args[index]));
+
+      return descriptor.value.apply(this, newArgs);
+    },
+  };
+};
+```

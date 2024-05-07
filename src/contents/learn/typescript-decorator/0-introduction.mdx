@@ -1,0 +1,113 @@
+---
+id: 0
+title: '1. Introduction'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-02-29'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+Decorators are a special type of declaration that can be attached to class declarations, methods, accessors, properties, or parameters. Decorators use the `@expression` form, where `expression` must evaluate to a function. It is called at runtime, with the decorated declaration information passed as a parameter. Decorators are generally used to handle logic unrelated to the class or its properties. For example, measuring the execution time of a class method or logging can be written as a separate decorator. In Node.js, a framework that uses decorators well is NestJS. However, if you are not familiar with it, it's okay. I will explain the use of decorators according to my understanding. To enable the decorator feature, please enable the `experimentalDecorators` compiler option in `tsconfig.json`.
+Document in this article is based on [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html), but examples are written in a way which could be used in nestjs.
+
+
+## Quick Start
+
+Sometimes, we may need to perform type checking on incoming parameters, sort and filter return values, add throttling and debouncing to functions, or other functional code based on multiple class inheritances. There are various repetitive codes that are unrelated to the logic of the function itself. For example, we want to record the login time when a user logs in.
+
+```typescript
+const logger = (now: number) => console.log(`lasted logged in ${now}`);
+
+class User {
+  async login() {
+    await setTimeout(() => console.log('login success'), 100);
+    logger(new Date().valueOf());
+  }
+}
+```
+
+The above code forcibly writes the code for logging into the login logic processing, so the higher the code volume, the more redundant the code. We need to separate the logging logic and make the _login_ method more focused on handling the login logic. Next, we will simulate the principle of decorators using higher-order functions to better understand decorators later.
+
+```typescript
+/**
+ * Use higher-order functions
+ * Currying to destructure login and log recording
+ */
+
+type DecoratorFunc = (
+  target: any,
+  key: string,
+  descriptor: PropertyDescriptor
+) => void;
+
+// Simulated decorator factory function
+const createDecorator =
+  (decorator: DecoratorFunc) => (Model: any, key: string) => {
+    // Get the class prototype that will use the decorator
+    const target = Model.prototype;
+    // Get the description of a method on this prototype.
+    const descriptor = Object.getOwnPropertyDescriptor(target, key);
+    // Change description,generate new method
+    decorator(target, key, descriptor);
+  };
+
+const logger: DecoratorFunc = (target, key, descriptor) =>
+  // Redefine the modified function to the prototype chain
+  Object.defineProperty(target, key, {
+    ...descriptor,
+    value: async (...args: any[]) => {
+      try {
+        return descriptor.value.apply(this, args); // Call the previous function.
+      } finally {
+        const now = new Date().valueOf();
+        console.log(`lasted logged in ${now}`);
+      }
+    },
+  });
+
+class User {
+  async login() {
+    console.log('login success');
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
+  }
+}
+
+export const exp1 = () => {
+  console.log();
+  console.log(
+    '-----------------------Login and Logging Decoupling-----------------------'
+  );
+  console.log();
+  const loggerDecorator = createDecorator(logger);
+  loggerDecorator(User, 'login');
+  const user = new User();
+  user.login();
+  console.log();
+  console.log('-----------------------End-----------------------');
+};
+
+// console
+// login success
+// Pause for 100ms.
+// lasted logged in 1571771681793
+```
+
+## Decorator types
+
+There are several types of decorators in <b>Typescript</b>:
+- Class decorators
+- Property decorators
+- Method decorators
+- Parameter decorators
+- Accessor decorators
+
+Each of these decorators can work on the class prototype (_prototype_ attribute) and the class itself, respectively
+
+After understanding the above concepts, let's move on to learning about the real decorators.

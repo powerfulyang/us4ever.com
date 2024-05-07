@@ -1,0 +1,193 @@
+---
+id: 7
+title: '8. Metadata'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-03-05'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+Metadata reflection API (such as Reflect) can be used to organize metadata in a standard way. The use of **metadata reflection** in decorators is very simple, and it can be seen as attaching some readily available information to a method of a class. Before using it, we must first install the reflect-metadata library with npm i reflect-metadata --save and enable the metadata configuration in tsconfig.json.
+
+```typescript
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    }
+}
+```
+
+## Basic usage
+et's take a look at how the official TS example uses the reflection API to obtain type information during the design phase of properties. It should be noted that currently there are only three predefined metadata:
+
+* Type metadata: design:type.
+* Parameter type metadata: design:paramtypes.
+* Return type metadata: design:returntype.
+
+```typescript
+import 'reflect-metadata';
+
+import { parse, parseDecorator, UserType } from './exp7-8';
+
+class Point {
+    x: number;
+
+    y: number;
+}
+
+class Line {
+    private _p0: Point;
+
+    private _p1: Point;
+
+    @validate
+    // @Reflect.metadata('design:type', Point)
+    set p0(value: Point) {
+        this._p0 = value;
+    }
+
+    get p0() {
+        return this._p0;
+    }
+
+    @validate
+    // @Reflect.metadata("design:type", Point)
+    set p1(value: Point) {
+        this._p1 = value;
+    }
+
+    get p1() {
+        return this._p1;
+    }
+}
+
+function validate<T>(
+    target: any,
+    propertyKey: string,
+    descriptor: TypedPropertyDescriptor<T>,
+) {
+    const { set } = descriptor;
+    descriptor.set = function (value: T) {
+        const type = Reflect.getMetadata('design:type', target, propertyKey);
+        if (!(value instanceof type)) {
+            throw new TypeError('Invalid type.');
+        }
+        set.apply(this, [value]);
+    };
+    return descriptor;
+}
+
+export const exp910 = () => {
+    console.log();
+    console.log(
+        '-----------------------Metadata reflection-----------------------',
+    );
+    console.log(
+        '-----------------------Add type validation to the setter method of the accessor.--------------',
+    );
+    console.log();
+    const line = new Line();
+    const p0 = new Point();
+    p0.x = 1;
+    p0.y = 2;
+    line.p1 = p0;
+    console.log(line);
+    console.log();
+    console.log('-----------------------End-----------------------');
+};
+
+
+// console: Line { _p1: Point { x: 1, y: 2 } }
+```
+
+## Custom metadata
+
+In addition to using pre-defined metadata like `design:type`, we can also customize metadata because we usually use `reflect-metadata` to customize metadata. For example, we can add a role check to the method of deleting a user, so that only users with the specified role can delete users, such as the administrator role. Please refer to the following code for details.：
+
+```typescript
+// Role Guardian
+export const RoleGuardDecorator = (roles: string[]) => {
+    console.log('Start verifying roles.');
+    return function roleGuard(
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor,
+    ) {
+        // Define the roles required for the guard according to the incoming parameters.
+        Reflect.defineMetadata('roles', roles, target, propertyKey);
+        const method = descriptor.value;
+        descriptor.value = function (...args: any[]) {
+            // Get the roles of the current user.
+            const currentRoles = target.getRoles();
+            // Obtain the roles required to perform the operation defined by us.
+            const needRoles = Reflect.getMetadata('roles', target, propertyKey);
+            // Determine if the current user has the required role, if not, throw an exception.
+            for (const role of needRoles) {
+                if (!currentRoles.includes(role)) {
+                    throw new Error(
+                        `you have not permission to run ${propertyKey}`,
+                    );
+                }
+            }
+            console.log('Role verification completed.');
+            return method.apply(this, args);
+        };
+        return descriptor;
+    };
+};
+
+export class UserService {
+    protected users: UserType[] = [
+        { id: 1, username: 'admin' },
+        { id: 2, username: 'brian' },
+    ];
+
+    getUsers() {
+        return this.users;
+    }
+
+    // Set the role of the current user.
+    getRoles() {
+        return ['user'];
+    }
+
+    @RoleGuardDecorator(['admin'])
+   	// Using Reflect.defineMetadata() to define roles in decorators is just for encapsulation convenience.
+		// Of course, we can also directly define roles on methods, as follows:
+    // Reflect.metadata('roles',['admin'])
+    @parseDecorator
+    delete(@parse((arg: any) => Number(arg)) id: number): UserService {
+        this.users = this.getUsers().filter((userObj) => userObj.id !== id);
+        return this;
+    }
+}
+
+export const exp910 = () => {
+    // ...
+    console.log();
+    console.log(
+        '-----------------------Customize metadata reflection-----------------------',
+    );
+    console.log(
+        '-----------------------Add role guards to determine whether the current user has delete permissions.-----------------------',
+    );
+    console.log();
+    const user = new UserService();
+    user.delete(1);
+    console.log(user.getUsers());
+    console.log();
+    console.log(
+        '-----------------------End-----------------------',
+    );
+};
+
+// Error: you have not permission to run delete
+```
+

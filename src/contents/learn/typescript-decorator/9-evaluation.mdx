@@ -1,0 +1,111 @@
+---
+id: 9
+title: '10. Decorator Evaluation'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-03-05'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+Parameters decorators -> Methods decorators -> Accessor/Property decorators -> Class decorators
+
+> It is particularly important to note the [difference](https://stackoverflow.com/questions/48509376/whats-the-difference-between-reflect-getmetadata-and-reflect-getownmetadata) between getMetadata and getOwnMetadata.
+
+There is a well defined order to how decorators applied to various declarations inside of a class are applied:
+
+1. *Parameter Decorators*, followed by *Method*, *Accessor*, or *Property Decorators* are applied for each instance member.
+2. *Parameter Decorators*, followed by *Method*, *Accessor*, or *Property Decorators* are applied for each static member.
+3. *Parameter Decorators* are applied for the constructor.
+4. *Class Decorators* are applied for the class.
+
+```typescript
+
+/**
+ * Decorator Evaluation
+ */
+import { UserType } from './exp7-8';
+import { UserService as ParentUserService } from './exp9-10';
+
+const requiredMetadataKey = Symbol('required');
+
+export const RequiredDecorator = (
+    target: any,
+    propertyKey: string | symbol,
+    parameterIndex: number,
+) => {
+    const existingRequiredParameters: number[] =
+        Reflect.getOwnMetadata(requiredMetadataKey, target, propertyKey) || [];
+    existingRequiredParameters.push(parameterIndex);
+    Reflect.defineMetadata(
+        requiredMetadataKey,
+        existingRequiredParameters,
+        target,
+        propertyKey,
+    );
+};
+
+export const ValidateDecorator = (
+    target: any,
+    propertyName: string,
+    descriptor: TypedPropertyDescriptor<(...args: any[]) => any>,
+) => {
+    const method = descriptor.value;
+    descriptor.value = function (...args: any[]) {
+        const requiredParameters: number[] = Reflect.getOwnMetadata(
+            requiredMetadataKey,
+            target,
+            propertyName,
+        );
+        if (requiredParameters) {
+            for (const parameterIndex of requiredParameters) {
+                if (
+                    parameterIndex >= args.length ||
+                    args[parameterIndex] === undefined
+                ) {
+                    throw new Error('Missing required argument.');
+                }
+            }
+        }
+
+        return method.apply(this, args);
+    };
+};
+
+class UserService extends ParentUserService {
+    @ValidateDecorator
+    createUser(@RequiredDecorator username?: string, id?: number) {
+        const ids: number[] = this.users.map((userEntity) => userEntity.id);
+        const newUser: UserType = {
+            // If the ID parameter is not provided, the ID of the new user will be the maximum ID of all users plus 1.
+            id: id || Math.max(...ids) + 1,
+            // If the username parameter is not provided, a random string will be generated as the username.
+            username: username || Math.random().toString(36).substring(2, 15),
+        };
+        this.users.push(newUser);
+        return newUser;
+    }
+}
+
+export const exp11 = () => {
+    console.log();
+    console.log(
+        '-----------------------Decorator Evaluation-----------------------',
+    );
+    console.log(
+        '-----------------------Provide mandatory validation for the username parameter.-----------------------',
+    );
+    console.log();
+    const user = new UserService();
+    user.createUser();
+    console.log(user.getUsers());
+    console.log();
+    console.log(
+        '-----------------------End-----------------------',
+    );
+};
+```

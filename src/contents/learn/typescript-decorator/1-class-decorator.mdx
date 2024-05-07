@@ -1,0 +1,162 @@
+---
+id: 1
+title: '2. Class Decorator'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-02-29'
+updated_at: '2024-02-29'
+is_playground: false
+is_comment: false
+---
+
+## Class decorator
+
+[Official TS Docs](https://www.typescriptlang.org/docs/handbook/decorators.html) provide an example of a class decorator that you can look at, too. Class decorators just pass our original class into the decorator annotation to process the class or the class prototype. That's it.
+
+```typescript
+const HelloDerorator = <T extends new (...args: any[]) => any>(
+    constructor: T,
+) => {
+    return class extends constructor {
+        newProperty = 'new property';
+        hello = 'override';
+        sayHello() {
+            return this.hello;
+        }
+    };
+};
+
+@HelloDerorator
+export class Hello {
+    [key: string]: any; // This is used to prevent eslint from prompting that the sayHello method does not exist
+    hello: string;
+    constructor() {
+        this.hello = 'test';
+    }
+}
+
+const exp2 = () => {
+    console.log(
+        '-----------------------Simple Class Decorators-----------------------',
+    );
+    console.log(
+        '-----------------------Dynamically add a sayHello method and override the value of hello.-----------------------',
+    );
+    console.log();
+    const hello = new Hello();
+    console.log(hello.sayHello());
+    console.log();
+    console.log('-----------------------End-----------------------');
+};
+
+
+// console override
+```
+
+
+
+## Decorator Factory
+
+The above method adds a `HelloDerorator` decorator to the `UserService`, and the properties of this decorator will override the default properties of the `UserService`. In order to conveniently add other parameters to the decorator, we transform `HelloDerorator` into a decorator factory as follows:
+
+```typescript
+const SetNameDecorator = (firstname: string, lastname: string) => {
+    const name = `${firstname}.${lastname}`;
+    return <T extends new (...args: any[]) => any>(target: T) => {
+        return class extends target {
+            _name: string = name;
+
+            getMyName() {
+                return this._name;
+            }
+        };
+    };
+};
+
+@SetNameDecorator('Brian', 'Shen')
+class UserService {
+    c() {}
+}
+
+const exp3 = () => {
+    console.log();
+    console.log(
+        '-----------------------Decorator Factory-----------------------',
+    );
+    console.log(
+        '-----------------------Override the getName method through inheritance-----------------------',
+    );
+    console.log();
+    const user = new UserService();
+    console.log(user.getMyName());
+    console.log();
+    console.log('-----------------------End-----------------------');
+};
+
+// console Brian.Shen
+```
+
+
+
+## Other usages
+
+We can also assign or override properties or methods on the class prototype chain `prototype`, as well as static properties and methods of the class itself. We can also overload the constructor function.
+
+```typescript
+type UserProfile = Record<string, any> & {
+    phone?: number;
+    address?: string;
+};
+
+const ProfileDecorator = (profile: UserProfile) => (target: any) => {
+    const Original = target;
+    let userinfo = '';
+    Object.keys(profile).forEach((key) => {
+        userinfo = `${userinfo}.${profile[key].toString()}`;
+    });
+    // Add a prototype property
+    Original.prototype.userinfo = userinfo;
+    // Use a function to create a new class (class constructor), with the return value being an object of the passed-in class, thus overloading the constructor.
+    function constructor(...args: any[]) {
+        console.log('contruct has been changed');
+        return new Original(...args);
+    }
+    // Assignment of prototypes
+    constructor.prototype = Original.prototype;
+    // Add a static property
+    constructor.myinfo = `myinfo ${userinfo}`;
+    return constructor as typeof Original;
+};
+
+// ecause static properties cannot obtain type prompts through [key: string]: any;, an interface is added here to dynamically add static properties of various types
+interface StaticUser {
+    new (): UserProfile;
+    myinfo: string;
+}
+
+@ProfileDecorator({ phone: 133, address: 'zhejiang' })
+class ProfileService {}
+
+const exp4 = () => {
+    console.log();
+    console.log(
+        '-----------------------The construction function, prototype properties, static properties, etc. of the repair class.-----------------------',
+    );
+    console.log(
+        '-----------------------Set prototype property values, overload constructor methods, add static properties.-----------------------',
+    );
+    console.log();
+    console.log((ProfileService as unknown as StaticUser).myinfo);
+    const profile = new ProfileService();
+    console.log((profile as any).userinfo);
+    console.log();
+    console.log('-----------------------End-----------------------');
+};
+exp4();
+// console myinfo .133.zhejiang
+// console contruct has been changed
+// console .133.zhejiang
+```

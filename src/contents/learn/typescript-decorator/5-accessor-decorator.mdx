@@ -1,0 +1,83 @@
+---
+id: 5
+title: '6. Accessor Decorator'
+category: 'Typescript Decorator'
+language: 'Typescript'
+difficulty: 'Medium'
+source: null
+source_url: null
+created_at: '2024-03-05'
+updated_at: '2024-03-05'
+is_playground: false
+is_comment: false
+---
+
+Accessor is actually just a method with the prefix "get" or "set", used to get and set some properties in a way that calls the property. The usage of decorators is no different from regular methods, except that when getting the value, it calls the "get" and "set" of the descriptor to replace the value. For example, if we add a field "_nickname_", we can add a custom prefix to set "_nickname_" and prevent the value of "_nickname_" from appearing when iterating through the "_user_" object. We can also add a field "_fullname_" and generate a string suffix when setting "_nickname_".
+
+```typescript
+
+export const HiddenDecorator = () => {
+    return (
+        target: any,
+        propertyName: string,
+        descriptor: PropertyDescriptor,
+    ) => {
+        descriptor.enumerable = false;
+    };
+};
+
+export const PrefixDecorator = (prefix: string) => {
+    return (
+        target: any,
+        propertyName: string,
+        descriptor: PropertyDescriptor,
+    ) => {
+        return {
+            ...descriptor,
+            set(value: string) {
+                descriptor.set.apply(this, [`${prefix}_${value}`]);
+            },
+        };
+    };
+};
+
+export class UserEntity {
+    private _nickname: string;
+    private fullname: string;
+
+    @HiddenDecorator()
+    @PrefixDecorator('Shen ')
+    get nickname() {
+        return this._nickname;
+    }
+
+    set nickname(value: string) {
+        this._nickname = value;
+        this.fullname = `${value}_fullname`;
+    }
+}
+
+export const exp78 = () => {
+    // ...
+
+    console.log();
+    console.log(
+        '-----------------------Accessor Decorator-----------------------',
+    );
+    console.log(
+        '-----------------------prohibit nickname show when iterating through UserEntity-----------',
+    );
+  console.log(
+        '-----------------------Add a prefix to the nickname.-----------------------',
+    );
+    console.log();
+    const user = new UserEntity();
+
+    user.nickname = 'brian';
+    console.log(user);
+    console.log(user.nickname);
+    console.log();
+    console.log('-----------------------End-----------------------');
+};
+
+```
