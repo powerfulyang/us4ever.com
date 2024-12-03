@@ -1,18 +1,36 @@
-# 使用 Node.js LTS 版本镜像
-FROM node:lts
+# 构建阶段
+FROM node:lts AS builder
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制项目文件到容器中
+# 复制其余源代码
 COPY . .
 
 # 安装 pnpm
+RUN npm install -g pnpm
 # 安装依赖
-# build
-RUN npm install -g pnpm && \
-    pnpm install && \
-    pnpm run build
+RUN pnpm install --frozen-lockfile
+# 构建
+RUN pnpm run build
 
-# 容器启动命令（可选，根据项目需求调整）
-CMD ["pnpm","run","start"]
+# 生产阶段
+FROM node:lts AS production
+
+WORKDIR /app
+
+# 复制 prisma
+COPY prisma ./prisma
+# 复制 public 文件夹
+COPY public ./public
+# 复制 package.json, pnpm-lock.yaml, prisma 文件夹
+COPY package.json pnpm-lock.yaml ./
+# 从构建阶段复制构建产物
+COPY --from=builder /app/.next ./.next
+
+# 安装 pnpm 和生产依赖
+RUN npm install -g pnpm && \
+    pnpm install --prod --frozen-lockfile
+
+# 启动命令
+CMD ["pnpm", "run", "start"]

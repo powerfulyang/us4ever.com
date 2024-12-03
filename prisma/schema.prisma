@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -7,14 +7,136 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-  // Further reading:
-  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-  url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL") // 从环境变量中读取数据库连接 URL
 }
 
-model Asset {
-  id String @id @default(uuid())
+enum Provider {
+  R2 // Cloudflare R2
+  TENCENT_COS // 腾讯云 COS
+  ORACLE_OSS // Oracle OSS
+}
 
-  @@map("asset")
+model Bucket {
+  id          String   @id @default(uuid()) // 主键，UUID 自动生成
+  name        String   @unique // Bucket 名称唯一
+  bucketName  String // Bucket 名称
+  provider    Provider // Bucket 类型
+  region      String // S3 或其他云服务的区域
+  endpoint    String // 自定义 API 访问地址
+  publicUrl   String // 访问域名
+  accessKey   String // 访问密钥，需加密存储
+  secretKey   String // 私密密钥，需加密存储
+  description String   @default("") // 存储桶描述
+  createdAt   DateTime @default(now()) // 创建时间
+  updatedAt   DateTime @updatedAt // 更新时间，自动更新
+  ownerId     String // 所属用户
+  files       File[] // 关联到文件表，一对多关系
+
+  @@map("buckets") // 数据库中的表名为 buckets
+}
+
+model File {
+  id          String   @id @default(uuid()) // 主键，UUID 自动生成
+  bucketId    String // 所属 bucket 的 ID
+  bucket      Bucket   @relation(fields: [bucketId], references: [id]) // 关联到 Bucket 表
+  name        String // 文件名称
+  type        String // 文件类型（如 image/jpeg）
+  hash        String // 文件的 SHA256 哈希值
+  size        BigInt // 文件大小（以字节为单位）
+  path        String // 文件存储路径或 URL
+  isPublic    Boolean  @default(false) // 是否公开
+  uploadedBy  String // 上传用户的 ID
+  description String   @default("") // 文件描述
+  tags        Json     @default("[]") // 文件标签
+  createdAt   DateTime @default(now()) // 创建时间
+  updatedAt   DateTime @updatedAt // 更新时间，自动更新
+
+  // 320x 缩略图
+  thumbnail_320x_image Image[] @relation(name: "thumbnail_320x")
+  // 768x 缩略图
+  thumbnail_768x_image Image[] @relation(name: "thumbnail_768x")
+  // 原大小压缩图
+  compressed_image     Image[] @relation(name: "compressed")
+  // 原图
+  original_image       Image[] @relation(name: "original")
+
+  @@map("files") // 数据库中的表名为 files
+}
+
+model Image {
+  id                String   @id @default(uuid()) // 主键，UUID 自��生成
+  // 原始文件名
+  name              String
+  // 文件类型
+  type              String
+  // 文件大小
+  size              BigInt
+  // 图片的宽度
+  width             Int
+  // 图片的高度
+  height            Int
+  // 图片的 exif 信息
+  exif              Json     @default("{}")
+  // sha256
+  hash              String
+  // exif address
+  address           String   @default("")
+  // 是否公开
+  isPublic          Boolean  @default(false)
+  // 图片描述
+  description       String   @default("")
+  // 图片标签
+  tags              Json     @default("[]")
+  // 10x 缩略图
+  thumbnail_10x     Bytes
+  // 320x 缩略图
+  thumbnail_320x_id String
+  thumbnail_320x    File     @relation(name: "thumbnail_320x", fields: [thumbnail_320x_id], references: [id])
+  // 768x 缩略图
+  thumbnail_768x_id String
+  thumbnail_768x    File     @relation(name: "thumbnail_768x", fields: [thumbnail_768x_id], references: [id])
+  // 原大小压缩图
+  compressed_id     String
+  compressed        File     @relation(name: "compressed", fields: [compressed_id], references: [id])
+  // 原图
+  original_id       String
+  original          File     @relation(name: "original", fields: [original_id], references: [id])
+  createdAt         DateTime @default(now()) // 创建时间
+  updatedAt         DateTime @updatedAt // 更新时间，自动更新
+
+  uploadedBy String // 上传用户的 ID
+
+  @@map("images") // 数据库中的表名为 uploads
+}
+
+model Keep {
+  id        String   @id @default(uuid()) // 主键，UUID 自动生成
+  title     String   @default("") // 笔记标题
+  content   String // 笔记内容
+  isPublic  Boolean  @default(false) // 是否公开
+  tags      Json     @default("[]") // 笔记标签
+  createdAt DateTime @default(now()) // 创建时间
+  updatedAt DateTime @updatedAt // 更新时间，自动更新
+  ownerId   String // 所属用户
+  category  String   @default("default") // 笔记分类
+  views     Int      @default(0) // 查看次数
+  likes     Int      @default(0) // 点赞数
+
+  @@map("keeps")
+}
+
+model Todo {
+  id        String    @id @default(uuid())
+  title     String
+  content   String?
+  status    Boolean   @default(false)
+  priority  Int       @default(0)
+  dueDate   DateTime?
+  isPublic  Boolean   @default(false)
+  pinned    Boolean   @default(false)
+  ownerId   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("todos")
 }

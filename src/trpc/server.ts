@@ -2,7 +2,7 @@ import { type AppRouter, createCaller } from '@/server/api/root'
 
 import { createTRPCContext } from '@/server/api/trpc'
 import { createHydrationHelpers } from '@trpc/react-query/rsc'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 
 import { cache } from 'react'
 import { createQueryClient } from './query-client'
@@ -13,11 +13,12 @@ import 'server-only'
  * handling a tRPC call from a React Server Component.
  */
 const createContext = cache(async () => {
-  const heads = new Headers(await headers())
-  heads.set('x-trpc-source', 'rsc')
+  const _headers = await headers()
+  const _cookies = await cookies()
 
   return createTRPCContext({
-    headers: heads,
+    headers: _headers,
+    cookies: _cookies,
   })
 })
 

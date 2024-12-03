@@ -1,24 +1,44 @@
-import type { Metadata } from 'next'
-
-import type { ReactNode } from 'react'
+import type { Metadata, Viewport } from 'next'
 import { TRPCReactProvider } from '@/trpc/react'
+import Script from 'next/script'
+import React from 'react'
+import { ToastContainer } from 'react-toastify'
 
-import { GeistSans } from 'geist/font/sans'
-import '@/styles/globals.css'
+import '@/styles/globals.scss'
+import 'react-toastify/dist/ReactToastify.css'
 
 export const metadata: Metadata = {
-  title: 'API.US4EVER',
-  description: 'API FOR US4EVER',
+  title: 'Resource Hub',
+  description: 'A comprehensive hub for developers and tech enthusiasts, featuring coding tutorials, tools, libraries, and industry insights.',
   icons: [{ rel: 'icon', url: '/favicon.ico' }],
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#4f46e5',
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: ReactNode }>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" className={`${GeistSans.variable}`}>
+    <html lang="en">
+      <Script
+        defer
+        src="https://umami.us4ever.com/script.js"
+        data-website-id="650103e6-dc4e-4c71-902d-110fdc3fc4e6"
+      >
+      </Script>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          {children}
+          <ToastContainer theme="colored" />
+        </TRPCReactProvider>
       </body>
     </html>
   )

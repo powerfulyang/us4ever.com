@@ -4,11 +4,18 @@ import type { AppRouter } from '@/server/api/root'
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 import type { ReactNode } from 'react'
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { loggerLink, unstable_httpBatchStreamLink } from '@trpc/client'
+import {
+  httpBatchLink,
+  httpLink,
+  isNonJsonSerializable,
+  loggerLink,
+  splitLink,
+} from '@trpc/client'
 import { createTRPCReact } from '@trpc/react-query'
+import { defaultTransformer } from '@trpc/server/unstable-core-do-not-import'
 import { useState } from 'react'
-
 import SuperJSON from 'superjson'
+
 import { createQueryClient } from './query-client'
 
 let clientQueryClientSingleton: QueryClient | undefined
@@ -21,7 +28,9 @@ function getQueryClient() {
   return (clientQueryClientSingleton ??= createQueryClient())
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const api = createTRPCReact<AppRouter>()
+const Provider = api.Provider
 
 /**
  * Inference helper for inputs.
@@ -40,32 +49,37 @@ export type RouterOutputs = inferRouterOutputs<AppRouter>
 export function TRPCReactProvider(props: { children: ReactNode }) {
   const queryClient = getQueryClient()
 
-  const [trpcClient] = useState(() =>
-    api.createClient({
+  const [trpcClient] = useState(() => {
+    const url = `${getBaseUrl()}/api/trpc`
+    return api.createClient({
       links: [
         loggerLink({
           enabled: op =>
             process.env.NODE_ENV === 'development'
             || (op.direction === 'down' && op.result instanceof Error),
         }),
-        unstable_httpBatchStreamLink({
-          transformer: SuperJSON,
-          url: `${getBaseUrl()}/api/trpc`,
-          headers: () => {
-            const headers = new Headers()
-            headers.set('x-trpc-source', 'nextjs-react')
-            return headers
-          },
+        splitLink({
+          condition: op => isNonJsonSerializable(op.input),
+          true: httpLink({
+            transformer: defaultTransformer,
+            url,
+          }),
+          false: httpBatchLink({
+            transformer: SuperJSON,
+            url,
+          }),
         }),
       ],
-    }),
-  )
+    })
+  })
+
+  const { children } = props
 
   return (
     <QueryClientProvider client={queryClient}>
-      <api.Provider client={trpcClient} queryClient={queryClient}>
-        {props.children}
-      </api.Provider>
+      <Provider client={trpcClient} queryClient={queryClient}>
+        {children}
+      </Provider>
     </QueryClientProvider>
   )
 }

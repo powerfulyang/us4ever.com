@@ -1,0 +1,57 @@
+.pre {
+  @apply relative mb-4 overflow-hidden rounded-lg;
+
+  div {
+    &:nth-child(2)::-webkit-scrollbar-thumb {
+      background: #777;
+    }
+  }
+
+  pre > code {
+    @apply text-purple-300;
+  }
+
+  &:has(> span) {
+    @apply mb-4;
+
+    white-space: normal;
+  }
+}
+
+.toolbar {
+  position: relative;
+  height: 2rem;
+  width: 100%;
+  background-color: rgb(34 31 31);
+
+  @apply flex align-middle text-blue-400;
+
+  .toolbarLanguage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: text;
+  }
+
+  .toolbarAction {
+    margin-left: auto;
+    line-height: 2rem;
+
+    @apply mr-2;
+  }
+
+  &::before {
+    position: absolute;
+    top: 50%;
+    width: 11px;
+    height: 11px;
+    background: #fc625d;
+    border-radius: 50%;
+    box-shadow:
+      20px 0 #fdbc40,
+      40px 0 #35cd4b;
+    transform: translate(50%, -50%);
+    content: ' ';
+  }
+}

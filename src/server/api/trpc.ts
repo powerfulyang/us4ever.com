@@ -7,11 +7,21 @@
  * need to use are documented accordingly near the end.
  */
 
+import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
+import { COOKIE_NAME } from '@/app/api/[[...route]]/route'
+import { env } from '@/env'
 import { db } from '@/server/db'
-import { initTRPC } from '@trpc/server'
-import superjson from 'superjson'
 
+import { initTRPC } from '@trpc/server'
+import { verify } from 'hono/jwt'
+import superjson from 'superjson'
 import { ZodError } from 'zod'
+
+interface User {
+  id: string
+  nickname: string
+  avatar: string
+}
 
 /**
  * 1. CONTEXT
@@ -25,7 +35,10 @@ import { ZodError } from 'zod'
  *
  * @see https://trpc.io/docs/server/context
  */
-export async function createTRPCContext(opts: { headers: Headers }) {
+export async function createTRPCContext(opts: {
+  headers: Headers
+  cookies: ReadonlyRequestCookies
+}) {
   return {
     db,
     ...opts,
@@ -104,7 +117,33 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure.use(timingMiddleware)
+export const publicProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(async ({ ctx, next }) => {
+    // 从 cookie 或者 header 或者 url 上的 token 字段获取用户凭证
+    const token = ctx.cookies.get(COOKIE_NAME)?.value || ctx.headers.get(COOKIE_NAME)
+    let user = null
+    const secret = env.JWT_SECRET
+    if (!secret) {
+      throw new Error('JWT_SECRET is not set')
+    }
+    if (token) {
+      try {
+        const res = await verify(token, secret) as { user: User }
+        user = res.user
+      }
+      catch {
+        // ignore
+      }
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        user,
+      },
+    })
+  })
 
 /**
  * Protected (authenticated) procedure
@@ -116,12 +155,22 @@ export const publicProcedure = t.procedure.use(timingMiddleware)
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
-  .use(({ ctx, next }) => {
-    console.log(ctx)
+  .use(async ({ ctx, next }) => {
+    // 从 cookie 或者 header 或者 url 上的 token 字段获取用户凭证
+    const token = ctx.cookies.get(COOKIE_NAME)?.value || ctx.headers.get(COOKIE_NAME)
+    if (!token) {
+      throw new Error('Unauthorized')
+    }
+    const secret = env.JWT_SECRET
+    if (!secret) {
+      throw new Error('JWT_SECRET is not set')
+    }
+    const { user } = await verify(token, secret) as { user: User }
+
     return next({
       ctx: {
-        // infers the `session` as non-nullable
-        user: {},
+        ...ctx,
+        user,
       },
     })
   })
