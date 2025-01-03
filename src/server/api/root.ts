@@ -1,3 +1,4 @@
+import { aiRouter } from '@/server/api/routers/ai'
 import { assetRouter } from '@/server/api/routers/asset'
 import { keepRouter } from '@/server/api/routers/keep'
 import { userRouter } from '@/server/api/routers/user'
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   user: userRouter,
   keep: keepRouter,
   todo: todoRouter,
+  ai: aiRouter,
 })
 
 // export type definition of API

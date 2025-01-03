@@ -2,8 +2,33 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/
 import { z } from 'zod'
 
 export const keepRouter = createTRPCRouter({
-  list: publicProcedure
+  total: publicProcedure
     .query(async ({ ctx }) => {
+      return await ctx.db.keep.count({
+        where: {
+          OR: [
+            {
+              ownerId: ctx.user?.id,
+            },
+            {
+              isPublic: true,
+            },
+          ],
+        },
+      })
+    }),
+
+  list: publicProcedure
+    .input(
+      z.object({
+        start: z.number().default(0),
+        end: z.number().default(50000),
+      }).default({
+        start: 0,
+        end: 50000,
+      }),
+    )
+    .query(async ({ ctx, input }) => {
       return await ctx.db.keep.findMany({
         where: {
           OR: [
@@ -18,6 +43,8 @@ export const keepRouter = createTRPCRouter({
         orderBy: {
           createdAt: 'desc',
         },
+        skip: input.start,
+        take: input.end - input.start,
       })
     }),
 

@@ -1,8 +1,10 @@
 'use client'
 
-import KeepCard from '@/components/keep/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
+import dayjs from 'dayjs'
+import Link from 'next/link'
+import { Card } from '../ui/card'
 
 export function KeepList() {
   const { isPending, data: notes } = api.keep.list.useQuery()
@@ -29,10 +31,29 @@ export function KeepList() {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-6 pb-10">
-      {notes.map(note => (
-        <KeepCard key={note.id} note={note} />
-      ))}
+    <div className="flex justify-center mt-6">
+      <div className="space-y-3 max-w-3xl w-full p-4">
+        {notes.map(note => (
+          <Link key={note.id} href={`/keep/${note.id}`} className="block">
+            <Card className="flex flex-col px-6 py-3 hover:scale-[1.02] transition-all duration-200 cursor-pointer hover:shadow-lg hover:shadow-purple-500/10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-200 text-lg">{note.title}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded ${note.isPublic ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                    {note.isPublic ? '公开' : '私密'}
+                  </span>
+                </div>
+                <time className="text-sm text-gray-400">
+                  {dayjs(note.createdAt).format('YYYY-MM-DD HH:mm')}
+                </time>
+              </div>
+              <p className="text-gray-400 text-sm mt-2 line-clamp-3">
+                {note.content}
+              </p>
+            </Card>
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }

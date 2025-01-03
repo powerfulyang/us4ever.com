@@ -13,6 +13,7 @@ export const env = createEnv({
     DATABASE_URL: z.string().url(),
     JWT_SECRET: z.string().min(1),
     AMAP_KEY: z.string().min(1),
+    GEMINI_API_KEY: z.string().min(1),
   },
 
   /**
@@ -33,6 +34,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     JWT_SECRET: process.env.JWT_SECRET,
     AMAP_KEY: process.env.AMAP_KEY,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
