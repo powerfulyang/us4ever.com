@@ -113,6 +113,7 @@ model Keep {
   id        String   @id @default(uuid()) // 主键，UUID 自动生成
   title     String   @default("") // 笔记标题
   content   String // 笔记内容
+  summary   String   @default("") // 笔记摘要
   isPublic  Boolean  @default(false) // 是否公开
   tags      Json     @default("[]") // 笔记标签
   createdAt DateTime @default(now()) // 创建时间

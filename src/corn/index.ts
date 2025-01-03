@@ -1,4 +1,4 @@
-import { summaryTitle } from '@/lib/gemini'
+import { extractTitle, summaryContent } from '@/lib/gemini'
 import { db } from '@/server/db'
 import { catchError, concatMap, from, interval, of, retry } from 'rxjs'
 
@@ -10,7 +10,16 @@ interval(1000 * 60)
         (async () => {
           // 获取需要更新标题的记录
           const keeps = await db.keep.findMany({
-            where: { title: '' },
+            where: {
+              OR: [
+                {
+                  title: '',
+                },
+                {
+                  summary: '',
+                },
+              ],
+            },
           })
 
           if (!keeps.length)
@@ -19,11 +28,12 @@ interval(1000 * 60)
           // 遍历记录并生成标题
           const updates = []
           for (const keep of keeps) {
-            const title = await summaryTitle(keep.content)
+            const title = await extractTitle(keep.content)
+            const summary = await summaryContent(keep.content)
             updates.push(
               db.keep.update({
                 where: { id: keep.id },
-                data: { title },
+                data: { title, summary },
               }),
             )
           }

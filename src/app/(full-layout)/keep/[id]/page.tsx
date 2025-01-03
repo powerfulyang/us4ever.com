@@ -8,15 +8,20 @@ import { api } from '@/trpc/server'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 
-export const metadata: Metadata = {
-  title: 'Keep - Detail',
-  description: 'Detail of a keep',
-}
-
 interface PageProps {
   params: Promise<{
     id: string
   }>
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const noteId = (await params).id
+  const note = await api.keep.get({ id: noteId })
+
+  return {
+    title: note?.title || 'keep - Detail',
+    description: note?.summary || 'keep - Description',
+  }
 }
 
 export default async function DetailPage({ params }: PageProps) {

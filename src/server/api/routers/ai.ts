@@ -1,4 +1,4 @@
-import { summaryTitle } from '@/lib/gemini'
+import { extractTitle } from '@/lib/gemini'
 import { createTRPCRouter, protectedProcedure } from '@/server/api/trpc'
 import { z } from 'zod'
 
@@ -10,6 +10,6 @@ export const aiRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      return await summaryTitle(input.text)
+      return await extractTitle(input.text)
     }),
 })
