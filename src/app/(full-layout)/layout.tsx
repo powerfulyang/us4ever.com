@@ -54,7 +54,7 @@ export default async function FullLayout({
                   href="https://github.com/pissy"
                   rel="noopener noreferrer"
                   target="_blank"
-                  className="text-gray-300 hover:text-white transition-colors pl-[1ch]"
+                  className="text-gray-300 hover:text-white transition-colors pl-[0.5ch]"
                 >
                   Pissy
                 </a>

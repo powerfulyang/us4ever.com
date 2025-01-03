@@ -4,8 +4,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 // 初始化 Google AI 实例
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
 
-// 使用 gemini-1.5-flash 模型,该模型适合快速生成简短内容
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+// 使用 gemini-1.5-pro 模型
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
 
 /**
  * 为给定内容生成简短标题

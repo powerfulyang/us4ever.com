@@ -1,55 +1,46 @@
 import { extractTitle, summaryContent } from '@/lib/gemini'
 import { db } from '@/server/db'
-import { catchError, concatMap, from, interval, of, retry } from 'rxjs'
+import { concatMap, interval } from 'rxjs'
 
-// 每 60 秒执行一次任务
-interval(1000 * 60)
+// 每 3分钟 执行一次任务，一次只处理一条
+interval(1000 * 60 * 3)
   .pipe(
-    concatMap(() =>
-      from(
-        (async () => {
-          // 获取需要更新标题的记录
-          const keeps = await db.keep.findMany({
-            where: {
-              OR: [
-                {
-                  title: '',
-                },
-                {
-                  summary: '',
-                },
-              ],
+    concatMap(async () => {
+      // 获取需要更新标题的记录
+      const keep = await db.keep.findFirst({
+        where: {
+          OR: [
+            {
+              title: '',
             },
-          })
+            {
+              summary: '',
+            },
+          ],
+        },
+      })
 
-          if (!keeps.length)
-            return 'No keeps to update.'
+      if (!keep)
+        return 'No keeps to update.'
 
-          // 遍历记录并生成标题
-          const updates = []
-          for (const keep of keeps) {
-            const title = await extractTitle(keep.content)
-            const summary = await summaryContent(keep.content)
-            updates.push(
-              db.keep.update({
-                where: { id: keep.id },
-                data: { title, summary },
-              }),
-            )
-          }
-
-          // 等待所有更新完成
-          await Promise.all(updates)
-          return `${keeps.length} keeps updated successfully.`
-        })(),
-      ).pipe(
-        catchError((err) => {
-          console.error('Error updating keeps:', err)
-          return of('Error occurred.')
-        }),
-      ),
-    ),
-    retry(3),
+      // 遍历记录并生成标题
+      if (!keep.title) {
+        const title = await extractTitle(keep.content)
+        const result = await db.keep.update({
+          where: { id: keep.id },
+          data: { title },
+        })
+        return `${result.id}[${result.title}] updated successfully.`
+      }
+      if (!keep.summary) {
+        const summary = await summaryContent(keep.content)
+        const result = await db.keep.update({
+          where: { id: keep.id },
+          data: { summary },
+        })
+        return `${result.id}[${result.title}] updated successfully.`
+      }
+    }),
   )
   .subscribe({
     next: result => console.log(result),
