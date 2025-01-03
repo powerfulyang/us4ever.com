@@ -23,7 +23,7 @@ const sitemapData: SitemapData = {
         loc: [`${BASE_URL}/application/sitemap.xml`],
       },
       {
-        loc: [`${BASE_URL}/keep/sitemap/0.xml`],
+        loc: [`${BASE_URL}/keep/sitemap.xml`],
       },
     ],
   },
