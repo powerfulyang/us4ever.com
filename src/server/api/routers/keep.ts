@@ -2,22 +2,6 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/
 import { z } from 'zod'
 
 export const keepRouter = createTRPCRouter({
-  total: publicProcedure
-    .query(async ({ ctx }) => {
-      return await ctx.db.keep.count({
-        where: {
-          OR: [
-            {
-              ownerId: ctx.user?.id,
-            },
-            {
-              isPublic: true,
-            },
-          ],
-        },
-      })
-    }),
-
   list: publicProcedure
     .input(
       z.object({
@@ -77,6 +61,9 @@ export const keepRouter = createTRPCRouter({
         data: {
           content: input.content,
           isPublic: input.isPublic,
+          // 清空 title 和 summary
+          title: '',
+          summary: '',
         },
       })
     }),
