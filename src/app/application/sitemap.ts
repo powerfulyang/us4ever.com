@@ -5,7 +5,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: BASE_URL,
-      changeFrequency: 'monthly',
+      changeFrequency: 'daily',
       priority: 1,
     },
     {
@@ -35,6 +35,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${BASE_URL}/draw`,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${BASE_URL}/demo/upload`,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
