@@ -3,6 +3,7 @@
 import type { AppRouter } from '@/server/api/root'
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 import type { ReactNode } from 'react'
+import { errorToastLink } from '@/trpc/errorToastLink'
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   httpBatchLink,
@@ -53,6 +54,7 @@ export function TRPCReactProvider(props: { children: ReactNode }) {
     const url = `${getBaseUrl()}/api/trpc`
     return api.createClient({
       links: [
+        errorToastLink,
         loggerLink({
           enabled: op =>
             process.env.NODE_ENV === 'development'

@@ -11,8 +11,9 @@ import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension
 import { COOKIE_NAME } from '@/app/api/[[...route]]/route'
 import { env } from '@/env'
 import { db } from '@/server/db'
-
 import { initTRPC } from '@trpc/server'
+
+import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
@@ -55,6 +56,15 @@ export async function createTRPCContext(opts: {
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
+    if (error.cause instanceof HTTPException) {
+      return {
+        ...shape,
+        data: {
+          ...shape.data,
+          httpStatus: error.cause.status,
+        },
+      }
+    }
     return {
       ...shape,
       data: {
@@ -165,12 +175,18 @@ export const protectedProcedure = t.procedure
     if (!secret) {
       throw new Error('JWT_SECRET is not set')
     }
-    const { user } = await verify(token, secret) as { user: User }
-
-    return next({
-      ctx: {
-        ...ctx,
-        user,
-      },
-    })
+    try {
+      const { user } = await verify(token, secret) as { user: User }
+      return next({
+        ctx: {
+          ...ctx,
+          user,
+        },
+      })
+    }
+    catch {
+      throw new HTTPException(401, {
+        message: 'Unauthorized',
+      })
+    }
   })

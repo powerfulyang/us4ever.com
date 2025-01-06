@@ -171,7 +171,7 @@ function LinkGrid({ links, title }: { links: typeof appLinks, title: string }) {
 export default function Home() {
   return (
     <HydrateClient>
-      <div className="space-y-12">
+      <div className="space-y-8">
         <LinkGrid links={appLinks} title="应用" />
         <LinkGrid links={toolLinks} title="工具" />
       </div>

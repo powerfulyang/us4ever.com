@@ -33,7 +33,7 @@ export function KeepList() {
 
   return (
     <div className="flex justify-center mt-6">
-      <div className="flex flex-col gap-4 max-w-3xl w-full">
+      <div className="flex flex-col gap-6 max-w-3xl w-full">
         {notes.map(note => (
           <Link key={note.id} href={`/keep/${note.id}`}>
             <Card className="flex flex-col px-6 py-3 gap-2 hover:scale-[1.02] transition-all duration-200 cursor-pointer hover:shadow-lg hover:shadow-purple-500/10">

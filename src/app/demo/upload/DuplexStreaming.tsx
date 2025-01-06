@@ -54,7 +54,7 @@ export function DuplexStreaming() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">File Upload Progress Demo - Using Fetch Duplex Streaming</h1>
 
       <div className="space-y-6">
