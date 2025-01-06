@@ -2,6 +2,7 @@
 
 import { PrismCode } from '@/components/md-render/PrismCode'
 import { cn } from '@/utils'
+import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
@@ -28,6 +29,19 @@ export function Pre({ node }: PreProps) {
   return <PrismCode language={language}>{value}</PrismCode>
 }
 
+interface LinkProps {
+  href?: string
+  children?: React.ReactNode
+}
+
+function Link({ href, children }: LinkProps) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  )
+}
+
 interface Props {
   children: string
   className?: string
@@ -46,6 +60,7 @@ export function MdRender({ children, className }: Props) {
       ]}
       components={{
         pre: Pre,
+        a: Link,
       }}
     >
       {children}
