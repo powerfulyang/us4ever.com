@@ -141,3 +141,18 @@ model Todo {
 
   @@map("todos")
 }
+
+model MindMap {
+  id           String   @id @default(uuid())
+  title        String   @default("")
+  content      Json // 存储解析后的 xmind JSON 数据
+  isPublic     Boolean  @default(false)
+  tags         Json     @default("[]")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  ownerId      String
+  views        Int      @default(0)
+  likes        Int      @default(0)
+
+  @@map("mindmaps")
+}

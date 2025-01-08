@@ -1,18 +1,10 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
 
 export const keepRouter = createTRPCRouter({
   list: publicProcedure
-    .input(
-      z.object({
-        start: z.number().default(0),
-        end: z.number().default(50000),
-      }).default({
-        start: 0,
-        end: 50000,
-      }),
-    )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx }) => {
       return await ctx.db.keep.findMany({
         where: {
           OR: [
@@ -27,8 +19,6 @@ export const keepRouter = createTRPCRouter({
         orderBy: {
           createdAt: 'desc',
         },
-        skip: input.start,
-        take: input.end - input.start,
       })
     }),
 
@@ -73,11 +63,28 @@ export const keepRouter = createTRPCRouter({
       id: z.string(),
     }))
     .query(async ({ input, ctx }) => {
-      return await ctx.db.keep.findUnique({
+      const keep = await ctx.db.keep.findUnique({
         where: {
           id: input.id,
-          ownerId: ctx.user?.id,
+          OR: [
+            { ownerId: ctx.user?.id },
+            { isPublic: true },
+          ],
         },
       })
+
+      if (!keep) {
+        throw new HTTPException(404, {
+          message: 'Keep not found',
+        })
+      }
+
+      // 更新浏览次数
+      await ctx.db.keep.update({
+        where: { id: input.id },
+        data: { views: { increment: 1 } },
+      })
+
+      return keep
     }),
 })
