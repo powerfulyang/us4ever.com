@@ -1,11 +1,13 @@
 'use client'
 
 import type { Keep } from '@prisma/client'
+
 import { Back } from '@/components/keep/back'
 import { MdRender } from '@/components/md-render'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
 import { loader } from '@monaco-editor/react'
 import dynamic from 'next/dynamic'
@@ -92,19 +94,11 @@ export default function KeepEditor({ note }: KeepEditorProps) {
             >
               {id ? '编辑笔记' : '新建笔记'}
             </h1>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isPublic}
-                onChange={e => setIsPublic(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div
-                className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-pink-500 peer-checked:via-purple-500 peer-checked:to-indigo-500"
-              >
-              </div>
-              <span className="ms-3 text-sm font-medium text-gray-300">公开</span>
-            </label>
+            <Switch
+              checked={isPublic}
+              onCheckedChange={setIsPublic}
+              disabled={isPending}
+            />
           </div>
           <Button
             onClick={handleSave}
@@ -121,7 +115,10 @@ export default function KeepEditor({ note }: KeepEditorProps) {
             language="markdown"
             onChange={v => setContent(v || '')}
             options={{
-              minimap: {
+              minimap: { enabled: false },
+              wordWrap: 'on',
+              fontFamily: 'Fira Code, sans-serif',
+              pasteAs: {
                 enabled: false,
               },
             }}

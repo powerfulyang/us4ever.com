@@ -10,7 +10,6 @@ export const errorToastLink: TRPCLink<AppRouter> = () => {
     // this is when passing the result to the next link
     // each link needs to return an observable which propagates results
     return observable((observer) => {
-      console.log('performing operation:', op)
       return next(op).subscribe({
         next(value) {
           // console.log("we received value", value);

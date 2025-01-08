@@ -49,8 +49,12 @@ export const mindmapRouter = createTRPCRouter({
         where: { id: input.id },
         data: { views: { increment: 1 } },
       })
+      const editable = mindmap.ownerId === ctx.user?.id
 
-      return mindmap
+      return {
+        ...mindmap,
+        editable,
+      }
     }),
 
   createByXmind: protectedProcedure

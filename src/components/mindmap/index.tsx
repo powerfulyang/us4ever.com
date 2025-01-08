@@ -26,6 +26,7 @@ import TouchEvent from 'simple-mind-map/src/plugins/TouchEvent.js'
 import Watermark from 'simple-mind-map/src/plugins/Watermark.js'
 
 // 注册插件
+// eslint-disable-next-line react-hooks/rules-of-hooks
 MindMap.usePlugin(MiniMap)
   .usePlugin(Watermark)
   .usePlugin(Drag)
@@ -50,20 +51,20 @@ Themes.init(MindMap)
 
 interface MindMapProps {
   data: any
+  editable?: boolean
 }
 
-export function MindMapView({ data }: MindMapProps) {
+export default function MindMapView({ data, editable }: MindMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mindMapRef = useRef<MindMap | null>(null)
   const { showNote } = useNoteStore()
 
   useEffect(() => {
-    console.log(1)
     mindMapRef.current = new MindMap({
       el: containerRef.current,
       theme: 'classic13',
       layout: 'mindMap',
-      fit: false,
+      fit: true,
       nodeTextEditZIndex: 1000,
       nodeNoteTooltipZIndex: 1000,
       customNoteContentShow: {
@@ -77,6 +78,7 @@ export function MindMapView({ data }: MindMapProps) {
       openPerformance: true,
       openRealtimeRenderOnNodeTextEdit: true,
       enableAutoEnterTextEditWhenKeydown: true,
+      readonly: !editable,
     } as never)
 
     return () => {
@@ -92,7 +94,7 @@ export function MindMapView({ data }: MindMapProps) {
 
   return (
     <>
-      <div ref={containerRef} className="w-full h-full min-h-[500px]" />
+      <div ref={containerRef} className="w-full h-full min-h-100dvh" />
       <CustomNoteContent />
     </>
   )

@@ -1,17 +1,28 @@
+import type { Metadata } from 'next'
 import { api } from '@/trpc/server'
 import { MindMapDetailPage } from './components'
 
-interface Props {
+interface PageProps {
   params: Promise<{
     id: string
   }>
 }
 
-export default async function Page({ params }: Props) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const id = (await params).id
-  const { content } = await api.mindmap.getById({ id })
+  const { title, summary } = await api.mindmap.getById({ id })
+
+  return {
+    title: title || 'MindMap - Detail',
+    description: summary || 'MindMap - Description',
+  }
+}
+
+export default async function Page({ params }: PageProps) {
+  const id = (await params).id
+  const { content, editable } = await api.mindmap.getById({ id })
 
   return (
-    <MindMapDetailPage data={content} />
+    <MindMapDetailPage editable={editable} data={content} />
   )
 }

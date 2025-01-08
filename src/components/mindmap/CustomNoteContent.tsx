@@ -15,7 +15,7 @@ export function CustomNoteContent() {
     return null
 
   return createPortal(
-    // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
+
     <div
       ref={ref}
       className={styles.noteContent}

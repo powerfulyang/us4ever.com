@@ -4,8 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 // 初始化 Google AI 实例
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
 
-// 使用 gemini-1.5-pro 模型
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' })
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
 
 /**
  * 为给定内容生成简短标题
@@ -37,7 +36,8 @@ export async function extractTitle(content: string): Promise<string> {
  * @param content - 需要生成摘要的文本内容
  * @returns 返回生成的摘要
  */
-export async function summaryContent(content: string): Promise<string> {
+export async function summaryContent(content: string | string[]): Promise<string> {
+  const contentList = Array.isArray(content) ? content : [content]
   const prompt
   = `请为以下内容生成一个简明摘要:
   - 摘要长度不超过200个字符
@@ -45,7 +45,8 @@ export async function summaryContent(content: string): Promise<string> {
   - 使用清晰流畅的语言
   - 返回单个完整的摘要
   - 使用 markdown 格式输出，不使用标题，不使用引用`
+  console.log(contentList.join(''))
 
-  const result = await model.generateContent([prompt, content])
+  const result = await model.generateContent([prompt, ...contentList])
   return result.response.text()
 }
