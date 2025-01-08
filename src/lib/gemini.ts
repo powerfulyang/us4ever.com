@@ -44,7 +44,7 @@ export async function summaryContent(content: string): Promise<string> {
   - 保留内容的关键信息点
   - 使用清晰流畅的语言
   - 返回单个完整的摘要
-  - 使用 markdown 格式输出`
+  - 使用 markdown 格式输出，不使用标题，不使用引用`
 
   const result = await model.generateContent([prompt, content])
   return result.response.text()

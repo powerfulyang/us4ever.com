@@ -37,7 +37,8 @@
     ],
     "types": [
       "vitest/globals"
-    ]
+    ],
+    "useUnknownInCatchVariables": false
   },
   "include": [
     "eslint.config.js",
