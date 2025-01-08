@@ -53,6 +53,21 @@ export const mindmapRouter = createTRPCRouter({
       return mindmap
     }),
 
+  createByXmind: protectedProcedure
+    .input(z.object({
+      title: z.string().optional(),
+      content: z.record(z.any()),
+      isPublic: z.boolean().default(false),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.mindMap.create({
+        data: {
+          ...input,
+          ownerId: ctx.user.id,
+        },
+      })
+    }),
+
   update: protectedProcedure
     .input(z.object({
       id: z.string(),
