@@ -42,7 +42,7 @@ function MindMapCard({ mindmap }: { mindmap: MindMap }) {
                 {dayjs(mindmap.createdAt).format('YYYY-MM-DD HH:mm')}
               </time>
             </div>
-            <MdRender className="text-xs">
+            <MdRender className="text-sm">
               {mindmap.summary}
             </MdRender>
           </div>

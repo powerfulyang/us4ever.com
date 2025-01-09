@@ -42,7 +42,7 @@ function KeepCard({ keep }: { keep: any }) {
               {dayjs(keep.createdAt).format('YYYY-MM-DD HH:mm')}
             </time>
           </div>
-          <MdRender className="text-xs">
+          <MdRender className="text-sm">
             {keep.summary}
           </MdRender>
           <div className="flex items-center justify-between">

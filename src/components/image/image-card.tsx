@@ -79,7 +79,7 @@ export function ImageCard({ image }: { image: Image }) {
               )}
             >
               <img
-                src={thumb.url}
+                src={image.thumbnail_320x_url}
                 alt={thumb.label}
                 className="w-full aspect-square rounded object-cover"
               />
