@@ -2,7 +2,7 @@ import { env } from '@/env'
 import { extractText } from '@/lib/extractText'
 import { extractTitle, summaryContent } from '@/lib/gemini'
 import { db } from '@/server/db'
-import { concatMap, filter, interval, startWith, tap } from 'rxjs'
+import { concatMap, filter, interval, startWith } from 'rxjs'
 
 async function keepCorn() {
   // keep 相关总结
@@ -70,7 +70,6 @@ async function mindMapCorn() {
 interval(1000 * 60 * 3)
   .pipe(
     startWith(env.NODE_ENV),
-    tap(console.log),
     filter(value => value !== 'production'),
     concatMap(async () => {
       return (await keepCorn()) || (await mindMapCorn())

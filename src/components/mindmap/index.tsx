@@ -1,7 +1,7 @@
 'use client'
 
 import { CustomNoteContent } from '@/components/mindmap/CustomNoteContent'
-import { useNoteStore } from '@/store/note'
+import { useMindMapNoteStore } from '@/store/mind-map-note'
 import { useEffect, useRef } from 'react'
 import MindMap from 'simple-mind-map'
 import Themes from 'simple-mind-map-plugin-themes'
@@ -57,7 +57,7 @@ interface MindMapProps {
 export default function MindMapView({ data, editable }: MindMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mindMapRef = useRef<MindMap | null>(null)
-  const { showNote } = useNoteStore()
+  const { showNote } = useMindMapNoteStore()
 
   useEffect(() => {
     mindMapRef.current = new MindMap({
@@ -84,7 +84,7 @@ export default function MindMapView({ data, editable }: MindMapProps) {
     return () => {
       mindMapRef.current?.destroy()
     }
-  }, [showNote])
+  }, [editable, showNote])
 
   useEffect(() => {
     if (data) {
@@ -94,7 +94,7 @@ export default function MindMapView({ data, editable }: MindMapProps) {
 
   return (
     <>
-      <div ref={containerRef} className="w-full h-full min-h-100dvh" />
+      <div ref={containerRef} className="w-full h-full" />
       <CustomNoteContent />
     </>
   )

@@ -92,3 +92,11 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .children-pointer {
+    * {
+      cursor: pointer !important;
+    }
+  }
+}

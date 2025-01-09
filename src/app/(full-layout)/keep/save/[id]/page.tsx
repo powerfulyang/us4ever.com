@@ -14,8 +14,8 @@ interface PageProps {
 }
 
 export default async function UpdatePage({ params }: PageProps) {
-  const noteId = (await params).id
-  const note = await api.keep.get({ id: noteId })
+  const keepId = (await params).id
+  const keep = await api.keep.get({ id: keepId })
 
-  return <KeepEditor note={note} />
+  return <KeepEditor keep={keep} />
 }

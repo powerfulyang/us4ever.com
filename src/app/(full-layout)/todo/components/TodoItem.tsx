@@ -87,7 +87,7 @@ export function TodoItem({
             ref={contentRef}
             layout="position"
             className={cn(
-              'relative text-white break-words',
+              'relative text-white break-words whitespace-pre-wrap',
               !isExpanded && 'line-clamp-3',
               todo.status && 'line-through text-gray-400',
             )}

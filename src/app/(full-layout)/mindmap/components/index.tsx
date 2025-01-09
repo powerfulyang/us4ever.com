@@ -1,59 +1,60 @@
 'use client'
 
+import type { MindMap } from '@prisma/client'
+import { MdRender } from '@/components/md-render'
 import { Confirm } from '@/components/ui/confirm'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
 import dayjs from 'dayjs'
 import Link from 'next/link'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
-interface MindMapItem {
-  id: string
-  title: string
-  createdAt: Date
-  views: number
-  likes: number
-}
-
-function MindMapCard({ mindmap }: { mindmap: MindMapItem }) {
+function MindMapCard({ mindmap }: { mindmap: MindMap }) {
   const [showConfirm, setShowConfirm] = useState(false)
   const utils = api.useUtils()
-  const { mutate } = api.mindmap.delete.useMutation({
+  const { mutate, isPending } = api.mindmap.delete.useMutation({
     onSuccess() {
+      setShowConfirm(false)
       return utils.mindmap.list.invalidate()
     },
   })
 
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault()
-    e.stopPropagation()
     setShowConfirm(true)
   }
 
   return (
     <>
-      <Link key={mindmap.id} target="_blank" href={`/mindmap/${mindmap.id}`}>
-        <div className="flex flex-col rounded-lg border border-gray-200/10 bg-gray-50/5 p-4 shadow-lg">
-          <div>
+      <Link key={mindmap.id} target="_blank" href={`/mindmap/${mindmap.id}`} className="children-pointer">
+        <div className="flex flex-col gap-4 rounded-lg border border-gray-200/10 bg-gray-50/5 p-4 shadow-lg">
+          <div className="flex flex-col gap-2">
             <h3 className="line-clamp-1 text-lg font-semibold text-gray-100">
               {mindmap.title || '未命名'}
             </h3>
-            <div className="mt-2 text-sm text-gray-400">
-              创建于
-              <span className="pl-1">
-                {dayjs(mindmap.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+            <div className="flex gap-3">
+              <span
+                className={`text-xs px-2 py-0.5 rounded ${mindmap.isPublic ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'}`}
+              >
+                {mindmap.isPublic ? '公开' : '私密'}
               </span>
+              <time className="text-sm text-gray-400">
+                {dayjs(mindmap.createdAt).format('YYYY-MM-DD HH:mm')}
+              </time>
             </div>
+            <MdRender className="text-xs">
+              {mindmap.summary}
+            </MdRender>
           </div>
-          <div className="mt-6 flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <span>
                 浏览:
-                {mindmap.views}
+                <span className="pl-1">{mindmap.views}</span>
               </span>
               <span>
                 点赞:
-                {mindmap.likes}
+                <span className="pl-1">{mindmap.likes}</span>
               </span>
             </div>
             <button
@@ -78,9 +79,9 @@ function MindMapCard({ mindmap }: { mindmap: MindMapItem }) {
           </div>
         </div>
       </Link>
-
       <Confirm
         isOpen={showConfirm}
+        isConfirmLoading={isPending}
         onClose={() => setShowConfirm(false)}
         onConfirm={() => mutate({ id: mindmap.id })}
         title="删除思维导图"
@@ -95,9 +96,7 @@ export function MindMapList() {
 
   if (isPending) {
     return (
-      <div className="mt-8 flex justify-center">
-        <LoadingSpinner text="正在获取思维导图..." />
-      </div>
+      <LoadingSpinner text="正在获取思维导图..." />
     )
   }
   if (!list?.length) {
@@ -111,7 +110,7 @@ export function MindMapList() {
   }
 
   return (
-    <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="mt-8 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
       {list.map(mindmap => (
         <MindMapCard key={mindmap.id} mindmap={mindmap} />
       ))}

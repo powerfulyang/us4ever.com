@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-interface NoteState {
+interface MindMapNoteState {
   isVisible: boolean
   content: string
   left: number
@@ -10,7 +10,7 @@ interface NoteState {
   hideNote: () => void
 }
 
-export const useNoteStore = create<NoteState>(set => ({
+export const useMindMapNoteStore = create<MindMapNoteState>(set => ({
   isVisible: false,
   content: '',
   left: 0,

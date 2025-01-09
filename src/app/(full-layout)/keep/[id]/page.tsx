@@ -15,23 +15,23 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const noteId = (await params).id
-  const note = await api.keep.get({ id: noteId })
+  const keepId = (await params).id
+  const keep = await api.keep.get({ id: keepId })
 
   return {
-    title: note?.title || 'keep - Detail',
-    description: note?.summary || 'keep - Description',
+    title: keep?.title || 'keep - Detail',
+    description: keep?.summary || 'keep - Description',
   }
 }
 
 export default async function DetailPage({ params }: PageProps) {
-  const noteId = (await params).id
-  const note = await api.keep.get({ id: noteId })
+  const keepId = (await params).id
+  const keep = await api.keep.get({ id: keepId })
 
-  if (!note) {
+  if (!keep) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 mt-32">
-        <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
+        <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
           未找到相关笔记
         </h3>
         <Back
@@ -61,19 +61,19 @@ export default async function DetailPage({ params }: PageProps) {
             <div className="flex flex-col">
               <span className="text-sm text-gray-400">创建于</span>
               <time className="text-gray-300 font-medium">
-                {dayjs(note.createdAt).format('YYYY年MM月DD日 HH:mm')}
+                {dayjs(keep.createdAt).format('YYYY年MM月DD日 HH:mm')}
               </time>
             </div>
             <div className="w-px h-8 bg-white/20" />
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-400">状态</span>
-              <Badge variant={note.isPublic ? 'success' : 'default'}>
-                {note.isPublic ? '公开' : '私密'}
+              <Badge variant={keep.isPublic ? 'success' : 'default'}>
+                {keep.isPublic ? '公开' : '私密'}
               </Badge>
             </div>
           </div>
 
-          <Link href={`/keep/save/${note.id}`} className="ml-auto">
+          <Link href={`/keep/save/${keep.id}`} className="ml-auto">
             <Button
               leftIcon={(
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +101,7 @@ export default async function DetailPage({ params }: PageProps) {
         </div>
 
         <MdRender>
-          {note.content}
+          {keep.content}
         </MdRender>
       </Card>
     </div>

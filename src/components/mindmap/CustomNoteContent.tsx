@@ -1,21 +1,20 @@
 'use client'
 
 import { useOutsideClick } from '@/hooks/useOutsideClick'
-import { useNoteStore } from '@/store/note'
+import { useMindMapNoteStore } from '@/store/mind-map-note'
 import { useRef } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './note.module.scss'
 
 export function CustomNoteContent() {
   const ref = useRef<HTMLDivElement>(null!)
-  const { isVisible, content, left, top, hideNote } = useNoteStore()
+  const { isVisible, content, left, top, hideNote } = useMindMapNoteStore()
   useOutsideClick(ref, hideNote)
 
   if (!isVisible)
     return null
 
   return createPortal(
-
     <div
       ref={ref}
       className={styles.noteContent}

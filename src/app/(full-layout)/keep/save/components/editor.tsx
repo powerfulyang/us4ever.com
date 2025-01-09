@@ -26,11 +26,11 @@ const MdEditor = dynamic(
 )
 
 interface KeepEditorProps {
-  note?: Keep | null
+  keep?: Keep | null
 }
 
-export default function KeepEditor({ note }: KeepEditorProps) {
-  const id = note?.id
+export default function KeepEditor({ keep }: KeepEditorProps) {
+  const id = keep?.id
 
   const router = useRouter()
   const [content, setContent] = useState('')
@@ -38,23 +38,23 @@ export default function KeepEditor({ note }: KeepEditorProps) {
 
   const { mutate: createMutate, isPending: isCreatePending } = api.keep.create.useMutation({
     onSuccess: (data) => {
-      router.push(`/keep/${data.id}`)
+      router.replace(`/keep/${data.id}`)
     },
   })
   const { mutate: updateMutate, isPending: isUpdatePending } = api.keep.update.useMutation({
     onSuccess: (data) => {
-      router.push(`/keep/${data.id}`)
+      router.replace(`/keep/${data.id}`)
     },
   })
 
   const isPending = isCreatePending || isUpdatePending
 
   useEffect(() => {
-    if (note) {
-      setContent(note.content)
-      setIsPublic(note.isPublic)
+    if (keep) {
+      setContent(keep.content)
+      setIsPublic(keep.isPublic)
     }
-  }, [note])
+  }, [keep])
 
   function handleSave() {
     if (!content)
@@ -76,7 +76,7 @@ export default function KeepEditor({ note }: KeepEditorProps) {
   }
 
   return (
-    <div className="-mt-3">
+    <div>
       <Back
         fallback="/keep"
         className="inline-flex animate-bounce items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors mb-3 ml-2"
@@ -90,7 +90,7 @@ export default function KeepEditor({ note }: KeepEditorProps) {
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-6">
             <h1
-              className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500"
+              className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500"
             >
               {id ? '编辑笔记' : '新建笔记'}
             </h1>

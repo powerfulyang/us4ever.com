@@ -59,7 +59,7 @@ export function MdRender({ children, className }: Props) {
         a: Link,
       }}
     >
-      {children}
+      {children.trim()}
     </ReactMarkdown>
   )
 }

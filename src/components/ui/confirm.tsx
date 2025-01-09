@@ -6,9 +6,10 @@ import { Modal } from './modal'
 interface ConfirmProps {
   isOpen: boolean
   onClose: () => void
-  onConfirm: () => void
+  onConfirm: () => Promise<void> | void
   title?: string
   content?: string
+  isConfirmLoading?: false | true
 }
 
 export function Confirm({
@@ -17,6 +18,7 @@ export function Confirm({
   onConfirm,
   title = '确认',
   content = '确定要执行此操作吗？',
+  isConfirmLoading,
 }: ConfirmProps) {
   return (
     <Modal
@@ -34,10 +36,8 @@ export function Confirm({
             取消
           </Button>
           <Button
-            onClick={() => {
-              onConfirm()
-              onClose()
-            }}
+            isLoading={isConfirmLoading}
+            onClick={onConfirm}
           >
             确定
           </Button>

@@ -87,4 +87,15 @@ export const keepRouter = createTRPCRouter({
 
       return keep
     }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.db.keep.delete({
+        where: {
+          id: input.id,
+          ownerId: ctx.user.id,
+        },
+      })
+    }),
 })

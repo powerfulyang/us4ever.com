@@ -15,7 +15,7 @@ export default async function KeepPage() {
     <HydrateClient>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
             我的笔记本
           </h1>
           <p className="text-sm text-gray-400">记录灵感与思考的地方</p>

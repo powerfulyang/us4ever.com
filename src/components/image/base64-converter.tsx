@@ -61,7 +61,7 @@ export function Base64Converter() {
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
             图片转 Base64
           </h1>
           <p className="text-sm text-gray-400">将图片转换为 base64 编码的字符串</p>

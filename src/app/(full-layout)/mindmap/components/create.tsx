@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { parseXMindFile } from '@/lib/xmind'
 import { api } from '@/trpc/react'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -31,6 +30,7 @@ export function MindMapImport() {
   }
 
   const handleParse = async () => {
+    const parseXMindFile = await import('@/lib/xmind').then(m => m.parseXMindFile)
     const content = await parseXMindFile(file!)
     const title = content.data?.text
     mutate({ content, title, isPublic })

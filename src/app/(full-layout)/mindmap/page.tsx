@@ -14,7 +14,7 @@ export default async function MindMapPage() {
     <HydrateClient>
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
             思维导图
           </h1>
           <p className="text-sm text-gray-400">记录和分享你的思维导图</p>
