@@ -100,7 +100,7 @@ export default async function DetailPage({ params }: PageProps) {
           </Link>
         </div>
 
-        <MdRender>
+        <MdRender className="text-sm">
           {keep.content}
         </MdRender>
       </Card>

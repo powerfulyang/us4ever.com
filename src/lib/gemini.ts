@@ -17,11 +17,11 @@ const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
  */
 export async function extractTitle(content: string): Promise<string> {
   const prompt
-  = `请为以下内容生成一个简短标题:
-  - 标题长度不超过20个字符
-  - 准确概括内容核心
-  - 使用简洁有力的措辞
-  - 返回单个明确的结果`
+  = `根据以下内容生成一个不超过20个字符的简短标题：
++ 精准概括核心内容
++ 措辞简洁有力
++ 返回唯一明确结果
++ 不使用任何格式修饰`
 
   const result = await model.generateContent([prompt, content])
   return result.response.text()
@@ -39,12 +39,11 @@ export async function extractTitle(content: string): Promise<string> {
 export async function summaryContent(content: string | string[]): Promise<string> {
   const contentList = Array.isArray(content) ? content : [content]
   const prompt
-  = `请为以下内容生成一个简明摘要:
-  - 摘要长度不超过200个字符
-  - 保留内容的关键信息点
-  - 使用清晰流畅的语言
-  - 返回单个完整的摘要
-  - 使用 markdown 格式输出，不使用标题，不使用引用`
+  = `根据以下内容生成一个不超过200字符的简明摘要：
++ 提炼内容关键信息
++ 语言清晰流畅
++ 输出单一完整的摘要
++ 使用 markdown 格式，无标题，无引用`
   console.log(contentList.join(''))
 
   const result = await model.generateContent([prompt, ...contentList])

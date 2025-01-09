@@ -125,7 +125,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
             theme="vs-dark"
           />
           <div className="hidden sm:block rounded overflow-y-auto p-2 border border-amber-200">
-            <MdRender>
+            <MdRender className="text-sm">
               {content}
             </MdRender>
           </div>
