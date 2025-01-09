@@ -58,9 +58,10 @@ export const keepRouter = createTRPCRouter({
       })
     }),
 
-  get: publicProcedure
+  getById: publicProcedure
     .input(z.object({
       id: z.string(),
+      updateViews: z.boolean().default(false),
     }))
     .query(async ({ input, ctx }) => {
       const keep = await ctx.db.keep.findUnique({
@@ -79,11 +80,13 @@ export const keepRouter = createTRPCRouter({
         })
       }
 
-      // 更新浏览次数
-      await ctx.db.keep.update({
-        where: { id: input.id },
-        data: { views: { increment: 1 } },
-      })
+      if (input.updateViews) {
+        // 更新浏览次数
+        await ctx.db.keep.update({
+          where: { id: input.id },
+          data: { views: { increment: 1 } },
+        })
+      }
 
       return keep
     }),

@@ -7,11 +7,12 @@ import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 
 export function MindMapImport() {
+  const [isPending, setIsPending] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [isPublic, setIsPublic] = useState(false)
   const utils = api.useUtils()
 
-  const { isPending, mutate } = api.mindmap.createByXmind.useMutation({
+  const { mutateAsync } = api.mindmap.createByXmind.useMutation({
     onSuccess() {
       setFile(null)
       return utils.mindmap.list.invalidate()
@@ -30,14 +31,23 @@ export function MindMapImport() {
   }
 
   const handleParse = async () => {
-    const parseXMindFile = await import('@/lib/xmind').then(m => m.parseXMindFile)
-    const content = await parseXMindFile(file!)
-    const title = content.data?.text
-    mutate({ content, title, isPublic })
+    setIsPending(true)
+    try {
+      const parseXMindFile = await import('@/lib/xmind').then(m => m.parseXMindFile)
+      const content = await parseXMindFile(file!)
+      const title = content.data?.text
+      await mutateAsync({ content, title, isPublic })
+    }
+    catch (e) {
+      toast.error(e.message)
+    }
+    finally {
+      setIsPending(false)
+    }
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 flex-wrap">
       <input
         type="file"
         accept=".xmind"
@@ -72,19 +82,17 @@ export function MindMapImport() {
           className="hidden"
         />
       </label>
-      <div className="flex items-center gap-2">
-        <Switch
-          checked={isPublic}
-          onCheckedChange={setIsPublic}
-          disabled={isPending}
-        />
-      </div>
+      <Switch
+        checked={isPublic}
+        onCheckedChange={setIsPublic}
+        disabled={isPending}
+      />
       <Button
         onClick={handleParse}
         disabled={!file || isPending}
-        className="min-w-24"
+        className="ml-auto"
       >
-        {isPending ? '解析中...' : '解析 XMind'}
+        {isPending ? '解析中...' : '开始解析'}
       </Button>
     </div>
   )

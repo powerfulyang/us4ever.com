@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const id = (await params).id
-  const { content, editable } = await api.mindmap.getById({ id })
+  const { content, editable } = await api.mindmap.getById({ id, updateViews: true })
 
   return (
     <MindMapDetailPage editable={editable} data={content} />

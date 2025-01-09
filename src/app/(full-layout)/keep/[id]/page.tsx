@@ -16,7 +16,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const keepId = (await params).id
-  const keep = await api.keep.get({ id: keepId })
+  const keep = await api.keep.getById({ id: keepId })
 
   return {
     title: keep?.title || 'keep - Detail',
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DetailPage({ params }: PageProps) {
   const keepId = (await params).id
-  const keep = await api.keep.get({ id: keepId })
+  const keep = await api.keep.getById({ id: keepId, updateViews: true })
 
   if (!keep) {
     return (

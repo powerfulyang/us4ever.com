@@ -64,7 +64,6 @@ export default function MindMapView({ data, editable }: MindMapProps) {
       el: containerRef.current,
       theme: 'classic13',
       layout: 'mindMap',
-      fit: true,
       nodeTextEditZIndex: 1000,
       nodeNoteTooltipZIndex: 1000,
       customNoteContentShow: {
@@ -75,7 +74,6 @@ export default function MindMapView({ data, editable }: MindMapProps) {
           //
         },
       },
-      openPerformance: true,
       openRealtimeRenderOnNodeTextEdit: true,
       enableAutoEnterTextEditWhenKeydown: true,
       readonly: !editable,

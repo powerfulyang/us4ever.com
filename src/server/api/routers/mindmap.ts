@@ -22,7 +22,10 @@ export const mindmapRouter = createTRPCRouter({
   }),
 
   getById: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({
+      id: z.string(),
+      updateViews: z.boolean().default(false),
+    }))
     .query(async ({ ctx, input }) => {
       const mindmap = await ctx.db.mindMap.findUnique({
         where: {
@@ -44,11 +47,13 @@ export const mindmapRouter = createTRPCRouter({
         })
       }
 
-      // 更新浏览次数
-      await ctx.db.mindMap.update({
-        where: { id: input.id },
-        data: { views: { increment: 1 } },
-      })
+      if (input.updateViews) {
+        // 更新浏览次数
+        await ctx.db.mindMap.update({
+          where: { id: input.id },
+          data: { views: { increment: 1 } },
+        })
+      }
       const editable = mindmap.ownerId === ctx.user?.id
 
       return {
