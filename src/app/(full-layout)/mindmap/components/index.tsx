@@ -101,10 +101,8 @@ export function MindMapList() {
   }
   if (!list?.length) {
     return (
-      <div className="mt-32 flex flex-col items-center justify-center gap-4 py-12">
-        <div className="text-center">
-          <p className="text-gray-400">暂无思维导图</p>
-        </div>
+      <div className="flex flex-col items-center justify-center text-center gap-1 py-12">
+        <p className="text-gray-400">暂无思维导图</p>
       </div>
     )
   }
