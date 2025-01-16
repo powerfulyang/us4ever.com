@@ -1,10 +1,14 @@
 import type { Config } from 'tailwindcss'
+import typography from '@tailwindcss/typography'
 import animate from 'tailwindcss-animate'
 
 export default {
   darkMode: ['class'],
   content: ['./src/**/*.tsx'],
-  plugins: [animate],
+  plugins: [
+    animate,
+    typography,
+  ],
   theme: {
     extend: {
       borderRadius: {

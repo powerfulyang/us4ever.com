@@ -1,8 +1,10 @@
 import type { CookieOptions } from 'hono/utils/cookie'
+import { env } from '@/env'
 import { imageminService } from '@/service'
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie'
 import { HTTPException } from 'hono/http-exception'
+import { sign } from 'hono/jwt'
 import { handle } from 'hono/vercel'
 
 const app = new Hono().basePath('/api')
@@ -29,7 +31,8 @@ app.get('/lp', async (ctx) => {
   const ticket = ctx.req.query('ticket')
   const res = await fetch(`https://api.littleeleven.com/api/auth/by-ticket?ticket=${ticket}`)
   const json = await res.json()
-  const token = json.token
+  const user = json.user
+  const token = await sign({ user }, env.JWT_SECRET)
 
   if (!redirect) {
     throw new HTTPException(400, {

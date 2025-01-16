@@ -59,7 +59,7 @@ export const PrismCode: FC<Props> = ({ language, children, maxHeight, className 
           maxHeight,
         }}
       >
-        {children}
+        {children.trim()}
       </Prism>
     </div>
   )

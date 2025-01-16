@@ -1,8 +1,11 @@
+/* eslint-disable react-dom/no-dangerously-set-innerhtml */
 'use client'
 
 import { useOutsideClick } from '@/hooks/useOutsideClick'
 import { useMindMapNoteStore } from '@/store/mind-map-note'
-import { useRef } from 'react'
+import { cn } from '@/utils'
+import DOMPurify from 'dompurify'
+import { useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './note.module.scss'
 
@@ -11,13 +14,17 @@ export function CustomNoteContent() {
   const { isVisible, content, left, top, hideNote } = useMindMapNoteStore()
   useOutsideClick(ref, hideNote)
 
+  const safeHtml = useMemo(() => {
+    return DOMPurify.sanitize(content)
+  }, [content])
+
   if (!isVisible)
     return null
 
   return createPortal(
     <div
       ref={ref}
-      className={styles.noteContent}
+      className={cn(styles.noteContent, 'prose')}
       style={{
         position: 'fixed',
         left: `${left}px`,
@@ -27,7 +34,7 @@ export function CustomNoteContent() {
         borderRadius: '4px',
         zIndex: 1000,
       }}
-      dangerouslySetInnerHTML={{ __html: content }}
+      dangerouslySetInnerHTML={{ __html: safeHtml }}
     />,
     document.body,
   )

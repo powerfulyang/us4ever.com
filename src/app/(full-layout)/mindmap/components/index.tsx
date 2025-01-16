@@ -27,7 +27,7 @@ function MindMapCard({ mindmap }: { mindmap: MindMap }) {
   return (
     <>
       <Link key={mindmap.id} target="_blank" href={`/mindmap/${mindmap.id}`} className="children-pointer">
-        <div className="flex flex-col gap-4 rounded-lg border border-gray-200/10 bg-gray-50/5 p-4 shadow-lg">
+        <div className="flex flex-col gap-4 rounded-lg border border-gray-200/10 bg-gray-50/5 p-4 shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer hover:shadow-lg hover:shadow-purple-500/10">
           <div className="flex flex-col gap-2">
             <h3 className="line-clamp-1 text-lg font-semibold text-gray-100">
               {mindmap.title || '未命名'}

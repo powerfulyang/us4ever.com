@@ -84,49 +84,48 @@
   }
 
   h1 {
-    font-size: 2em;
+    font-size: 1.5em;
 
     &::before {
       content: '#';
+      color: var(--accent-color-blue);
     }
   }
 
   h2 {
-    font-size: 1.75em;
-    border-left: 4px solid var(--accent-color-pink);
-    padding-left: 0.75em;
+    font-size: 1.4em;
 
     &::before {
       content: '##';
+      color: var(--accent-color-pink);
     }
   }
 
   h3 {
-    font-size: 1.5em;
-    border-left: 4px solid var(--accent-color-green);
-    padding-left: 0.75em;
+    font-size: 1.3em;
 
     &::before {
       content: '###';
+      color: var(--accent-color-green);
     }
   }
 
   h4 {
-    font-size: 1.25em;
-    border-bottom: 2px solid var(--accent-color-purple);
+    font-size: 1.2em;
     padding-bottom: 0.25em;
 
     &::before {
       content: '####';
+      color: var(--accent-color-green);
     }
   }
 
   & > p {
-    @apply mb-4 cursor-text;
+    @apply mb-[0.75em] cursor-text;
     font-size: 1em;
     color: var(--text-color);
     &:has(+ ul, + ol) {
-      @apply mb-2;
+      @apply mb-[0.5em];
     }
     &:last-child {
       @apply mb-0;
@@ -170,7 +169,7 @@
     font-family: Consolas, Monaco, 'Courier New', monospace;
     background: var(--code-bg-gradient);
     color: var(--code-text);
-    @apply rounded px-1 py-0.5 mx-[4px];
+    @apply rounded px-[0.25em] py-[0.1em] mx-[4px];
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
@@ -183,7 +182,7 @@
   }
 
   blockquote {
-    @apply mb-4 border-l-4 p-4;
+    @apply mb-[1em] border-l-[5px] p-[1em];
     border-color: var(--blockquote-border);
     background-color: var(--blockquote-bg);
     border-radius: 0.375em;
