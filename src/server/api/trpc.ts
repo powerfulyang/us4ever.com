@@ -18,12 +18,6 @@ import { verify } from 'hono/jwt'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 
-interface User {
-  id: string
-  nickname: string
-  avatar: string
-}
-
 /**
  * 1. CONTEXT
  *

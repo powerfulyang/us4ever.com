@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { api, HydrateClient } from '@/trpc/server'
 import { MindMapList } from './components'
 import { MindMapImport } from './components/create'
@@ -19,7 +20,9 @@ export default async function MindMapPage() {
           </h1>
           <p className="text-sm text-gray-400">记录和分享你的思维导图</p>
         </div>
-        <MindMapImport />
+        <AuthenticatedOnly>
+          <MindMapImport />
+        </AuthenticatedOnly>
       </div>
       <MindMapList />
     </HydrateClient>

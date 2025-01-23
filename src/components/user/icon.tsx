@@ -1,10 +1,10 @@
 'use client'
 
 import LoginButton from '@/components/user/login-button'
-import { api } from '@/trpc/react'
+import { useUserStore } from '@/store/user'
 
 export default function UserIcon() {
-  const { isPending, data } = api.user.current.useQuery()
+  const { isPending, currentUser } = useUserStore()
 
   if (isPending) {
     return (
@@ -15,7 +15,7 @@ export default function UserIcon() {
     )
   }
 
-  if (!data) {
+  if (!currentUser) {
     return <LoginButton />
   }
 
@@ -23,14 +23,14 @@ export default function UserIcon() {
     <div className="group relative">
       <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
         <img
-          src={data.avatar}
-          alt={data.nickname}
+          src={currentUser.avatar}
+          alt={currentUser.nickname}
           width={32}
           height={32}
           className="rounded-full border-2 border-transparent group-hover:border-purple-500 transition-colors overflow-hidden"
         />
         <span className="text-gray-300 group-hover:text-white transition-colors max-w-[120px] truncate">
-          {data.nickname}
+          {currentUser.nickname}
         </span>
       </div>
 

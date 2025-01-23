@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { ImageList } from '@/components/image/list'
 import { ImageUpload } from '@/components/image/upload'
 import { api, HydrateClient } from '@/trpc/server'
@@ -13,7 +14,9 @@ export default async function ImagePage() {
   return (
     <HydrateClient>
       <div className="space-y-6">
-        <ImageUpload />
+        <AuthenticatedOnly>
+          <ImageUpload />
+        </AuthenticatedOnly>
         <ImageList />
       </div>
     </HydrateClient>

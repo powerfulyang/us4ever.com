@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { UserProvider } from '@/components/auth/user-provider'
 import { TRPCReactProvider } from '@/trpc/react'
 import Script from 'next/script'
 import React from 'react'
@@ -27,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="zh-CN">
       <Script
         defer
         src="https://umami.us4ever.com/script.js"
@@ -36,6 +37,7 @@ export default function RootLayout({
       </Script>
       <body>
         <TRPCReactProvider>
+          <UserProvider />
           {children}
           <ToastContainer theme="colored" />
         </TRPCReactProvider>

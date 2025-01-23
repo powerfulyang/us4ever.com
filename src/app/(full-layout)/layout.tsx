@@ -51,12 +51,12 @@ export default async function FullLayout({
               <span>
                 Power By
                 <a
-                  href="https://github.com/pissy"
+                  href="https://github.com/powerfulyang"
                   rel="noopener noreferrer"
                   target="_blank"
                   className="text-gray-300 hover:text-white transition-colors pl-[0.5ch]"
                 >
-                  Pissy
+                  powerfulyang
                 </a>
               </span>
             </p>

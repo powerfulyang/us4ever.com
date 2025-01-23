@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { OwnerOnly } from '@/components/auth/owner-only'
 import { Back } from '@/components/keep/back'
 import { MdRender } from '@/components/md-render'
 import { Badge } from '@/components/ui/badge'
@@ -73,31 +74,33 @@ export default async function DetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          <Link href={`/keep/save/${keep.id}`} className="ml-auto">
-            <Button
-              leftIcon={(
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              )}
-              className="hidden sm:flex"
-            >
-              编辑笔记
-            </Button>
-            <svg className="w-6 h-6 sm:hidden text-gray-200 mr-2 my-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-          </Link>
+          <OwnerOnly ownerId={keep.ownerId}>
+            <Link href={`/keep/save/${keep.id}`} className="ml-auto">
+              <Button
+                leftIcon={(
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                )}
+                className="hidden sm:flex"
+              >
+                编辑笔记
+              </Button>
+              <svg className="w-6 h-6 sm:hidden text-gray-200 mr-2 my-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+            </Link>
+          </OwnerOnly>
         </div>
 
         <MdRender className="text-sm">

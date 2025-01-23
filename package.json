@@ -16,7 +16,7 @@
     "db:push": "prisma db push",
     "dev": "next dev --port 12345",
     "postinstall": "prisma generate",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "lint:fix": "eslint src --fix",
     "preview": "next build && next start",
     "pre-start": "pnpm db:migrate && pnpm db:seed",
@@ -93,6 +93,7 @@
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
+    "unplugin-auto-import": "^19.0.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.8"
   },
