@@ -37,6 +37,7 @@ declare global {
   const extractTitle: typeof import('../lib/gemini')['extractTitle']
   const formatBearing: typeof import('../utils/index')['formatBearing']
   const formatFileSize: typeof import('../utils/index')['formatFileSize']
+  const formatThousands: typeof import('../utils/index')['formatThousands']
   const forwardRef: typeof import('react')['forwardRef']
   const getStreamSize: typeof import('../lib/fetch')['getStreamSize']
   const icon: typeof import('../components/user/icon')['default']

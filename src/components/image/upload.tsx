@@ -42,7 +42,7 @@ export function ImageUpload() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto mb-8">
+    <div className="mb-8">
       <div className="bg-white/10 backdrop-blur-lg shadow-xl rounded-xl p-4 border border-white/20">
         <div className="flex flex-col gap-4">
           <div className="flex justify-between">

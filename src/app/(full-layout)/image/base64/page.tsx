@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Base64Converter } from '@/components/image/base64-converter'
+import { Container } from '@/components/layout/Container'
 
 export const metadata: Metadata = {
   title: 'Image Base64 Converter',
@@ -8,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function Base64Page() {
   return (
-    <div className="max-w-4xl mx-auto">
+    <Container title="图片转base64" description="Convert image to base64 string">
       <Base64Converter />
-    </div>
+    </Container>
   )
 }

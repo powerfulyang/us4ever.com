@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { formatFileSize } from '@/utils'
 import React, { useCallback, useState } from 'react'
+import { Truncate } from '../ui/truncate'
 
 interface PreviewImage {
   url: string
@@ -58,16 +59,7 @@ export function Base64Converter() {
   }, [image?.base64])
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
-            图片转 Base64
-          </h1>
-          <p className="text-sm text-gray-400">将图片转换为 base64 编码的字符串</p>
-        </div>
-      </div>
-
+    <Card className="p-6 max-w-3xl mx-auto">
       <div
         className="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center cursor-pointer hover:border-purple-500/50 transition-colors"
         onDrop={handleDrop}
@@ -107,7 +99,9 @@ export function Base64Converter() {
             <div className="flex-1 space-y-4">
               <div>
                 <div className="text-sm text-gray-400 mb-1">文件名</div>
-                <div className="text-white">{image.name}</div>
+                <Truncate className="text-white max-w-[30rem]">
+                  {image.name + image.name}
+                </Truncate>
               </div>
               <div>
                 <div className="text-sm text-gray-400 mb-1">文件大小</div>
@@ -118,8 +112,7 @@ export function Base64Converter() {
               <div>
                 <div className="text-sm text-gray-400 mb-1">Base64 长度</div>
                 <div className="text-white">
-                  {image.base64.length}
-                  字符
+                  {formatThousands(image.base64.length, 0)}
                 </div>
               </div>
             </div>

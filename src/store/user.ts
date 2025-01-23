@@ -15,12 +15,13 @@ interface UserState {
   isAuthenticated: boolean
 }
 
-export const useUserStore = create<UserState>((set, get) => ({
+export const useUserStore = create<UserState>(set => ({
   currentUser: null,
   isPending: false,
-  setCurrentUser: user => set({ currentUser: user }),
-  setIsPending: isPending => set({ isPending }),
-  get isAuthenticated() { // 通过 getter 获取 isAuthenticated
-    return !!get().currentUser
+  setCurrentUser: (user) => {
+    const isAuthenticated = !!user
+    set({ currentUser: user, isAuthenticated })
   },
+  setIsPending: isPending => set({ isPending }),
+  isAuthenticated: false,
 }))
