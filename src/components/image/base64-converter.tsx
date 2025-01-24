@@ -89,14 +89,14 @@ export function Base64Converter() {
       {image && (
         <div className="mt-8 space-y-6">
           <div className="flex items-start gap-6">
-            <div className="w-48 aspect-square rounded-lg overflow-hidden bg-black/20 flex-shrink-0">
+            <div className="w-1/3 aspect-square rounded-lg overflow-hidden bg-black/20 flex-shrink-0">
               <img
                 src={image.url}
                 alt={image.name}
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="flex-1 space-y-4">
+            <div className="w-2/3 space-y-4">
               <div>
                 <div className="text-sm text-gray-400 mb-1">文件名</div>
                 <Truncate className="text-white max-w-[30rem]">

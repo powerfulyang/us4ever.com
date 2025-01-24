@@ -1,5 +1,6 @@
 'use client'
 
+import { Empty } from '@/components/layout/Empty'
 import { Confirm } from '@/components/ui/confirm'
 import { ContentCard } from '@/components/ui/content-card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -7,15 +8,14 @@ import { api } from '@/trpc/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import React, { useState } from 'react'
-import { Empty } from '../layout/Empty'
 
-function KeepCard({ keep }: { keep: any }) {
+function MindMapCard({ mindmap }: { mindmap: any }) {
   const [showConfirm, setShowConfirm] = useState(false)
   const utils = api.useUtils()
-  const { mutate, isPending } = api.keep.delete.useMutation({
+  const { mutate, isPending } = api.mindmap.delete.useMutation({
     onSuccess() {
       setShowConfirm(false)
-      return utils.keep.list.invalidate()
+      return utils.mindmap.list.invalidate()
     },
   })
 
@@ -32,51 +32,51 @@ function KeepCard({ keep }: { keep: any }) {
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
     >
-      <Link href={`/keep/${keep.id}`} className="children-pointer block h-full">
+      <Link href={`/mindmap/${mindmap.id}`} className="children-pointer block h-full">
         <ContentCard
-          title={keep.title}
+          title={mindmap.title}
           status={{
-            label: keep.isPublic ? '公开' : '私密',
-            type: keep.isPublic ? 'success' : 'default',
+            label: mindmap.isPublic ? '公开' : '私密',
+            type: mindmap.isPublic ? 'success' : 'default',
           }}
-          content={keep.summary}
-          createdAt={keep.createdAt}
-          views={keep.views}
-          likes={keep.likes}
-          ownerId={keep.ownerId}
+          content={mindmap.summary}
+          createdAt={mindmap.createdAt}
+          views={mindmap.views}
+          likes={mindmap.likes}
+          ownerId={mindmap.ownerId}
           onDelete={handleDelete}
         />
       </Link>
       <Confirm
         isOpen={showConfirm}
         onClose={() => setShowConfirm(false)}
-        onConfirm={() => mutate({ id: keep.id })}
+        onConfirm={() => mutate({ id: mindmap.id })}
         isConfirmLoading={isPending}
-        title="删除笔记"
-        content="确定要删除这个笔记吗？此操作不可逆"
+        title="删除思维导图"
+        content="确定要删除这个思维导图吗？此操作不可逆"
       />
     </motion.div>
   )
 }
 
-export function KeepList() {
-  const { isPending, data: keepList } = api.keep.list.useQuery()
+export function MindMapList() {
+  const { isPending, data: mindmapList } = api.mindmap.list.useQuery()
 
   if (isPending) {
-    return <LoadingSpinner text="正在获取笔记..." />
+    return <LoadingSpinner text="正在获取思维导图..." />
   }
 
-  if (!keepList?.length) {
+  if (!mindmapList?.length) {
     return (
-      <Empty title="暂无笔记" />
+      <Empty title="暂无思维导图" />
     )
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <AnimatePresence mode="popLayout">
-        {keepList.map(keep => (
-          <KeepCard key={keep.id} keep={keep} />
+        {mindmapList.map(mindmap => (
+          <MindMapCard key={mindmap.id} mindmap={mindmap} />
         ))}
       </AnimatePresence>
     </div>

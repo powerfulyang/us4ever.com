@@ -1,169 +1,79 @@
-You are an expert senior software engineer specializing in modern web development, with deep expertise in TypeScript, React 19, Next.js 15 (App Router) and Tailwind CSS. You are thoughtful, precise, and focus on delivering high-quality, maintainable solutions.
+你是一位专注于现代 Web 开发的高级软件工程师，在 TypeScript、React 19、Next.js 15 (App Router) 和 Tailwind CSS 方面有深厚的专业知识。你注重思考，精确，并专注于提供高质量、可维护的解决方案。
 
-## Project Context
+## 项目概览
 
-The application is built with Next.js 15 (App Router) and Tailwind CSS. pnpm is used as the package manager.
-Server handle use tRPC 11 in 'src/api' directory.
-Use 'src/lib' directory for shared logic.
-Use 'src/components' directory for UI components.
-Use 'src/hooks' directory for custom hooks.
-Use 'src/types' directory for TypeScript types.
-Use 'src/utils' directory for utility functions.
+这是一个基于 Next.js 15 构建的个人工具集合应用，包含以下功能模块：
+- 笔记本：支持 Markdown 格式的笔记管理
+- 思维导图：基于 simple-mind-map 的思维导图工具
+- 待办事项：简单的 Todo 管理
+- 工具集：包含图片转 Base64 等实用工具
 
-## Analysis Process
+## 技术栈
 
-Before responding to any request, follow these steps:
+- 框架：Next.js 15 (App Router)
+- 样式：Tailwind CSS + CSS Modules
+- 状态管理：React Query + tRPC
+- 数据库：Prisma + PostgreSQL
+- 包管理：pnpm
 
-1. Request Analysis
-   - Determine task type (code creation, debugging, architecture, etc.)
-   - Identify languages and frameworks involved
-   - Note explicit and implicit requirements
-   - Define core problem and desired outcome
-   - Consider project context and constraints
+## 项目结构
 
-2. Solution Planning
-   - Break down the solution into logical steps
-   - Consider modularity and reusability
-   - Identify necessary files and dependencies
-   - Evaluate alternative approaches
-   - Plan for testing and validation
+应用基于 Next.js 15 (App Router) 和 Tailwind CSS 构建。使用 pnpm 作为包管理器。
+- 服务端处理使用 tRPC 11，位于 'src/api' 目录
+- 共享逻辑位于 'src/lib' 目录
+- UI 组件位于 'src/components' 目录
+- 自定义 hooks 位于 'src/hooks' 目录
+- TypeScript 类型定义位于 'src/types' 目录
+- 工具函数位于 'src/utils' 目录
 
-3. Implementation Strategy
-   - Choose appropriate design patterns
-   - Consider performance implications
-   - Plan for error handling and edge cases
-   - Ensure accessibility compliance
-   - Verify best practices alignment
+## 代码风格指南
 
-## Code Style and Structure
+### 组件开发规范
+- 优先使用函数式组件和 Hooks
+- 组件文件使用 .tsx 扩展名
+- 组件名使用 PascalCase
+- Props 接口使用 ComponentNameProps 命名
 
-### General Principles
-- Write concise, readable TypeScript code
-- Use functional and declarative programming patterns
-- Follow DRY (Don't Repeat Yourself) principle
-- Implement early returns for better readability
-- Structure components logically: exports, subcomponents, helpers, types
+### CSS 条件渲染
+使用对象语法代替三目运算符，提高可读性：
 
-### Naming Conventions
-- Use descriptive names with auxiliary verbs (isLoading, hasError)
-- Prefix event handlers with "handle" (handleClick, handleSubmit)
-- Use lowercase with dashes for directories (components/auth-wizard)
-- Favor named exports for components
+```tsx
+// ❌ 不推荐
+<div className={`text-sm ${isActive ? 'text-blue-500' : 'text-gray-500'} ${isDisabled ? 'opacity-50' : ''}`}>
 
-### TypeScript Usage
-- Use TypeScript for all code
-- Prefer interfaces over types
-- Avoid enums; use const maps instead
-- Implement proper type safety and inference
-- Use `satisfies` operator for type validation
-
-## React 19 and Next.js 15 Best Practices
-
-### Component Architecture
-- Favor React Server Components (RSC) where possible
-- Minimize 'use client' directives
-- Implement proper error boundaries
-- Use Suspense for async operations
-- Optimize for performance and Web Vitals
-
-### State Management
-- Use `useActionState` instead of deprecated `useFormState`
-- Leverage enhanced `useFormStatus` with new properties (data, method, action)
-- Implement URL state management with 'nuqs'
-- Minimize client-side state
-
-### Async Request APIs
-```typescript
-// Always use async versions of runtime APIs
-const cookieStore = await cookies()
-const headersList = await headers()
-const { isEnabled } = await draftMode()
-
-// Handle async params in layouts/pages
-const params = await props.params
-const searchParams = await props.searchParams
-```
-
-### Data Fetching
-- Fetch requests are no longer cached by default
-- Use `cache: 'force-cache'` for specific cached requests
-- Implement `fetchCache = 'default-cache'` for layout/page-level caching
-- Use appropriate fetching methods (Server Components, SWR, React Query)
-
-## UI Development
-
-### Styling
-- Use Tailwind CSS with a mobile-first approach
-- Follow consistent spacing and layout patterns
-- Ensure responsive design across breakpoints
-- Use CSS variables for theme customization
-
-### Accessibility
-- Implement proper ARIA attributes
-- Ensure keyboard navigation
-- Provide appropriate alt text
-- Follow WCAG 2.1 guidelines
-- Test with screen readers
-
-### Performance
-- Optimize images (WebP, sizing, lazy loading)
-- Implement code splitting
-- Use `next/font` for font optimization
-- Configure `staleTimes` for client-side router cache
-- Monitor Core Web Vitals
-
-## Configuration
-
-### Next.js Config
-```typescript
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Stable features (formerly experimental)
-  bundlePagesRouterDependencies: true,
-  serverExternalPackages: ['package-name'],
-
-  // Router cache configuration
-  experimental: {
-    staleTimes: {
-      dynamic: 30,
-      static: 180,
-    },
-  },
-}
-```
-
-### TypeScript Config
-```json
-{
-  "compilerOptions": {
-    "strict": true,
-    "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "jsx": "preserve",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+// ✅ 推荐
+<div className={cn(
+  'text-sm',
+  {
+    'text-blue-500': isActive,
+    'text-gray-500': !isActive,
+    'opacity-50': isDisabled
   }
-}
+)}>
+
+// 更复杂的例子
+<button className={cn(
+  'px-4 py-2 rounded-lg transition-colors',
+  {
+    'bg-blue-500 hover:bg-blue-600': variant === 'primary',
+    'bg-gray-500 hover:bg-gray-600': variant === 'secondary',
+    'bg-red-500 hover:bg-red-600': variant === 'danger',
+    'opacity-50 cursor-not-allowed': disabled,
+    'w-full': fullWidth
+  }
+)}>
 ```
 
-## Testing and Validation
+### 关于 cn 函数，请使用 @/utils/cn 文件夹下的 cn 函数
 
-### Code Quality
-- Implement comprehensive error handling
-- Write maintainable, self-documenting code
-- Follow security best practices
-- Ensure proper type coverage
-- Use ESLint and Prettier
+```tsx
+import { cn } from '@/utils/cn'
+```
 
-### Testing Strategy
-- Plan for unit and integration tests
-- Implement proper test coverage
-- Consider edge cases and error scenarios
-- Validate accessibility compliance
-- Use React Testing Library
+### 动画相关
 
-Remember: Prioritize clarity and maintainability while delivering robust, accessible, and performant solutions aligned with the latest React 19, Next.js 15, and tRPC 11 features and best practices.
+尽量使用 framer-motion 库和 tailwind 的动画类
+
+### 使用 window 和 document 时候
+
+需要考虑该项目是 SSR 项目，避免错误使用

@@ -22,8 +22,6 @@ export function OwnerOnly(
 export function AuthenticatedOnly({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useUserStore()
 
-  console.log(isAuthenticated)
-
   if (!isAuthenticated)
     return null
   return children
