@@ -1,10 +1,20 @@
 'use client'
 
+import { Confirm } from '@/components/ui/confirm'
 import LoginButton from '@/components/user/login-button'
 import { useUserStore } from '@/store/user'
+import { api } from '@/trpc/react'
+import { useState } from 'react'
 
 export default function UserIcon() {
   const { isPending, currentUser } = useUserStore()
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+
+  const logout = api.user.logout.useMutation({
+    onSuccess() {
+      window.location.reload()
+    },
+  })
 
   if (isPending) {
     return (
@@ -17,6 +27,10 @@ export default function UserIcon() {
 
   if (!currentUser) {
     return <LoginButton />
+  }
+
+  const handleLogout = async () => {
+    logout.mutate()
   }
 
   return (
@@ -37,11 +51,21 @@ export default function UserIcon() {
       <div className="absolute right-0 top-full mt-2 w-48 py-2 bg-black/40 backdrop-blur-lg rounded-xl border border-white/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
         <button
           type="button"
+          onClick={() => setShowLogoutConfirm(true)}
           className="w-full h-10 px-4 text-left text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
         >
           退出登录
         </button>
       </div>
+
+      <Confirm
+        isOpen={showLogoutConfirm}
+        isConfirmLoading={logout.isPending}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+        title="退出登录"
+        content="确定要退出登录吗？"
+      />
     </div>
   )
 }

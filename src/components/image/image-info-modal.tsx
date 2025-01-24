@@ -16,7 +16,7 @@ export function ImageInfoModal({ image, isOpen, onClose }: ImageInfoModalProps) 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onCloseAction={onClose}
       title="图片信息"
     >
       <div className="space-y-6">

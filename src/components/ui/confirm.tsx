@@ -23,7 +23,7 @@ export function Confirm({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onCloseAction={onClose}
       title={title}
     >
       <div className="space-y-6">

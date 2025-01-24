@@ -7,12 +7,13 @@
  * need to use are documented accordingly near the end.
  */
 
+import type { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers'
 import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
 import { COOKIE_NAME } from '@/app/api/[[...route]]/route'
 import { env } from '@/env'
 import { db } from '@/server/db'
-import { initTRPC } from '@trpc/server'
 
+import { initTRPC } from '@trpc/server'
 import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
 import superjson from 'superjson'
@@ -31,7 +32,7 @@ import { ZodError } from 'zod'
  * @see https://trpc.io/docs/server/context
  */
 export async function createTRPCContext(opts: {
-  headers: Headers
+  headers: ReadonlyHeaders
   cookies: ReadonlyRequestCookies
 }) {
   return {

@@ -9,7 +9,10 @@ export const metadata: Metadata = {
 
 export default function Base64Page() {
   return (
-    <Container title="图片转base64" description="Convert image to base64 string">
+    <Container
+      title="图片转 Base64"
+      description="将图片转换为 base64 编码的字符串"
+    >
       <Base64Converter />
     </Container>
   )

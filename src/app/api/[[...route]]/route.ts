@@ -1,6 +1,5 @@
 import type { CookieOptions } from 'hono/utils/cookie'
 import { env } from '@/env'
-import { imageminService } from '@/service'
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie'
 import { HTTPException } from 'hono/http-exception'
@@ -17,14 +16,6 @@ const COOKIE_OPTIONS = {
   sameSite: 'strict',
   maxAge: 60 * 60 * 24 * 30, // 30 days
 } as CookieOptions
-
-app.post('/imagemin', async (ctx) => {
-  const form = await ctx.req.formData()
-  const file = form.get('file')! as File
-  const buffer = await file.arrayBuffer()
-  const compressed = await imageminService(buffer)
-  return ctx.newResponse(compressed)
-})
 
 app.get('/lp', async (ctx) => {
   const redirect = ctx.req.query('_redirect')

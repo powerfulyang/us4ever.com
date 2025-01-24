@@ -8,16 +8,18 @@ import { createPortal } from 'react-dom'
 
 interface ModalProps {
   isOpen: boolean
-  onClose: () => void
+  onCloseAction: () => void
   children: ReactNode
   title?: string
+  className?: string
 }
 
 export function Modal({
   isOpen,
-  onClose,
+  onCloseAction,
   children,
   title,
+  className,
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null)
   const [mounted, setMounted] = useState(false)
@@ -28,14 +30,14 @@ export function Modal({
   }, [])
 
   useEffect(() => {
+    const modalElement = modalRef.current
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose()
+        onCloseAction()
       }
     }
 
     const handleWheel = (e: WheelEvent) => {
-      const modalElement = modalRef.current
       if (!modalElement)
         return
 
@@ -53,14 +55,14 @@ export function Modal({
 
     if (isOpen) {
       document.addEventListener('keydown', handleEsc)
-      modalRef.current?.addEventListener('wheel', handleWheel, { passive: false })
+      modalElement?.addEventListener('wheel', handleWheel, { passive: false })
     }
 
     return () => {
       document.removeEventListener('keydown', handleEsc)
-      modalRef.current?.removeEventListener('wheel', handleWheel)
+      modalElement?.removeEventListener('wheel', handleWheel)
     }
-  }, [isOpen, onClose])
+  }, [isOpen, onCloseAction])
 
   if (!mounted) {
     return null
@@ -79,7 +81,7 @@ export function Modal({
               className={cn(
                 'absolute inset-0 bg-black/60 backdrop-blur-sm',
               )}
-              onClick={onClose}
+              onClick={onCloseAction}
             />
             <div className="fixed inset-0 flex items-center justify-center p-4">
               <motion.div
@@ -88,25 +90,27 @@ export function Modal({
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ duration: 0.2 }}
                 className={cn(
-                  'relative w-full max-w-2xl max-h-[90vh] overflow-y-auto',
+                  'relative w-full overflow-y-auto',
                   'bg-white/10 backdrop-blur-lg rounded-xl border border-white/20',
+                  title && 'max-w-2xl max-h-[90vh]',
+                  className,
                 )}
               >
-                <div className="flex text-gray-300 items-center justify-between p-4 border-b border-white/10">
-                  {title && (
+                {title && (
+                  <div className="flex text-gray-300 items-center justify-between p-4 border-b border-white/10">
                     <h3 className="text-lg font-medium">{title}</h3>
-                  )}
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="p-4">
+                    <button
+                      type="button"
+                      onClick={onCloseAction}
+                      className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+                <div className="p-4 w-full h-full relative">
                   {children}
                 </div>
               </motion.div>
