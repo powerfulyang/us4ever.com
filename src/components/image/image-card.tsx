@@ -65,16 +65,16 @@ export function ImageCard({ image }: { image: Image }) {
             </svg>
           </button>
         </div>
-        <div className="grid grid-cols-5 gap-2 overflow-x-auto py-2 px-1">
+        <div className="grid grid-cols-5 gap-2 overflow-x-auto pt-2">
           {thumbnails.map(thumb => (
             <button
               type="button"
               key={thumb.url}
               onClick={() => setSelectedUrl(thumb.url)}
               className={cn(
-                'relative group/thumb',
+                'relative group/thumb border-2 border-transparent rounded',
                 {
-                  'ring-2 ring-purple-500 rounded': selectedUrl === thumb.url,
+                  'border-purple-500': selectedUrl === thumb.url,
                 },
               )}
             >
