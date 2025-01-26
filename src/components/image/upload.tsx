@@ -25,7 +25,11 @@ export function ImageUpload() {
 
   return (
     <div className="max-w-3xl m-auto">
-      <div className="flex flex-col max-w-3xl gap-4">
+      <div className="flex flex-col max-w-3xl gap-2 mb-4">
+        <UploadArea
+          onFileSelect={setSelectedFile}
+          disabled={uploadMutation.isPending}
+        />
         <div className="flex justify-end">
           <button
             type="button"
@@ -55,11 +59,6 @@ export function ImageUpload() {
             </span>
           </button>
         </div>
-
-        <UploadArea
-          onFileSelect={setSelectedFile}
-          disabled={uploadMutation.isPending}
-        />
       </div>
     </div>
   )

@@ -49,7 +49,7 @@ export function UploadArea({
       <div
         className={cn(
           'relative group',
-          'border-2 border-dashed border-gray-600 rounded-xl',
+          'border border-dashed border-gray-300 rounded-xl',
           'hover:border-purple-500/50 transition-colors',
           disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
           preview ? 'p-2' : 'p-8',

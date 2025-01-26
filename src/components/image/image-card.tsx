@@ -30,8 +30,8 @@ export function ImageCard({ image }: { image: Image }) {
 
   return (
     <>
-      <div className="bg-white/10 rounded-xl p-4 border border-white/20 hover:border-purple-500/50 transition-all duration-300 group">
-        <div className="relative aspect-[4/3] rounded-lg overflow-hidden mb-4">
+      <div className="bg-white/10 rounded-xl p-2 border border-white/20 hover:border-purple-500/50 transition-all duration-300 group">
+        <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
           <img
             src={selectedUrl}
             alt={image.name}

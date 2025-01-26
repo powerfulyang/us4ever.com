@@ -11,9 +11,9 @@ export const env = createEnv({
       .enum(['development', 'test', 'production'])
       .default('development'),
     DATABASE_URL: z.string().url(),
-    JWT_SECRET: z.string().min(1),
-    AMAP_KEY: z.string().min(1),
-    GEMINI_API_KEY: z.string().min(1),
+    JWT_SECRET: z.string().default(process.env.hostname || 'localhost'),
+    AMAP_KEY: z.string().optional(),
+    GEMINI_API_KEY: z.string().optional(),
   },
 
   /**
