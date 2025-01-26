@@ -1,5 +1,6 @@
 'use client'
 
+import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
@@ -87,13 +88,15 @@ export function MindMapImport() {
         onCheckedChange={setIsPublic}
         disabled={isPending}
       />
-      <Button
-        onClick={handleParse}
-        disabled={!file || isPending}
-        className="ml-auto"
-      >
-        {isPending ? '解析中...' : '开始解析'}
-      </Button>
+      <AuthenticatedOnly disableChildren>
+        <Button
+          onClick={handleParse}
+          disabled={!file || isPending}
+          className="ml-auto"
+        >
+          {isPending ? '解析中...' : '开始解析'}
+        </Button>
+      </AuthenticatedOnly>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import React, { useState } from 'react'
 import { ImagePreviewModal } from './preview-modal'
 
 interface UploadAreaProps {
+  disabledText?: string
   onFileSelect?: (file: File) => void
   preview?: string
   className?: string
@@ -18,6 +19,7 @@ export function UploadArea({
   preview: externalPreview,
   className,
   disabled = false,
+  disabledText = '请先登录',
 }: UploadAreaProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const { preview: internalPreview, handleFile, handleDrop, accept } = useImageUpload({
@@ -47,6 +49,7 @@ export function UploadArea({
   return (
     <>
       <div
+        title={disabled ? disabledText : ''}
         className={cn(
           'relative group',
           'border border-dashed border-gray-300 rounded-xl',

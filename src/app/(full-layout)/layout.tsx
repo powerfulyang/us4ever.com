@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { logout } from '@/app/actions'
 import UserIcon from '@/components/user/icon'
 import Link from 'next/link'
 
@@ -35,7 +36,7 @@ export default async function FullLayout({
                   <span className="font-medium text-gray-300 group-hover:text-white transition-colors">首页</span>
                 </Link>
               </nav>
-              <UserIcon />
+              <UserIcon onLogoutAction={logout} />
             </div>
           </div>
         </header>

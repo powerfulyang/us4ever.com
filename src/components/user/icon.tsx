@@ -3,14 +3,21 @@
 import { Confirm } from '@/components/ui/confirm'
 import LoginButton from '@/components/user/login-button'
 import { useUserStore } from '@/store/user'
-import { api } from '@/trpc/react'
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 
-export default function UserIcon() {
+interface Props {
+  onLogoutAction: () => Promise<void>
+}
+
+export default function UserIcon({ onLogoutAction }: Props) {
   const { isPending, currentUser } = useUserStore()
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
 
-  const logout = api.user.logout.useMutation({
+  const { isPending: isLogoutPending, mutate } = useMutation({
+    mutationFn() {
+      return onLogoutAction()
+    },
     onSuccess() {
       window.location.reload()
     },
@@ -27,10 +34,6 @@ export default function UserIcon() {
 
   if (!currentUser) {
     return <LoginButton />
-  }
-
-  const handleLogout = async () => {
-    logout.mutate()
   }
 
   return (
@@ -60,9 +63,9 @@ export default function UserIcon() {
 
       <Confirm
         isOpen={showLogoutConfirm}
-        isConfirmLoading={logout.isPending}
+        isConfirmLoading={isLogoutPending}
         onClose={() => setShowLogoutConfirm(false)}
-        onConfirm={handleLogout}
+        onConfirm={mutate}
         title="退出登录"
         content="确定要退出登录吗？"
       />

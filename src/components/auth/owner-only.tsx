@@ -1,7 +1,8 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { useUserStore } from '@/store/user'
+import { createElement, isValidElement } from 'react'
 
 interface OwnerOnlyProps {
   ownerId: string | undefined
@@ -19,10 +20,20 @@ export function OwnerOnly(
   return children
 }
 
-export function AuthenticatedOnly({ children }: { children: ReactNode }) {
+export function AuthenticatedOnly({
+  children,
+  disableChildren = false,
+}: { children: ReactElement<Record<string, any>>, disableChildren?: boolean }) {
   const { isAuthenticated } = useUserStore()
 
-  if (!isAuthenticated)
+  if (!isAuthenticated) {
+    if (disableChildren) {
+      return isValidElement(children)
+        ? createElement(children.type, { ...children.props, title: '请先登录', disabled: true })
+        : children
+    }
     return null
+  }
+
   return children
 }

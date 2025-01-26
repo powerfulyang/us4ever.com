@@ -19,7 +19,7 @@ export default async function KeepPage() {
         title="我的笔记本"
         description="记录灵感与思考的地方"
         rightContent={(
-          <AuthenticatedOnly>
+          <AuthenticatedOnly disableChildren>
             <Button>
               <Link href="/keep/save">创建笔记</Link>
             </Button>

@@ -33,17 +33,17 @@ export function TodoForm() {
   }
 
   return (
-    <AuthenticatedOnly>
-      <div className="flex gap-4 items-center">
-        <TextareaAutosize
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="添加新的待办事项..."
-          minRows={1}
-          rows={1}
-          className="flex-1 rounded-lg bg-white/10 backdrop-blur-lg px-4 py-2 text-white placeholder-gray-400 border border-white/20 focus:border-purple-500/50 focus:outline-none transition-colors resize-none"
-        />
+    <div className="flex gap-4 items-center">
+      <TextareaAutosize
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="添加新的待办事项..."
+        minRows={1}
+        rows={1}
+        className="flex-1 rounded-lg bg-white/10 backdrop-blur-lg px-4 py-2 text-white placeholder-gray-400 border border-white/20 focus:border-purple-500/50 focus:outline-none transition-colors resize-none"
+      />
+      <AuthenticatedOnly disableChildren>
         <button
           type="button"
           onClick={create}
@@ -57,7 +57,7 @@ export function TodoForm() {
           )}
           添加
         </button>
-      </div>
-    </AuthenticatedOnly>
+      </AuthenticatedOnly>
+    </div>
   )
 }

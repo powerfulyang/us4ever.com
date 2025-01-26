@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
 import { MindMapList } from 'src/app/(full-layout)/mindmap/components/list'
@@ -18,9 +17,7 @@ export default async function MindMapPage() {
         title="思维导图"
         description="记录和分享你的思维导图"
         rightContent={(
-          <AuthenticatedOnly>
-            <MindMapImport />
-          </AuthenticatedOnly>
+          <MindMapImport />
         )}
       >
         <MindMapList />

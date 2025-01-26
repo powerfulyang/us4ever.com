@@ -1,13 +1,14 @@
 'use client'
 
 import type { Todo } from '@prisma/client'
+import { OwnerOnly } from '@/components/auth/owner-only'
 import { MdRender } from '@/components/md-render'
 import { Modal } from '@/components/ui/modal'
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
 
 export interface TodoItemProps {
@@ -57,6 +58,12 @@ export function TodoItem({ todo }: TodoItemProps) {
     },
   })
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      handleEdit()
+    }
+  }
+
   useEffect(() => {
     const checkOverflow = () => {
       if (contentRef.current) {
@@ -69,7 +76,7 @@ export function TodoItem({ todo }: TodoItemProps) {
     return () => window.removeEventListener('resize', checkOverflow)
   }, [todo.title])
 
-  const handleEdit = () => {
+  function handleEdit() {
     if (!editTitle.trim())
       return
     updateTodo.mutate({
@@ -200,38 +207,40 @@ export function TodoItem({ todo }: TodoItemProps) {
             {todo.isPublic ? '公开' : '私有'}
           </button>
 
-          <div className="flex items-center gap-2 ml-auto">
-            <button
-              type="button"
-              onClick={() => setIsEditModalOpen(true)}
-              className="p-1 text-gray-400 hover:text-blue-400 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setIsDeleteModalOpen(true)}
-              disabled={deleteTodo.isPending}
-              className="p-1 text-gray-400 hover:text-red-400 transition-colors"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <OwnerOnly ownerId={todo.ownerId}>
+            <div className="flex items-center gap-2 ml-auto">
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(true)}
+                className="p-1 text-gray-400 hover:text-blue-400 transition-colors"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-            </button>
-          </div>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                disabled={deleteTodo.isPending}
+                className="p-1 text-gray-400 hover:text-red-400 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </button>
+            </div>
+          </OwnerOnly>
         </motion.div>
       </motion.div>
 
@@ -274,6 +283,7 @@ export function TodoItem({ todo }: TodoItemProps) {
           <TextareaAutosize
             value={editTitle}
             onChange={e => setEditTitle(e.target.value)}
+            onKeyDown={handleKeyDown}
             minRows={10}
             rows={10}
             className="w-full h-32 px-3 py-2 text-white bg-white/5 rounded-lg border border-white/10 focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-colors resize-none"

@@ -18,9 +18,7 @@ export default async function ImagePage() {
         title="图片管理"
         description="图片统一管理"
       >
-        <AuthenticatedOnly>
-          <ImageUpload />
-        </AuthenticatedOnly>
+        <ImageUpload />
         <ImageList />
       </Container>
     </HydrateClient>
