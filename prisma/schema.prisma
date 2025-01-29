@@ -106,6 +106,9 @@ model Image {
 
   uploadedBy String // 上传用户的 ID
 
+  // relations
+  moments MomentImages[]
+
   @@map("images") // 数据库中的表名为 uploads
 }
 
@@ -156,4 +159,32 @@ model MindMap {
   likes     Int      @default(0)
 
   @@map("mindmaps")
+}
+
+model Moment {
+  id        String   @id @default(uuid())
+  content   String   @default("")
+  category  String   @default("default")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownerId String
+  // relations
+  images  MomentImages[]
+
+  @@map("moments")
+}
+
+model MomentImages {
+  id        Int      @id @default(autoincrement())
+  imageId   String
+  image     Image    @relation(fields: [imageId], references: [id])
+  momentId  String
+  moment    Moment   @relation(fields: [momentId], references: [id])
+  sort      Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([imageId, momentId], map: "moment_images_unique")
+  @@map("moment_images")
 }

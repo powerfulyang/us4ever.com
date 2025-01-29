@@ -1,1 +1,1 @@
-export * from 'src/service/imagemin.service'
+export * from '@/service/imagemin.service'
