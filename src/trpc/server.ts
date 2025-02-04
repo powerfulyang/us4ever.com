@@ -1,4 +1,5 @@
-import { type AppRouter, createCaller } from '@/server/api/root'
+import type { AppRouter } from '@/server/api/root'
+import { createCaller } from '@/server/api/root'
 
 import { createTRPCContext } from '@/server/api/trpc'
 import { createHydrationHelpers } from '@trpc/react-query/rsc'

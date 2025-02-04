@@ -7,9 +7,9 @@ import { AnimatePresence } from 'framer-motion'
 import { TodoItem } from './TodoItem'
 
 export default function TodoList() {
-  const { data: todos = [], isLoading } = api.todo.getAll.useQuery()
+  const { data: todos = [], isPending } = api.todo.getAll.useQuery()
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <LoadingSpinner text="加载中..." />
     )

@@ -204,7 +204,7 @@ export function TodoItem({ todo }: TodoItemProps) {
               todo.isPublic ? 'bg-green-500/20 text-green-300 hover:bg-green-500/30' : 'bg-gray-500/20 text-gray-300 hover:bg-gray-500/30',
             )}
           >
-            {todo.isPublic ? '公开' : '私有'}
+            {todo.isPublic ? '公开' : '私密'}
           </button>
 
           <OwnerOnly ownerId={todo.ownerId}>

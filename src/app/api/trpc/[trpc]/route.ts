@@ -31,6 +31,9 @@ function handler(req: NextRequest) {
             console.error(
               `❌ tRPC failed on ${path ?? '<no-path>'}: ${error.message}`,
             )
+            if (error.cause instanceof Error) {
+              console.error(error.cause)
+            }
           }
         : undefined,
   })

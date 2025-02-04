@@ -5,6 +5,7 @@ import KeepEditor from '../components/editor'
 export const metadata: Metadata = {
   title: 'Keep - Update',
   description: 'Update a keep',
+  robots: { index: false },
 }
 
 interface PageProps {

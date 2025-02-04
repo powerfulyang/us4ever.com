@@ -70,7 +70,7 @@ export default function DiffPage() {
           styles={{
             diffContainer: {
               pre: {
-                fontSize: '13px',
+                fontSize: '14px',
                 lineHeight: '1.4',
               },
             },

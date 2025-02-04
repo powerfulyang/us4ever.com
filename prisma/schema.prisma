@@ -27,29 +27,30 @@ model Bucket {
   accessKey   String // 访问密钥，需加密存储
   secretKey   String // 私密密钥，需加密存储
   description String   @default("") // 存储桶描述
-  createdAt   DateTime @default(now()) // 创建时间
-  updatedAt   DateTime @updatedAt // 更新时间，自动更新
-  ownerId     String // 所属用户
-  files       File[] // 关联到文件表，一对多关系
+
+  ownerId String // 所属用户
+  files   File[] // 关联到文件表，一对多关系
+
+  //
+  createdAt DateTime @default(now()) // 创建时间
+  updatedAt DateTime @updatedAt // 更新时间，自动更新
 
   @@map("buckets") // 数据库中的表名为 buckets
 }
 
 model File {
-  id          String   @id @default(uuid()) // 主键，UUID 自动生成
+  id          String  @id @default(uuid()) // 主键，UUID 自动生成
   bucketId    String // 所属 bucket 的 ID
-  bucket      Bucket   @relation(fields: [bucketId], references: [id]) // 关联到 Bucket 表
+  bucket      Bucket  @relation(fields: [bucketId], references: [id]) // 关联到 Bucket 表
   name        String // 文件名称
   type        String // 文件类型（如 image/jpeg）
   hash        String // 文件的 SHA256 哈希值
   size        BigInt // 文件大小（以字节为单位）
   path        String // 文件存储路径或 URL
-  isPublic    Boolean  @default(false) // 是否公开
+  isPublic    Boolean @default(false) // 是否公开
   uploadedBy  String // 上传用户的 ID
-  description String   @default("") // 文件描述
-  tags        Json     @default("[]") // 文件标签
-  createdAt   DateTime @default(now()) // 创建时间
-  updatedAt   DateTime @updatedAt // 更新时间，自动更新
+  description String  @default("") // 文件描述
+  tags        Json    @default("[]") // 文件标签
 
   // 320x 缩略图
   thumbnail_320x_image Image[] @relation(name: "thumbnail_320x")
@@ -60,11 +61,15 @@ model File {
   // 原图
   original_image       Image[] @relation(name: "original")
 
+  //
+  createdAt DateTime @default(now()) // 创建时间
+  updatedAt DateTime @updatedAt // 更新时间，自动更新
+
   @@map("files") // 数据库中的表名为 files
 }
 
 model Image {
-  id                String   @id @default(uuid()) // 主键，UUID 自��生成
+  id                String  @id @default(uuid()) // 主键，UUID 自��生成
   // 原始文件名
   name              String
   // 文件类型
@@ -76,112 +81,130 @@ model Image {
   // 图片的高度
   height            Int
   // 图片的 exif 信息
-  exif              Json     @default("{}")
+  exif              Json    @default("{}")
   // sha256
   hash              String
   // exif address
-  address           String   @default("")
+  address           String  @default("")
   // 是否公开
-  isPublic          Boolean  @default(false)
+  isPublic          Boolean @default(false)
   // 图片描述
-  description       String   @default("")
+  description       String  @default("")
   // 图片标签
-  tags              Json     @default("[]")
+  tags              Json    @default("[]")
   // 10x 缩略图
   thumbnail_10x     Bytes
   // 320x 缩略图
   thumbnail_320x_id String
-  thumbnail_320x    File     @relation(name: "thumbnail_320x", fields: [thumbnail_320x_id], references: [id])
+  thumbnail_320x    File    @relation(name: "thumbnail_320x", fields: [thumbnail_320x_id], references: [id])
   // 768x 缩略图
   thumbnail_768x_id String
-  thumbnail_768x    File     @relation(name: "thumbnail_768x", fields: [thumbnail_768x_id], references: [id])
+  thumbnail_768x    File    @relation(name: "thumbnail_768x", fields: [thumbnail_768x_id], references: [id])
   // 原大小压缩图
   compressed_id     String
-  compressed        File     @relation(name: "compressed", fields: [compressed_id], references: [id])
+  compressed        File    @relation(name: "compressed", fields: [compressed_id], references: [id])
   // 原图
   original_id       String
-  original          File     @relation(name: "original", fields: [original_id], references: [id])
-  createdAt         DateTime @default(now()) // 创建时间
-  updatedAt         DateTime @updatedAt // 更新时间，自动更新
+  original          File    @relation(name: "original", fields: [original_id], references: [id])
 
   uploadedBy String // 上传用户的 ID
 
   // relations
   moments MomentImages[]
 
+  //
+  createdAt DateTime @default(now()) // 创建时间
+  updatedAt DateTime @updatedAt // 更新时间，自动更新
+
   @@map("images") // 数据库中的表名为 uploads
 }
 
 model Keep {
-  id        String   @id @default(uuid()) // 主键，UUID 自动生成
-  title     String   @default("") // 笔记标题
-  content   String // 笔记内容
-  summary   String   @default("") // 笔记摘要
-  isPublic  Boolean  @default(false) // 是否公开
-  tags      Json     @default("[]") // 笔记标签
+  id       String  @id @default(uuid()) // 主键，UUID 自动生成
+  title    String  @default("") // 笔记标题
+  content  String // 笔记内容
+  summary  String  @default("") // 笔记摘要
+  isPublic Boolean @default(false) // 是否公开
+  tags     Json    @default("[]") // 笔记标签
+
+  ownerId  String // 所属用户
+  category String @default("default") // 笔记分类
+  views    Int    @default(0) // 查看次数
+  likes    Int    @default(0) // 点赞数
+
+  //
   createdAt DateTime @default(now()) // 创建时间
   updatedAt DateTime @updatedAt // 更新时间，自动更新
-  ownerId   String // 所属用户
-  category  String   @default("default") // 笔记分类
-  views     Int      @default(0) // 查看次数
-  likes     Int      @default(0) // 点赞数
 
   @@map("keeps")
 }
 
 model Todo {
-  id        String    @id @default(uuid())
-  title     String
-  content   String?
-  status    Boolean   @default(false)
-  priority  Int       @default(0)
-  dueDate   DateTime?
-  isPublic  Boolean   @default(false)
-  pinned    Boolean   @default(false)
-  ownerId   String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id       String    @id @default(uuid())
+  title    String
+  content  String?
+  status   Boolean   @default(false)
+  priority Int       @default(0)
+  dueDate  DateTime?
+  isPublic Boolean   @default(false)
+  pinned   Boolean   @default(false)
+  ownerId  String
+
+  //
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("todos")
 }
 
 model MindMap {
-  id        String   @id @default(uuid())
-  title     String   @default("")
-  content   Json // 存储解析后的 xmind JSON 数据
-  summary   String   @default("") // 笔记摘要
-  isPublic  Boolean  @default(false)
-  tags      Json     @default("[]")
+  id       String  @id @default(uuid())
+  title    String  @default("")
+  content  Json // 存储解析后的 xmind JSON 数据
+  summary  String  @default("") // 笔记摘要
+  isPublic Boolean @default(false)
+  tags     Json    @default("[]")
+
+  ownerId String
+  views   Int    @default(0)
+  likes   Int    @default(0)
+
+  //
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  ownerId   String
-  views     Int      @default(0)
-  likes     Int      @default(0)
 
   @@map("mindmaps")
 }
 
 model Moment {
-  id        String   @id @default(uuid())
-  content   String   @default("")
-  category  String   @default("default")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id       String  @id @default(uuid())
+  content  String  @default("")
+  category String  @default("default")
+  isPublic Boolean @default(false)
+  tags     Json    @default("[]")
+  views    Int     @default(0)
+  likes    Int     @default(0)
 
   ownerId String
   // relations
   images  MomentImages[]
 
+  //
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("moments")
 }
 
 model MomentImages {
-  id        Int      @id @default(autoincrement())
-  imageId   String
-  image     Image    @relation(fields: [imageId], references: [id])
-  momentId  String
-  moment    Moment   @relation(fields: [momentId], references: [id])
-  sort      Int      @default(0)
+  id       Int    @id @default(autoincrement())
+  imageId  String
+  image    Image  @relation(fields: [imageId], references: [id])
+  momentId String
+  moment   Moment @relation(fields: [momentId], references: [id])
+  sort     Int    @default(0)
+
+  //
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

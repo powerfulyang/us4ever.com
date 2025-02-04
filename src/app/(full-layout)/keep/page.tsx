@@ -9,6 +9,9 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: 'Keep',
   description: 'A place to record inspiration and thinking',
+  alternates: {
+    canonical: `${BASE_URL}/keep`,
+  },
 }
 
 export default async function KeepPage() {

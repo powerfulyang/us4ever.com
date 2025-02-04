@@ -1,10 +1,13 @@
 import type { Metadata } from 'next'
-import { Base64Converter } from '@/components/image/base64-converter'
+import { Base64Converter } from '@/app/(full-layout)/image/components/base64-converter'
 import { Container } from '@/components/layout/Container'
 
 export const metadata: Metadata = {
   title: 'Image Base64 Converter',
   description: 'Convert image to base64 string',
+  alternates: {
+    canonical: `${BASE_URL}/image/base64`,
+  },
 }
 
 export default function Base64Page() {

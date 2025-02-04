@@ -1,12 +1,14 @@
 'use client'
 
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
+import { UploadArea } from '@/components/image/upload-area'
+import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
-import { useState } from 'react'
-import { UploadArea } from './upload-area'
+import React, { useState } from 'react'
 
 export function ImageUpload() {
   const utils = api.useUtils()
+  const [isPublic, setIsPublic] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const uploadMutation = api.asset.upload_image.useMutation({
@@ -16,12 +18,13 @@ export function ImageUpload() {
     },
   })
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (!selectedFile)
       return
     const formData = new FormData()
     formData.append('file', selectedFile)
-    await uploadMutation.mutateAsync(formData)
+    formData.append('isPublic', isPublic.toString())
+    uploadMutation.mutate(formData)
   }
 
   return (
@@ -31,7 +34,12 @@ export function ImageUpload() {
           onFileSelect={setSelectedFile}
           disabled={uploadMutation.isPending}
         />
-        <div className="flex justify-end">
+        <div className="flex justify-end items-center gap-4">
+          <Switch
+            checked={isPublic}
+            onCheckedChange={setIsPublic}
+            disabled={uploadMutation.isPending}
+          />
           <AuthenticatedOnly disableChildren>
             <button
               type="button"

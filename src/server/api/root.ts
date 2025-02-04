@@ -1,6 +1,7 @@
 import { assetRouter } from '@/server/api/routers/asset'
 import { keepRouter } from '@/server/api/routers/keep'
 import { mindmapRouter } from '@/server/api/routers/mindmap'
+import { momentRouter } from '@/server/api/routers/moment'
 import { userRouter } from '@/server/api/routers/user'
 import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc'
 import { todoRouter } from './routers/todo'
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   keep: keepRouter,
   todo: todoRouter,
   mindmap: mindmapRouter,
+  moment: momentRouter,
 })
 
 // export type definition of API

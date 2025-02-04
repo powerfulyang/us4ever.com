@@ -1,12 +1,15 @@
-import { Buffer } from 'node:buffer'
+import type { RouterOutputs } from '@/trpc/react'
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc'
-import { getFileUrl, upload_image } from '@/service/file.service'
-
+import { upload_image } from '@/service/file.service'
+import { getImageById, listAccessibleImages } from '@/service/image.service'
+import { z } from 'zod'
 import { zfd } from 'zod-form-data'
+
+export type Image = RouterOutputs['asset']['list_image'][number]
 
 export const assetRouter = createTRPCRouter({
   upload_image: protectedProcedure
@@ -22,65 +25,17 @@ export const assetRouter = createTRPCRouter({
         isPublic,
       })
     }),
+
   list_image: publicProcedure
     .query(async ({ ctx }) => {
-      const images = await ctx.db.image.findMany({
-        include: {
-          original: {
-            include: {
-              bucket: true,
-            },
-          },
-          compressed: {
-            include: {
-              bucket: true,
-            },
-          },
-          thumbnail_320x: {
-            include: {
-              bucket: true,
-            },
-          },
-          thumbnail_768x: {
-            include: {
-              bucket: true,
-            },
-          },
-        },
-        where: {
-          OR: [
-            {
-              uploadedBy: ctx.user?.id,
-            },
-            {
-              isPublic: true,
-            },
-          ],
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      })
+      return listAccessibleImages(ctx.user?.id)
+    }),
 
-      return images.map((image) => {
-        const base64_1x1 = Buffer.from(image.thumbnail_10x).toString('base64')
-        return {
-          id: image.id,
-          hash: image.hash,
-          name: image.name,
-          exif: image.exif,
-          original_url: getFileUrl(image.original),
-          original_size: image.original.size,
-          compressed_url: getFileUrl(image.compressed),
-          compressed_size: image.compressed.size,
-          thumbnail_320x_url: getFileUrl(image.thumbnail_320x),
-          thumbnail_320x_size: image.thumbnail_320x.size,
-          thumbnail_768x_url: getFileUrl(image.thumbnail_768x),
-          thumbnail_768x_size: image.thumbnail_768x.size,
-          thumbnail_10x_url: `data:image/avif;base64,${base64_1x1}`,
-          thumbnail_10x_size: image.thumbnail_10x.byteLength,
-          address: image.address,
-        }
-      })
+  get_image_by_id: publicProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .query(async ({ ctx, input }) => {
+      return getImageById(input.id, ctx.user?.id)
     }),
 })

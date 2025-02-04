@@ -1,18 +1,14 @@
-'use client'
+import type { Metadata } from 'next'
+import { Excalidraw } from './components/draw-page'
 
-import dynamic from 'next/dynamic'
+export const metadata: Metadata = {
+  title: 'Whiteboard',
+  description: '在线白板',
+  alternates: {
+    canonical: `${BASE_URL}/draw`,
+  },
+}
 
-const Excalidraw = dynamic(
-  async () => {
-    // eslint-disable-next-line ts/ban-ts-comment
-    // @ts-expect-error
-    window.EXCALIDRAW_ASSET_PATH = '/'
-    return import('@excalidraw/excalidraw').then(mod => mod.Excalidraw)
-  },
-  {
-    ssr: false,
-  },
-)
 export default function App() {
   return (
     <div className="w-full h-full">

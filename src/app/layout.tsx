@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { UserProvider } from '@/components/auth/user-provider'
 import { TRPCReactProvider } from '@/trpc/react'
+import { api, HydrateClient } from '@/trpc/server'
 import Script from 'next/script'
 import React from 'react'
 import { ToastContainer } from 'react-toastify'
@@ -22,11 +23,12 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  await api.user.current.prefetch()
   return (
     <html lang="zh-CN">
       <Script
@@ -37,7 +39,9 @@ export default function RootLayout({
       </Script>
       <body>
         <TRPCReactProvider>
-          <UserProvider />
+          <HydrateClient>
+            <UserProvider />
+          </HydrateClient>
           {children}
           <ToastContainer theme="colored" />
         </TRPCReactProvider>

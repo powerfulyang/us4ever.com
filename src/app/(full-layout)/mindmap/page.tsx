@@ -7,6 +7,9 @@ import { MindMapImport } from './components/create'
 export const metadata: Metadata = {
   title: '思维导图',
   description: '记录和分享你的思维导图',
+  alternates: {
+    canonical: `${BASE_URL}/mindmap`,
+  },
 }
 
 export default async function MindMapPage() {

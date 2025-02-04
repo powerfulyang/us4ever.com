@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Truncate } from '@/components/ui/truncate'
 import { formatFileSize, formatThousands } from '@/utils'
 import { useCallback, useState } from 'react'
-import { UploadArea } from './upload-area'
+import { UploadArea } from 'src/components/image/upload-area'
 
 interface PreviewImage {
   url: string

@@ -1,10 +1,11 @@
 'use client'
 
 import type { AppRouter } from '@/server/api/root'
+import type { QueryClient } from '@tanstack/react-query'
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 import type { ReactNode } from 'react'
 import { errorToastLink } from '@/trpc/errorToastLink'
-import { type QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import {
   httpBatchLink,
   httpLink,
@@ -63,7 +64,10 @@ export function TRPCReactProvider(props: { children: ReactNode }) {
         splitLink({
           condition: op => isNonJsonSerializable(op.input),
           true: httpLink({
-            transformer: defaultTransformer,
+            transformer: {
+              input: defaultTransformer.input,
+              output: SuperJSON,
+            },
             url,
           }),
           false: httpBatchLink({

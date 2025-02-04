@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
-import { AuthenticatedOnly } from '@/components/auth/owner-only'
-import { ImageList } from '@/components/image/list'
-import { ImageUpload } from '@/components/image/upload'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
+import { ImageList } from './components/list'
+import { ImageUpload } from './components/upload'
 
 export const metadata: Metadata = {
-  title: 'Image',
-  description: 'Image management',
+  title: '图片管理',
+  description: '管理各个地方上传的图片',
+  alternates: {
+    canonical: `${BASE_URL}/image`,
+  },
 }
 
 export default async function ImagePage() {

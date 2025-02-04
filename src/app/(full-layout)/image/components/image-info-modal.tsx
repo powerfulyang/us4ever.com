@@ -1,10 +1,8 @@
 'use client'
 
-import type { RouterOutputs } from '@/trpc/react'
+import type { Image } from '@/server/api/routers/asset'
 import { Modal } from '@/components/ui/modal'
 import { formatFileSize } from '@/utils'
-
-type Image = RouterOutputs['asset']['list_image'][number]
 
 interface ImageInfoModalProps {
   image: Image
@@ -45,7 +43,7 @@ export function ImageInfoModal({ image, isOpen, onClose }: ImageInfoModalProps) 
           </div>
         </div>
 
-        {image.exif && (
+        {image.exif && !!Object.keys(image.exif).length && (
           <>
             <div className="w-full h-px bg-white/10" />
             <div>

@@ -21,7 +21,7 @@ async function keepCorn() {
   })
 
   if (!keep)
-    return
+    return 'no keep need update'
 
   // 遍历记录并生成标题
   if (!keep.title) {
@@ -52,7 +52,7 @@ async function mindMapCorn() {
   })
 
   if (!mindmap)
-    return
+    return 'no mindmap need update'
 
   if (!mindmap.summary) {
     const content = extractText(mindmap.content)

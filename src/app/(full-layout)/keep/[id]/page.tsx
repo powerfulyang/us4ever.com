@@ -22,6 +22,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: keep?.title || 'keep - Detail',
     description: keep?.summary || 'keep - Description',
+    alternates: {
+      canonical: `${BASE_URL}/keep/${keepId}`,
+    },
   }
 }
 

@@ -32,9 +32,9 @@ export async function regeo(location: string) {
   return json.regeocode
 }
 
-export async function getAddressFromExif(exif: any) {
-  const GPSLatitude = exif.GPSLatitude
-  const GPSLongitude = exif.GPSLongitude
+export async function getAddressFromExif(exif?: any) {
+  const GPSLatitude = exif?.GPSLatitude
+  const GPSLongitude = exif?.GPSLongitude
   let address = ''
   if (GPSLatitude && GPSLongitude) {
     try {
