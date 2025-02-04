@@ -4,10 +4,11 @@ import { imageInclude, transformImageToResponse } from './image.service'
 
 interface CreateMomentInput {
   content: string
-  category: string
-  imageIds: string[]
+  category?: string
+  imageIds?: string[]
   ownerId: string
-  isPublic: boolean
+  isPublic?: boolean
+  createdAt?: Date
 }
 
 interface UpdateMomentInput extends CreateMomentInput {
@@ -46,13 +47,14 @@ export async function listMoments({ userId }: BaseListFilter) {
 }
 
 export async function createMoment(input: CreateMomentInput) {
-  const { content, category, imageIds, ownerId, isPublic } = input
+  const { content, category = 'default', imageIds = [], ownerId, isPublic = false, createdAt } = input
   return db.moment.create({
     data: {
       content,
       category,
       ownerId,
       isPublic,
+      createdAt,
       images: {
         create: imageIds.map((imageId, index) => ({
           imageId,
@@ -71,7 +73,7 @@ export async function createMoment(input: CreateMomentInput) {
 }
 
 export async function updateMoment(input: UpdateMomentInput) {
-  const { id, content, category, imageIds, ownerId } = input
+  const { id, content, category, imageIds = [], ownerId } = input
 
   // 删除旧的图片关联
   await db.momentImages.deleteMany({

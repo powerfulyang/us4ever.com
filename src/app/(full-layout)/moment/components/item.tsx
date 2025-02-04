@@ -2,6 +2,7 @@
 
 import type { Moment } from '@/server/api/routers/moment'
 import { AssetImageWithData } from '@/components/image/image'
+import { ImagePreviewModal } from '@/components/image/preview-modal'
 import { MdRender } from '@/components/md-render'
 import { Card } from '@/components/ui/card'
 import { Confirm } from '@/components/ui/confirm'
@@ -19,6 +20,8 @@ interface MomentItemProps {
 
 export function MomentItem({ moment }: MomentItemProps) {
   const [showConfirm, setShowConfirm] = useState(false)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState('')
   const utils = api.useUtils()
 
   const { mutate: deleteMoment, isPending } = api.moment.delete.useMutation({
@@ -32,6 +35,11 @@ export function MomentItem({ moment }: MomentItemProps) {
     setShowConfirm(true)
   }
 
+  function handlePreview(url: string) {
+    setIsPreviewOpen(true)
+    setPreviewUrl(url)
+  }
+
   return (
     <>
       <motion.div
@@ -43,11 +51,11 @@ export function MomentItem({ moment }: MomentItemProps) {
       >
         <Card>
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               <img
                 src="/favicon.ico"
                 alt="用户头像"
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded"
               />
               <div className="flex flex-col justify-center gap-1">
                 <h3 className="text-sm text-gray-200">eleven</h3>
@@ -66,17 +74,18 @@ export function MomentItem({ moment }: MomentItemProps) {
               </button>
             </div>
             {moment.content && (
-              <MdRender>
+              <MdRender className="text-sm">
                 {moment.content}
               </MdRender>
             )}
 
             {moment.images.length > 0 && (
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2">
                 {moment.images.map(image => (
                   <div
                     key={image.id}
                     className="relative pt-[100%] rounded-lg overflow-hidden bg-white/5"
+                    onClick={() => handlePreview(image.compressed_url)}
                   >
                     <AssetImageWithData
                       image={image}
@@ -86,6 +95,12 @@ export function MomentItem({ moment }: MomentItemProps) {
                 ))}
               </div>
             )}
+
+            <ImagePreviewModal
+              src={previewUrl}
+              isOpen={isPreviewOpen}
+              onClose={() => setIsPreviewOpen(false)}
+            />
 
             <div className="mt-auto">
               <Divider className="mb-3 mt-1" />

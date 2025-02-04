@@ -66,7 +66,7 @@ export function Truncate({
             exit={{ opacity: 0, y: placement === 'top' ? 8 : -8, x: '-50%' }}
             transition={{ duration: 0.2 }}
             className={cn(
-              'absolute left-1/2 z-50 px-2 py-1 text-sm bg-black/80 backdrop-blur-sm text-white rounded-lg',
+              'absolute left-1/2 z-50 px-2 py-1 text-sm bg-black/80 backdrop-blur-sm text-white rounded-lg break-all',
               placement === 'top' ? 'bottom-full mb-1' : 'top-full mt-1',
               tooltipClassName,
             )}
