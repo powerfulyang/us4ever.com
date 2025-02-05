@@ -1,5 +1,6 @@
 'use client'
 
+import type { Image } from '@/server/api/routers/asset'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -16,7 +17,7 @@ interface Props {
 export function MomentCreate({ category }: Props) {
   const [isPublic, setIsPublic] = useState(false)
   const [content, setContent] = useState('')
-  const [selectedImages, setSelectedImages] = useState<string[]>([])
+  const [selectedImages, setSelectedImages] = useState<Image[]>([])
   const utils = api.useUtils()
 
   const { mutate: createMoment, isPending } = api.moment.create.useMutation({
@@ -33,18 +34,18 @@ export function MomentCreate({ category }: Props) {
 
     createMoment({
       content: content.trim(),
-      imageIds: selectedImages,
+      imageIds: selectedImages.map(image => image.id),
       isPublic,
       category,
     })
   }
 
-  const handleImageSelect = (imageId: string) => {
-    setSelectedImages(prev => [...prev, imageId])
+  const handleImageSelect = (image: Image) => {
+    setSelectedImages(prev => [...prev, image])
   }
 
-  const handleImageRemove = (imageId: string) => {
-    setSelectedImages(prev => prev.filter(id => id !== imageId))
+  const handleImageRemove = (image: Image) => {
+    setSelectedImages(prev => prev.filter(item => item.id !== image.id))
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {

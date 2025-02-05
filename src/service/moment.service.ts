@@ -70,8 +70,8 @@ export async function createMoment(input: CreateMomentInput) {
               connect: {
                 id: image.id,
               },
-              sort: image.sort,
             },
+            sort: image.sort,
           }
         }),
       },
@@ -82,8 +82,8 @@ export async function createMoment(input: CreateMomentInput) {
               connect: {
                 id: video.id,
               },
-              sort: video.sort,
             },
+            sort: video.sort,
           }
         }),
       },
@@ -117,8 +117,8 @@ export async function updateMoment(input: UpdateMomentInput) {
               connect: {
                 id: image.id,
               },
-              sort: image.sort,
             },
+            sort: image.sort,
           }
         }),
       },

@@ -4,6 +4,7 @@ import { Buffer } from 'node:buffer'
 import { env } from '@/env'
 import { getVideoDuration } from '@/lib/ffmpeg'
 import { db } from '@/server/db'
+import { imageInclude, transformImageToResponse } from '@/service/asset.service'
 import { imageminService } from '@/service/imagemin.service'
 import { delete_from_bucket, upload_to_bucket } from '@/service/s3.service'
 import { formatBearing } from '@/utils'
@@ -134,7 +135,7 @@ export async function upload_image(
     })
 
     // 创建图片记录
-    return await db.image.create({
+    const image = await db.image.create({
       data: {
         name: original_image.name,
         type: original_image.type,
@@ -167,7 +168,10 @@ export async function upload_image(
         },
         isPublic,
       },
+      include: imageInclude,
     })
+
+    return transformImageToResponse(image)
   }
   catch (e) {
     console.error(e)

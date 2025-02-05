@@ -1,17 +1,17 @@
 'use client'
 
+import type { Image } from '@/server/api/routers/asset'
 import type { ChangeEvent } from 'react'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
-import { AssetImage } from '@/components/image/image'
+import { AssetImageWithData } from '@/components/image/image'
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
-import Image from 'next/image'
 import { useRef, useState } from 'react'
 
 interface ImageUploadProps {
-  images: string[]
-  onImageSelectAction: (imageId: string) => void
-  onImageRemoveAction: (imageId: string) => void
+  images: Image[]
+  onImageSelectAction: (image: Image) => void
+  onImageRemoveAction: (image: Image) => void
   maxImages?: number
   className?: string
 }
@@ -40,7 +40,7 @@ export function ImageUpload({
       if (tempId) {
         setUploadingImages(prev => prev.filter(img => img.id !== tempId))
       }
-      onImageSelectAction(data.id)
+      onImageSelectAction(data)
     },
     onError: (error, variables) => {
       const tempId = (variables as FormData).get('tempId') as string
@@ -101,14 +101,14 @@ export function ImageUpload({
 
       <div className={cn('grid grid-cols-3 gap-1', className)}>
         {/* 已上传的图片 */}
-        {images.map(imageId => (
-          <div key={imageId} className="relative aspect-square group">
-            <AssetImage
-              id={imageId}
+        {images.map(image => (
+          <div key={image.id} className="relative aspect-square group">
+            <AssetImageWithData
+              image={image}
               className="object-cover rounded-lg"
             />
             <button
-              onClick={() => onImageRemoveAction(imageId)}
+              onClick={() => onImageRemoveAction(image)}
               className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
               type="button"
             >
@@ -122,10 +122,9 @@ export function ImageUpload({
         {/* 正在上传的图片 */}
         {uploadingImages.map(img => (
           <div key={img.id} className="relative aspect-square">
-            <Image
+            <img
               src={img.preview}
               alt="正在上传"
-              fill
               className="object-cover rounded-lg opacity-50"
             />
             {img.error
