@@ -2,6 +2,7 @@ import type { AmapRegeoCode } from '@/types/amap'
 import type { Prisma } from '@prisma/client'
 import { Buffer } from 'node:buffer'
 import { env } from '@/env'
+import { getVideoDuration } from '@/lib/ffmpeg'
 import { db } from '@/server/db'
 import { imageminService } from '@/service/imagemin.service'
 import { delete_from_bucket, upload_to_bucket } from '@/service/s3.service'
@@ -161,8 +162,10 @@ export async function upload_image(
         original: {
           connect: pick(original_image, 'id'),
         },
+        uploadedByUser: {
+          connect: { id: uploadedBy },
+        },
         isPublic,
-        uploadedBy,
       },
     })
   }
@@ -177,4 +180,42 @@ export async function upload_image(
     }
     throw e
   }
+}
+
+export async function upload_video(options: {
+  file: File
+  uploadedBy: string
+  isPublic?: boolean
+}) {
+  const { file, uploadedBy, isPublic = false } = options
+  const buffer = await file.arrayBuffer()
+  const duration = await getVideoDuration(file)
+  const name = file.name
+  const type = file.type
+  const uploadedFile = await upload_to_bucket({
+    buffer,
+    name,
+    type,
+    uploadedBy,
+    bucketName: 'uploads',
+    path_prefix: 'videos',
+    isPublic,
+  })
+
+  return await db.video.create({
+    data: {
+      name: uploadedFile.name,
+      type: uploadedFile.type,
+      size: uploadedFile.size,
+      hash: uploadedFile.hash,
+      duration,
+      uploadedByUser: {
+        connect: { id: uploadedBy },
+      },
+      file: {
+        connect: { id: uploadedFile.id },
+      },
+      isPublic,
+    },
+  })
 }

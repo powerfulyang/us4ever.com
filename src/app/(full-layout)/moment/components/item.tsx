@@ -40,6 +40,8 @@ export function MomentItem({ moment }: MomentItemProps) {
     setPreviewUrl(url)
   }
 
+  const showDelete = moment.category !== 'eleven'
+
   return (
     <>
       <motion.div
@@ -51,14 +53,14 @@ export function MomentItem({ moment }: MomentItemProps) {
       >
         <Card>
           <div className="space-y-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <img
-                src="/favicon.ico"
-                alt="用户头像"
-                className="w-10 h-10 rounded"
+                src={moment.owner.avatar}
+                alt={moment.owner.nickname}
+                className="w-10 h-10 rounded-sm"
               />
               <div className="flex flex-col justify-center gap-1">
-                <h3 className="text-sm text-gray-200">eleven</h3>
+                <h3 className="text-sm text-gray-200">{moment.owner.nickname}</h3>
                 <time className="text-xs text-gray-400">
                   {dayjs(moment.createdAt).format('YYYY年MM月DD日 HH:mm')}
                 </time>
@@ -99,7 +101,7 @@ export function MomentItem({ moment }: MomentItemProps) {
             <ImagePreviewModal
               src={previewUrl}
               isOpen={isPreviewOpen}
-              onClose={() => setIsPreviewOpen(false)}
+              onCloseAction={() => setIsPreviewOpen(false)}
             />
 
             <div className="mt-auto">
@@ -108,7 +110,7 @@ export function MomentItem({ moment }: MomentItemProps) {
                 views={moment.views}
                 likes={moment.likes}
                 ownerId={moment.ownerId}
-                onDelete={handleDelete}
+                onDelete={showDelete ? handleDelete : undefined}
               />
             </div>
           </div>

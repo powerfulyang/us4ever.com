@@ -6,8 +6,16 @@ export type Moment = Awaited<ReturnType<typeof listMoments>>[number]
 
 export const momentRouter = createTRPCRouter({
   list: publicProcedure
-    .query(async ({ ctx }) => {
-      return listMoments({ userIds: ctx.groupUserIds })
+    .input(
+      z.object({
+        category: z.string().default('default'),
+      }).default({}),
+    )
+    .query(async ({ ctx, input }) => {
+      return listMoments({
+        userIds: ctx.groupUserIds,
+        category: input.category,
+      })
     }),
 
   create: protectedProcedure
@@ -18,8 +26,10 @@ export const momentRouter = createTRPCRouter({
       isPublic: z.boolean().default(false),
     }))
     .mutation(async ({ input, ctx }) => {
+      const images = input.imageIds.map((id, index) => ({ id, sort: index }))
       return createMoment({
         ...input,
+        images,
         ownerId: ctx.user.id,
       })
     }),

@@ -6,8 +6,14 @@ import { api } from '@/trpc/react'
 import { AnimatePresence } from 'framer-motion'
 import { MomentItem } from './item'
 
-export function MomentList() {
-  const { data: moments, isPending } = api.moment.list.useQuery()
+interface Props {
+  category?: string
+}
+
+export function MomentList({ category }: Props) {
+  const { data: moments, isPending } = api.moment.list.useQuery({
+    category,
+  })
 
   if (isPending)
     return <LoadingSpinner text="加载动态..." />

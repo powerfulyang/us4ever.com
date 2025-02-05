@@ -3,16 +3,16 @@
 import { Dialog } from '@/components/ui/dialog'
 import { cn } from '@/utils/cn'
 import { motion, useMotionValue } from 'framer-motion'
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 interface ImagePreviewModalProps {
   src?: string
   alt?: string
   isOpen: boolean
-  onClose: () => void
+  onCloseAction: () => void
 }
 
-export function ImagePreviewModal({ src = '', alt = '预览图片', isOpen, onClose }: ImagePreviewModalProps) {
+export function ImagePreviewModal({ src = '', alt = '预览图片', isOpen, onCloseAction }: ImagePreviewModalProps) {
   const [scale, setScale] = useState(1)
   const [rotation, setRotation] = useState(0)
   const dragX = useMotionValue(0)
@@ -26,8 +26,8 @@ export function ImagePreviewModal({ src = '', alt = '预览图片', isOpen, onCl
   // 点击背景关闭
   const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget)
-      onClose()
-  }, [onClose])
+      onCloseAction()
+  }, [onCloseAction])
 
   // 重置所有变换
   const handleReset = useCallback(() => {
@@ -46,7 +46,7 @@ export function ImagePreviewModal({ src = '', alt = '预览图片', isOpen, onCl
     return null
 
   return (
-    <Dialog isOpen={isOpen} onCloseAction={onClose}>
+    <Dialog isOpen={isOpen} onCloseAction={onCloseAction}>
       <div
         className="relative flex items-center justify-center w-full h-full"
         onClick={handleBackgroundClick}
@@ -136,7 +136,7 @@ export function ImagePreviewModal({ src = '', alt = '预览图片', isOpen, onCl
         {/* 关闭按钮 */}
         <button
           type="button"
-          onClick={onClose}
+          onClick={onCloseAction}
           title="关闭"
           className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
         >

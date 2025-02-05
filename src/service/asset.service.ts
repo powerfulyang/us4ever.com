@@ -78,13 +78,15 @@ export function transformImageToResponse(image: ImageWithIncludes) {
 }
 
 // 获取用户可访问的图片列表
-export async function listAccessibleImages(userId?: string) {
+export async function listAccessibleImages(userIds: string[]) {
   const images = await db.image.findMany({
     include: imageInclude,
     where: {
       OR: [
         {
-          uploadedBy: userId,
+          uploadedBy: {
+            in: userIds,
+          },
         },
         {
           isPublic: true,
@@ -97,6 +99,43 @@ export async function listAccessibleImages(userId?: string) {
   })
 
   return images.map(transformImageToResponse)
+}
+
+//
+export async function listAccessibleVideos(userIds: string[]) {
+  const videos = await db.video.findMany({
+    include: {
+      file: {
+        include: {
+          bucket: true,
+        },
+      },
+    },
+    where: {
+      OR: [
+        {
+          uploadedByUser: {
+            id: {
+              in: userIds,
+            },
+          },
+        },
+        {
+          isPublic: true,
+        },
+      ],
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  })
+
+  return videos.map((video) => {
+    return {
+      ...video,
+      url: getFileUrl(video.file),
+    }
+  })
 }
 
 // 获取单张图片

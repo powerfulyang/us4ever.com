@@ -25,12 +25,12 @@ export async function upload_to_bucket(options: Options) {
   const file = await db.file.create({
     data: {
       bucket: { connect: { name: bucketName } },
+      uploadedByUser: { connect: { id: uploadedBy } },
       name,
       type,
       size,
       hash: original_sha256,
       path,
-      uploadedBy,
       isPublic,
     },
     include: {

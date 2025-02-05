@@ -1,5 +1,6 @@
 'use client'
 
+import { cn } from '@/utils'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
@@ -62,16 +63,21 @@ export function Dialog({ isOpen, onCloseAction, children, className }: DialogPro
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          ref={modalRef}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className={cn('fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center bg-black/50', className)}
-        >
-          {children}
-        </motion.div>
+        <div ref={modalRef} className="fixed inset-0 z-50">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className={cn(
+              'absolute inset-0 bg-black/60 backdrop-blur-sm',
+            )}
+            onClick={onCloseAction}
+          />
+          <div className={cn('fixed inset-0 flex items-center justify-center p-4', className)}>
+            {children}
+          </div>
+        </div>
       )}
     </AnimatePresence>,
     document.body,

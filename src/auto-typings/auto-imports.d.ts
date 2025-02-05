@@ -17,6 +17,7 @@ declare global {
   const formatThousands: typeof import('../utils/index')['formatThousands']
   const forwardRef: typeof import('react')['forwardRef']
   const getStreamSize: typeof import('../lib/fetch')['getStreamSize']
+  const getVideoDuration: typeof import('../lib/ffmpeg')['getVideoDuration']
   const lazy: typeof import('react')['lazy']
   const memo: typeof import('react')['memo']
   const parseXMindFile: typeof import('../lib/xmind')['parseXMindFile']

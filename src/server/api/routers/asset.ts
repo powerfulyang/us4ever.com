@@ -4,8 +4,8 @@ import {
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc'
-import { upload_image } from '@/service/file.service'
-import { getImageById, listAccessibleImages } from '@/service/image.service'
+import { getImageById, listAccessibleImages, listAccessibleVideos } from '@/service/asset.service'
+import { upload_image, upload_video } from '@/service/file.service'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
@@ -26,9 +26,28 @@ export const assetRouter = createTRPCRouter({
       })
     }),
 
+  upload_video: protectedProcedure
+    .input(zfd.formData({
+      file: zfd.file(),
+      isPublic: zfd.text().default('false'),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const isPublic = input.isPublic === 'true'
+      return upload_video({
+        file: input.file,
+        uploadedBy: ctx.user.id,
+        isPublic,
+      })
+    }),
+
   list_image: publicProcedure
     .query(async ({ ctx }) => {
-      return listAccessibleImages(ctx.user?.id)
+      return listAccessibleImages(ctx.groupUserIds)
+    }),
+
+  list_video: publicProcedure
+    .query(async ({ ctx }) => {
+      return listAccessibleVideos(ctx.groupUserIds)
     }),
 
   get_image_by_id: publicProcedure

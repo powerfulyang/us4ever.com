@@ -10,8 +10,8 @@ import { useRef, useState } from 'react'
 
 interface ImageUploadProps {
   images: string[]
-  onImageSelect: (imageId: string) => void
-  onImageRemove: (imageId: string) => void
+  onImageSelectAction: (imageId: string) => void
+  onImageRemoveAction: (imageId: string) => void
   maxImages?: number
   className?: string
 }
@@ -24,8 +24,8 @@ interface UploadingImage {
 
 export function ImageUpload({
   images,
-  onImageSelect,
-  onImageRemove,
+  onImageSelectAction,
+  onImageRemoveAction,
   maxImages = 9,
   className,
 }: ImageUploadProps) {
@@ -40,7 +40,7 @@ export function ImageUpload({
       if (tempId) {
         setUploadingImages(prev => prev.filter(img => img.id !== tempId))
       }
-      onImageSelect(data.id)
+      onImageSelectAction(data.id)
     },
     onError: (error, variables) => {
       const tempId = (variables as FormData).get('tempId') as string
@@ -63,14 +63,8 @@ export function ImageUpload({
     }
 
     // 验证文件类型
-    if (!file.type.startsWith('image/')) {
-      setError('请选择图片文件')
-      return
-    }
-
-    // 验证文件大小 (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setError('图片大小不能超过10MB')
+    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+      setError('请选择图片或视频文件')
       return
     }
 
@@ -114,7 +108,7 @@ export function ImageUpload({
               className="object-cover rounded-lg"
             />
             <button
-              onClick={() => onImageRemove(imageId)}
+              onClick={() => onImageRemoveAction(imageId)}
               className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
               type="button"
             >

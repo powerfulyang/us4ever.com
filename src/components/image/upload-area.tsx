@@ -117,7 +117,7 @@ export function UploadArea({
       <ImagePreviewModal
         src={preview}
         isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
+        onCloseAction={() => setIsPreviewOpen(false)}
       />
     </>
   )

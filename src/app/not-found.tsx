@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function NotFoundScreen() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white">
+    <div className="flex min-h-dvh items-center justify-center bg-white">
       <div className="px-4 text-center">
         <h1 className="mb-2 text-8xl font-bold text-gray-800">404</h1>
         <p className="mb-8 text-xl text-gray-600">页面未找到</p>

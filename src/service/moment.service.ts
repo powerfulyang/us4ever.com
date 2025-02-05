@@ -1,21 +1,23 @@
 import type { BaseListFilter } from '@/types/common'
+import type { Prisma } from '@prisma/client'
 import { db } from '@/server/db'
-import { imageInclude, transformImageToResponse } from './image.service'
+import { imageInclude, transformImageToResponse } from 'src/service/asset.service'
 
-interface CreateMomentInput {
-  content: string
-  category?: string
-  imageIds?: string[]
+interface CreateMomentInput extends Prisma.MomentCreateManyInput {
+  images?: { id: string, sort: number }[]
+  videos?: { id: string, sort: number }[]
   ownerId: string
-  isPublic?: boolean
-  createdAt?: Date
 }
 
 interface UpdateMomentInput extends CreateMomentInput {
   id: string
 }
 
-export async function listMoments({ userIds }: BaseListFilter) {
+interface ListMomentInput extends BaseListFilter {
+  category?: string
+}
+
+export async function listMoments({ userIds, category }: ListMomentInput) {
   const list = await db.moment.findMany({
     include: {
       images: {
@@ -28,6 +30,7 @@ export async function listMoments({ userIds }: BaseListFilter) {
           sort: 'asc',
         },
       },
+      owner: true,
     },
     where: {
       OR: [
@@ -35,8 +38,9 @@ export async function listMoments({ userIds }: BaseListFilter) {
           ownerId: {
             in: userIds,
           },
+          category,
         },
-        { isPublic: true },
+        { isPublic: true, category },
       ],
     },
     orderBy: {
@@ -51,7 +55,7 @@ export async function listMoments({ userIds }: BaseListFilter) {
 }
 
 export async function createMoment(input: CreateMomentInput) {
-  const { content, category = 'default', imageIds = [], ownerId, isPublic = false, createdAt } = input
+  const { content, category = 'default', images = [], videos = [], ownerId, isPublic = false, createdAt } = input
   return db.moment.create({
     data: {
       content,
@@ -60,24 +64,35 @@ export async function createMoment(input: CreateMomentInput) {
       isPublic,
       createdAt,
       images: {
-        create: imageIds.map((imageId, index) => ({
-          imageId,
-          sort: index,
-        })),
+        create: images.map((image) => {
+          return {
+            image: {
+              connect: {
+                id: image.id,
+              },
+              sort: image.sort,
+            },
+          }
+        }),
       },
-    },
-    include: {
-      images: {
-        include: {
-          image: true,
-        },
+      videos: {
+        create: videos.map((video) => {
+          return {
+            video: {
+              connect: {
+                id: video.id,
+              },
+              sort: video.sort,
+            },
+          }
+        }),
       },
     },
   })
 }
 
 export async function updateMoment(input: UpdateMomentInput) {
-  const { id, content, category, imageIds = [], ownerId } = input
+  const { id, content, category, images = [], ownerId } = input
 
   // 删除旧的图片关联
   await db.momentImages.deleteMany({
@@ -96,10 +111,16 @@ export async function updateMoment(input: UpdateMomentInput) {
       content,
       category,
       images: {
-        create: imageIds.map((imageId, index) => ({
-          imageId,
-          sort: index,
-        })),
+        create: images.map((image) => {
+          return {
+            image: {
+              connect: {
+                id: image.id,
+              },
+              sort: image.sort,
+            },
+          }
+        }),
       },
     },
     include: {
@@ -125,6 +146,15 @@ export async function deleteMoment(id: string, ownerId: string) {
     where: {
       id,
       ownerId,
+    },
+  })
+}
+
+export async function findMoment(content: string, createdAt: Date) {
+  return db.moment.findFirst({
+    where: {
+      content,
+      createdAt,
     },
   })
 }

@@ -30,7 +30,7 @@ model Bucket {
 
   // relations
   ownerId String // 所属用户
-  // owner   User   @relation(fields: [ownerId], references: [id])
+  owner   User   @relation(fields: [ownerId], references: [id])
   files   File[] // 关联到文件表，一对多关系
 
   //
@@ -64,7 +64,11 @@ model File {
 
   // relations
   uploadedBy     String // 上传用户的 ID
-  // uploadedByUser User   @relation(fields: [uploadedBy], references: [id])
+  uploadedByUser User   @relation(fields: [uploadedBy], references: [id])
+
+  //
+  posterVideo Video[] @relation(name: "posterVideo")
+  fileVideo   Video[] @relation(name: "fileVideo")
 
   //
   createdAt DateTime @default(now()) // 创建时间
@@ -114,7 +118,7 @@ model Image {
 
   // 上传用户
   uploadedBy     String // 上传用户的 ID
-  // uploadedByUser User   @relation(fields: [uploadedBy], references: [id])
+  uploadedByUser User   @relation(fields: [uploadedBy], references: [id])
 
   // relations
   moments MomentImages[]
@@ -123,7 +127,7 @@ model Image {
   createdAt DateTime @default(now()) // 创建时间
   updatedAt DateTime @updatedAt // 更新时间，自动更新
 
-  @@map("images") // 数据库中的表名为 uploads
+  @@map("images") // 数据库中的表名为 images
 }
 
 model Keep {
@@ -140,7 +144,7 @@ model Keep {
 
   //
   ownerId   String // 所属用户
-  // User      User     @relation(fields: [ownerId], references: [id])
+  owner     User     @relation(fields: [ownerId], references: [id])
   //
   createdAt DateTime @default(now()) // 创建时间
   updatedAt DateTime @updatedAt // 更新时间，自动更新
@@ -160,7 +164,7 @@ model Todo {
 
   //
   ownerId   String
-  // User      User     @relation(fields: [ownerId], references: [id])
+  owner     User     @relation(fields: [ownerId], references: [id])
   //
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -181,7 +185,7 @@ model MindMap {
 
   //
   ownerId   String
-  // User      User     @relation(fields: [ownerId], references: [id])
+  owner     User     @relation(fields: [ownerId], references: [id])
   //
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -198,14 +202,15 @@ model Moment {
   views    Int     @default(0)
   likes    Int     @default(0)
 
-  // relations
-  images    MomentImages[]
   //
   ownerId   String
-  // User      User           @relation(fields: [ownerId], references: [id])
+  owner     User           @relation(fields: [ownerId], references: [id])
   //
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
+  // relations
+  images    MomentImages[]
+  videos    MomentVideos[]
 
   @@map("moments")
 }
@@ -226,6 +231,22 @@ model MomentImages {
   @@map("moment_images")
 }
 
+model MomentVideos {
+  id       Int    @id @default(autoincrement())
+  videoId  String
+  video    Video  @relation(fields: [videoId], references: [id])
+  momentId String
+  moment   Moment @relation(fields: [momentId], references: [id])
+  sort     Int    @default(0)
+
+  //
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([videoId, momentId], map: "moment_videos_unique")
+  @@map("moment_videos")
+}
+
 model User {
   id       String @id @default(uuid())
   email    String @unique
@@ -235,23 +256,27 @@ model User {
 
   //
   isAdmin     Boolean  @default(false)
-  lastLoginAt   DateTime
+  lastLoginAt DateTime
   lastLoginIp String
 
   // relations
-  // keep    Keep[]
-  // todo    Todo[]
-  // mindmap MindMap[]
-  // moment  Moment[]
-  // bucket  Bucket[]
-  group   Group?    @relation(fields: [groupId], references: [id])
-  groupId String?
-  // file    File[]
-  // image   Image[]
+  keepList    Keep[]
+  todoList    Todo[]
+  mindmapList MindMap[]
+  momentList  Moment[]
+  bucketList  Bucket[]
+  fileList    File[]
+  imageList   Image[]
+  //
+  groupId     String?
+  group       Group?    @relation(fields: [groupId], references: [id])
 
   //
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  //
+  videoList Video[]
 
   @@map("users")
 }
@@ -269,4 +294,35 @@ model Group {
   updatedAt DateTime @updatedAt
 
   @@map("groups")
+}
+
+model Video {
+  id       String  @id @default(uuid())
+  // 原始文件名
+  name     String
+  // 文件类型
+  type     String
+  // 文件大小
+  size     BigInt
+  // 文件哈希
+  hash     String
+  // 时长
+  duration Int
+  isPublic Boolean @default(false)
+  posterId String?
+  poster   File?   @relation(fields: [posterId], references: [id], name: "posterVideo")
+  fileId   String
+  file     File    @relation(fields: [fileId], references: [id], name: "fileVideo")
+
+  //
+  uploadedBy     String // 上传用户的 ID
+  uploadedByUser User   @relation(fields: [uploadedBy], references: [id])
+
+  //
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  //
+  moments   MomentVideos[]
+
+  @@map("videos")
 }

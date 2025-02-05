@@ -1,0 +1,29 @@
+import { api } from '@/trpc/react'
+import React from 'react'
+
+export function VideoUpload() {
+  const utils = api.useUtils()
+  const { mutate, isPending } = api.asset.upload_video.useMutation({
+    onSuccess() {
+      return utils.asset.list_video.invalidate()
+    },
+  })
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files
+    if (!files)
+      return
+    for (const file of files) {
+      const formData = new FormData()
+      formData.append('file', file)
+      mutate(formData)
+    }
+  }
+
+  return (
+    <div className="flex gap-2">
+      <input accept={'video/*'} type="file" onChange={handleFileChange} />
+      {isPending && <span>上传中...</span>}
+    </div>
+  )
+}
