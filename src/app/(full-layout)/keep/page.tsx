@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Keep',
   description: 'A place to record inspiration and thinking',
   alternates: {
-    canonical: `${BASE_URL}/keep`,
+    canonical: `/keep`,
   },
 }
 

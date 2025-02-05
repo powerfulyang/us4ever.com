@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Resource Hub',
   description: 'A comprehensive hub for developers and tech enthusiasts, featuring coding tutorials, tools, libraries, and industry insights.',
   alternates: {
-    canonical: `${BASE_URL}`,
+    canonical: `/`,
   },
 }
 

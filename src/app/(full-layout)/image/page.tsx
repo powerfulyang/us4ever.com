@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: '图片管理',
   description: '管理各个地方上传的图片',
   alternates: {
-    canonical: `${BASE_URL}/image`,
+    canonical: `/image`,
   },
 }
 

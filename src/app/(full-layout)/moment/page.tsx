@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: '动态',
   description: '分享生活点滴',
   alternates: {
-    canonical: `${BASE_URL}/moment`,
+    canonical: `/moment`,
   },
 }
 

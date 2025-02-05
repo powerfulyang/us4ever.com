@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css'
 export const metadata: Metadata = {
   title: 'Resource Hub',
   description: 'A comprehensive hub for developers and tech enthusiasts, featuring coding tutorials, tools, libraries, and industry insights.',
+  metadataBase: new URL(BASE_URL),
   icons: [{ rel: 'icon', url: '/favicon.ico' }],
 }
 

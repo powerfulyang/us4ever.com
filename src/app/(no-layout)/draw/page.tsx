@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Whiteboard',
   description: '在线白板',
   alternates: {
-    canonical: `${BASE_URL}/draw`,
+    canonical: `/draw`,
   },
 }
 

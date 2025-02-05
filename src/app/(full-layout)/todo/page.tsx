@@ -8,7 +8,7 @@ export const metadata = {
   title: '待办事项',
   description: '管理您的待办事项清单',
   alternates: {
-    canonical: `${BASE_URL}/todo`,
+    canonical: `/todo`,
   },
 }
 

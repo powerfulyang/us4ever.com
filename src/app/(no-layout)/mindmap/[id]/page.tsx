@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: title || 'MindMap - Detail',
     description: summary || 'MindMap - Description',
     alternates: {
-      canonical: `${BASE_URL}/mindmap/${id}`,
+      canonical: `/mindmap/${id}`,
     },
   }
 }

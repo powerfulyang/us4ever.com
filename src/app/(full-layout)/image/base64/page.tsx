@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Image Base64 Converter',
   description: 'Convert image to base64 string',
   alternates: {
-    canonical: `${BASE_URL}/image/base64`,
+    canonical: `/image/base64`,
   },
 }
 
