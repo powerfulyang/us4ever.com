@@ -1,11 +1,7 @@
+import type { Prisma } from '@prisma/client'
 import { create } from 'zustand'
 
-export interface User {
-  id: string
-  nickname: string
-  avatar: string
-  email: string
-}
+export type User = Prisma.UserGetPayload<{ include: { group: true } }>
 
 interface UserState {
   currentUser: User | null | undefined

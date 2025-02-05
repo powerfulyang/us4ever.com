@@ -80,11 +80,11 @@ export function MomentItem({ moment }: MomentItemProps) {
             )}
 
             {moment.images.length > 0 && (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1">
                 {moment.images.map(image => (
                   <div
                     key={image.id}
-                    className="relative pt-[100%] rounded-lg overflow-hidden bg-white/5"
+                    className="relative pt-[100%] rounded overflow-hidden bg-white/5"
                     onClick={() => handlePreview(image.compressed_url)}
                   >
                     <AssetImageWithData

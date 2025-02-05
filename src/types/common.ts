@@ -1,4 +1,5 @@
 export interface BaseFilter {
+  userIds?: string[]
   userId?: string
 }
 

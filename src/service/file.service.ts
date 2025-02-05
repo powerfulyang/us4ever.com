@@ -37,15 +37,10 @@ export async function getAddressFromExif(exif?: any) {
   const GPSLongitude = exif?.GPSLongitude
   let address = ''
   if (GPSLatitude && GPSLongitude) {
-    try {
-      const [gcj02Longitude, gcj02Latitude] = wgs84togcj02(formatBearing(GPSLongitude), formatBearing(GPSLatitude))
-      const location = `${gcj02Longitude},${gcj02Latitude}`
-      const res = await regeo(location)
-      address = res.formatted_address
-    }
-    catch {
-      // ignore
-    }
+    const [gcj02Longitude, gcj02Latitude] = wgs84togcj02(formatBearing(GPSLongitude), formatBearing(GPSLatitude))
+    const location = `${gcj02Longitude},${gcj02Latitude}`
+    const res = await regeo(location)
+    address = res.formatted_address
   }
   return address
 }
@@ -63,8 +58,16 @@ export async function upload_image(
   const type = file.type
   const metadata = await sharp(buffer).metadata()
   const { width, height } = metadata
-  const exif = await exifr.parse(buffer)
-  const address = await getAddressFromExif(exif)
+  let address = ''
+  let exif = null
+  try {
+    exif = await exifr.parse(buffer)
+    address = await getAddressFromExif(exif)
+  }
+  catch (e) {
+    console.error(e)
+    // ignore error
+  }
 
   let original_image: FileWithBucket | null = null
   let thumbnail_320x_image: FileWithBucket | null = null
@@ -169,12 +172,7 @@ export async function upload_image(
     const images = [original_image, thumbnail_320x_image, thumbnail_768x_image, compressed_image]
     for (const image of images) {
       if (image) {
-        try {
-          await delete_from_bucket(image)
-        }
-        catch {
-          // ignore
-        }
+        await delete_from_bucket(image)
       }
     }
     throw e

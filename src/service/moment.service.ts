@@ -15,7 +15,7 @@ interface UpdateMomentInput extends CreateMomentInput {
   id: string
 }
 
-export async function listMoments({ userId }: BaseListFilter) {
+export async function listMoments({ userIds }: BaseListFilter) {
   const list = await db.moment.findMany({
     include: {
       images: {
@@ -31,7 +31,11 @@ export async function listMoments({ userId }: BaseListFilter) {
     },
     where: {
       OR: [
-        { ownerId: userId },
+        {
+          ownerId: {
+            in: userIds,
+          },
+        },
         { isPublic: true },
       ],
     },

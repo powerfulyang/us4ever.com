@@ -75,13 +75,6 @@ export function get_s3_client(bucket: Prisma.BucketGetPayload<object>) {
 
 // 删除上传的文件
 export async function delete_from_bucket(file: FileWithBucket) {
-  const s3_client = get_s3_client(file.bucket)
-
-  const deleteObjectCommand = new DeleteObjectCommand({
-    Bucket: file.bucket.bucketName,
-    Key: file.path,
-  })
-
   // 判断数据库中是否有其他文件引用这个对象
   // 根据文件 hash 来判断
   const other = await db.file.findFirst({
@@ -91,6 +84,12 @@ export async function delete_from_bucket(file: FileWithBucket) {
     },
   })
 
+  const s3_client = get_s3_client(file.bucket)
+  const deleteObjectCommand = new DeleteObjectCommand({
+    Bucket: file.bucket.bucketName,
+    Key: file.path,
+  })
+  // 如果数据库中没有其他文件引用这个对象，则删除文件
   if (!other) {
     await s3_client.send(deleteObjectCommand)
   }

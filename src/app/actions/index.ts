@@ -1,6 +1,6 @@
 'use server'
 
-import { COOKIE_NAME } from '@/app/api/[[...route]]/route'
+import { COOKIE_NAME } from '@/server/hono'
 import { cookies } from 'next/headers'
 
 export async function logout() {

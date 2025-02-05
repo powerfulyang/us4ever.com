@@ -9,9 +9,10 @@
 
 import type { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers'
 import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
-import { COOKIE_NAME } from '@/app/api/[[...route]]/route'
 import { env } from '@/env'
 import { db } from '@/server/db'
+import { COOKIE_NAME } from '@/server/hono'
+import { findUserWithGroupById } from '@/service/user.serivce'
 
 import { initTRPC } from '@trpc/server'
 import { HTTPException } from 'hono/http-exception'
@@ -115,6 +116,31 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result
 })
 
+const userMiddleware = t.middleware(async ({ ctx, next }) => {
+  // 从 cookie 或者 header 或者 url 上的 token 字段获取用户凭证
+  const token = ctx.cookies.get(COOKIE_NAME)?.value || ctx.headers.get(COOKIE_NAME)
+  let user = null
+  let groupUserIds = [] as string[]
+  if (token) {
+    const secret = env.JWT_SECRET
+    try {
+      const res = await verify(token, secret) as { user: User }
+      user = await findUserWithGroupById(res.user.id)
+      groupUserIds = user.group?.users.map(user => user.id) || [user.id]
+    }
+    catch {
+      // ignore error
+    }
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      user,
+      groupUserIds,
+    },
+  })
+})
+
 /**
  * Public (unauthenticated) procedure
  *
@@ -124,31 +150,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  */
 export const publicProcedure = t.procedure
   .use(timingMiddleware)
-  .use(async ({ ctx, next }) => {
-    // 从 cookie 或者 header 或者 url 上的 token 字段获取用户凭证
-    const token = ctx.cookies.get(COOKIE_NAME)?.value || ctx.headers.get(COOKIE_NAME)
-    let user = null
-    const secret = env.JWT_SECRET
-    if (!secret) {
-      throw new Error('JWT_SECRET is not set')
-    }
-    if (token) {
-      try {
-        const res = await verify(token, secret) as { user: User }
-        user = res.user
-      }
-      catch {
-        // ignore
-      }
-    }
-
-    return next({
-      ctx: {
-        ...ctx,
-        user,
-      },
-    })
-  })
+  .use(userMiddleware)
 
 /**
  * Protected (authenticated) procedure
@@ -160,28 +162,17 @@ export const publicProcedure = t.procedure
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
+  .use(userMiddleware)
   .use(async ({ ctx, next }) => {
-    // 从 cookie 或者 header 或者 url 上的 token 字段获取用户凭证
-    const token = ctx.cookies.get(COOKIE_NAME)?.value || ctx.headers.get(COOKIE_NAME)
-    if (!token) {
-      throw new Error('Unauthorized')
-    }
-    const secret = env.JWT_SECRET
-    if (!secret) {
-      throw new Error('JWT_SECRET is not set')
-    }
-    try {
-      const { user } = await verify(token, secret) as { user: User }
-      return next({
-        ctx: {
-          ...ctx,
-          user,
-        },
-      })
-    }
-    catch {
+    if (!ctx.user) {
       throw new HTTPException(401, {
         message: 'Unauthorized',
       })
     }
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+      },
+    })
   })

@@ -28,7 +28,9 @@ model Bucket {
   secretKey   String // 私密密钥，需加密存储
   description String   @default("") // 存储桶描述
 
+  // relations
   ownerId String // 所属用户
+  // owner   User   @relation(fields: [ownerId], references: [id])
   files   File[] // 关联到文件表，一对多关系
 
   //
@@ -48,7 +50,6 @@ model File {
   size        BigInt // 文件大小（以字节为单位）
   path        String // 文件存储路径或 URL
   isPublic    Boolean @default(false) // 是否公开
-  uploadedBy  String // 上传用户的 ID
   description String  @default("") // 文件描述
   tags        Json    @default("[]") // 文件标签
 
@@ -60,6 +61,10 @@ model File {
   compressed_image     Image[] @relation(name: "compressed")
   // 原图
   original_image       Image[] @relation(name: "original")
+
+  // relations
+  uploadedBy     String // 上传用户的 ID
+  // uploadedByUser User   @relation(fields: [uploadedBy], references: [id])
 
   //
   createdAt DateTime @default(now()) // 创建时间
@@ -107,7 +112,9 @@ model Image {
   original_id       String
   original          File    @relation(name: "original", fields: [original_id], references: [id])
 
-  uploadedBy String // 上传用户的 ID
+  // 上传用户
+  uploadedBy     String // 上传用户的 ID
+  // uploadedByUser User   @relation(fields: [uploadedBy], references: [id])
 
   // relations
   moments MomentImages[]
@@ -127,11 +134,13 @@ model Keep {
   isPublic Boolean @default(false) // 是否公开
   tags     Json    @default("[]") // 笔记标签
 
-  ownerId  String // 所属用户
   category String @default("default") // 笔记分类
   views    Int    @default(0) // 查看次数
   likes    Int    @default(0) // 点赞数
 
+  //
+  ownerId   String // 所属用户
+  // User      User     @relation(fields: [ownerId], references: [id])
   //
   createdAt DateTime @default(now()) // 创建时间
   updatedAt DateTime @updatedAt // 更新时间，自动更新
@@ -148,8 +157,10 @@ model Todo {
   dueDate  DateTime?
   isPublic Boolean   @default(false)
   pinned   Boolean   @default(false)
-  ownerId  String
 
+  //
+  ownerId   String
+  // User      User     @relation(fields: [ownerId], references: [id])
   //
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -165,10 +176,12 @@ model MindMap {
   isPublic Boolean @default(false)
   tags     Json    @default("[]")
 
-  ownerId String
-  views   Int    @default(0)
-  likes   Int    @default(0)
+  views Int @default(0)
+  likes Int @default(0)
 
+  //
+  ownerId   String
+  // User      User     @relation(fields: [ownerId], references: [id])
   //
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -185,13 +198,14 @@ model Moment {
   views    Int     @default(0)
   likes    Int     @default(0)
 
-  ownerId String
   // relations
-  images  MomentImages[]
-
+  images    MomentImages[]
   //
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  ownerId   String
+  // User      User           @relation(fields: [ownerId], references: [id])
+  //
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   @@map("moments")
 }
@@ -210,4 +224,49 @@ model MomentImages {
 
   @@unique([imageId, momentId], map: "moment_images_unique")
   @@map("moment_images")
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  nickname String @default("")
+  avatar   String @default("")
+  bio      String @default("")
+
+  //
+  isAdmin     Boolean  @default(false)
+  lastLoginAt   DateTime
+  lastLoginIp String
+
+  // relations
+  // keep    Keep[]
+  // todo    Todo[]
+  // mindmap MindMap[]
+  // moment  Moment[]
+  // bucket  Bucket[]
+  group   Group?    @relation(fields: [groupId], references: [id])
+  groupId String?
+  // file    File[]
+  // image   Image[]
+
+  //
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Group {
+  id          String @id @default(uuid())
+  name        String @unique
+  description String @default("")
+
+  //
+  users User[]
+
+  //
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("groups")
 }

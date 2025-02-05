@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   //min-height: 100%;
-
   line-height: 1.8;
   letter-spacing: 0.5px;
   word-break: break-word;
@@ -27,7 +26,7 @@
   color: var(--text-color);
 
   hr {
-    @apply my-6 border-dashed;
+    @apply my-[1em] border-dashed;
     border-color: rgba(255, 255, 255, 0.2);
   }
 
@@ -59,14 +58,13 @@
       width: 0;
       height: 3px;
       background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.8) 50%,
-        rgba(255, 255, 255, 0) 100%
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.8) 50%,
+          rgba(255, 255, 255, 0) 100%
       );
-      transition:
-        width 0.4s ease,
-        opacity 0.4s ease;
+      transition: width 0.4s ease,
+      opacity 0.4s ease;
       opacity: 0;
       transform: translateX(-50%);
     }
@@ -120,13 +118,15 @@
     }
   }
 
-  & > p {
+  p {
     @apply mb-[0.75em] cursor-text;
     font-size: 1em;
     color: var(--text-color);
+
     &:has(+ ul, + ol) {
       @apply mb-[0.5em];
     }
+
     &:last-child {
       @apply mb-0;
     }
@@ -209,6 +209,7 @@
       th {
         padding: 0.75em 1em;
         border-left: var(--table-border-color) 1px dashed;
+
         &:first-child {
           border: none;
         }
@@ -219,12 +220,15 @@
       tr {
         border-bottom: var(--table-border-color) 1px dashed;
         transition: background 0.3s;
+
         &:hover {
           background-color: rgba(255, 255, 255, 0.05);
         }
+
         td {
           padding: 0.75em 1em;
           border-left: var(--table-border-color) 1px dashed;
+
           &:first-child {
             border: none;
           }
@@ -243,8 +247,10 @@
   ol {
     list-style: decimal;
     padding-inline-start: 2.5em;
+
     & > li {
       margin-bottom: 0.5em;
+
       &::marker {
         color: var(--accent-color-pink);
         font-weight: bold;
@@ -255,16 +261,20 @@
   ul {
     padding-inline-start: 2em;
     list-style-type: disc;
+
     & > li {
       margin-bottom: 0.5em;
+
       &::marker {
         color: var(--accent-color-green);
         font-weight: bold;
       }
     }
+
     &.contains-task-list {
       list-style-type: none;
       padding-inline-start: 1em;
+
       & > li {
         input {
           vertical-align: -0.15em;

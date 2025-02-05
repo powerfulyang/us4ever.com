@@ -7,7 +7,7 @@ export type Moment = Awaited<ReturnType<typeof listMoments>>[number]
 export const momentRouter = createTRPCRouter({
   list: publicProcedure
     .query(async ({ ctx }) => {
-      return listMoments({ userId: ctx.user?.id })
+      return listMoments({ userIds: ctx.groupUserIds })
     }),
 
   create: protectedProcedure

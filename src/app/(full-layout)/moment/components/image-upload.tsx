@@ -105,7 +105,7 @@ export function ImageUpload({
         <div className="text-red-500 text-sm">{error}</div>
       )}
 
-      <div className={cn('grid grid-cols-3 gap-4', className)}>
+      <div className={cn('grid grid-cols-3 gap-1', className)}>
         {/* 已上传的图片 */}
         {images.map(imageId => (
           <div key={imageId} className="relative aspect-square group">

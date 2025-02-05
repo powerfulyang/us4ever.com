@@ -11,7 +11,7 @@
     @apply text-purple-300;
   }
 
-  &:has(> span) {
+  :has(> span) {
     @apply mb-4;
 
     white-space: normal;

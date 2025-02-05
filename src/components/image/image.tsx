@@ -35,7 +35,7 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
   }, [image?.thumbnail_320x_url])
 
   return (
-    <div className={cn('relative aspect-square overflow-hidden rounded-lg', className)}>
+    <div className={cn('relative aspect-square overflow-hidden', className)}>
       <AnimatePresence mode="wait">
         {/* 模糊预览图 */}
         {!isImageLoaded && (
