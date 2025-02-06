@@ -21,7 +21,7 @@ interface MomentItemProps {
 export function MomentItem({ moment }: MomentItemProps) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState('')
+  const [previewIndex, setPreviewIndex] = useState(0)
   const utils = api.useUtils()
 
   const { mutate: deleteMoment, isPending } = api.moment.delete.useMutation({
@@ -35,9 +35,9 @@ export function MomentItem({ moment }: MomentItemProps) {
     setShowConfirm(true)
   }
 
-  function handlePreview(url: string) {
+  function handlePreview(index: number) {
     setIsPreviewOpen(true)
-    setPreviewUrl(url)
+    setPreviewIndex(index)
   }
 
   const showDelete = moment.category !== 'eleven'
@@ -83,15 +83,15 @@ export function MomentItem({ moment }: MomentItemProps) {
 
             {moment.images.length > 0 && (
               <div className="grid grid-cols-3 gap-1">
-                {moment.images.map(image => (
+                {moment.images.map((image, index) => (
                   <div
                     key={image.id}
-                    className="relative pt-[100%] rounded overflow-hidden bg-white/5"
-                    onClick={() => handlePreview(image.compressed_url)}
+                    className="rounded aspect-square overflow-hidden bg-white/5"
+                    onClick={() => handlePreview(index)}
                   >
                     <AssetImageWithData
                       image={image}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="object-cover"
                     />
                   </div>
                 ))}
@@ -99,7 +99,16 @@ export function MomentItem({ moment }: MomentItemProps) {
             )}
 
             <ImagePreviewModal
-              src={previewUrl}
+              images={moment.images.map((image) => {
+                return {
+                  src: image.compressed_url,
+                  placeholder: image.thumbnail_320x_url,
+                  width: image.width,
+                  height: image.height,
+                }
+              })}
+              currentIndex={previewIndex}
+              onCurrentIndexChange={setPreviewIndex}
               isOpen={isPreviewOpen}
               onCloseAction={() => setIsPreviewOpen(false)}
             />
@@ -119,8 +128,8 @@ export function MomentItem({ moment }: MomentItemProps) {
 
       <Confirm
         isOpen={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        onConfirm={() => deleteMoment({ id: moment.id })}
+        onCloseAction={() => setShowConfirm(false)}
+        onConfirmAction={() => deleteMoment({ id: moment.id })}
         isConfirmLoading={isPending}
         title="删除动态"
         content="确定要删除这条动态吗？此操作不可逆"

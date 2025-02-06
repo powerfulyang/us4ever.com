@@ -57,33 +57,41 @@ export function ImageUpload({
   })
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) {
+    const files = Array.from(e.target.files || [])
+    if (!files || files.length === 0) {
       return
     }
 
+    // 判断是否有不支持的格式
+    const isValid = files.some((file) => {
+      return file.type.startsWith('image/') || file.type.startsWith('video/')
+    })
+
     // 验证文件类型
-    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-      setError('请选择图片或视频文件')
-      return
+    if (!isValid) {
+      return setError('请选择图片或视频文件')
     }
 
     setError('') // 清除之前的错误
 
-    // 创建临时预览
-    const tempId = crypto.randomUUID()
-    const preview = URL.createObjectURL(file)
-    setUploadingImages(prev => [...prev, { id: tempId, preview }])
+    function upload(file: File) {
+      // 创建临时预览
+      const tempId = crypto.randomUUID()
+      const preview = URL.createObjectURL(file)
+      setUploadingImages(prev => [...prev, { id: tempId, preview }])
 
-    // 上传文件
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('tempId', tempId) // 将 tempId 添加到 FormData
-    uploadImage(formData, {
-      onSuccess() {
-        URL.revokeObjectURL(preview) // 清理预览URL
-      },
-    })
+      // 上传文件
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('tempId', tempId) // 将 tempId 添加到 FormData
+      uploadImage(formData, {
+        onSuccess() {
+          URL.revokeObjectURL(preview) // 清理预览URL
+        },
+      })
+    }
+
+    files.forEach(file => upload(file))
 
     // 清空 input 值，以便可以重复选择同一文件
     e.target.value = ''
@@ -102,10 +110,10 @@ export function ImageUpload({
       <div className={cn('grid grid-cols-3 gap-1', className)}>
         {/* 已上传的图片 */}
         {images.map(image => (
-          <div key={image.id} className="relative aspect-square group">
+          <div key={image.id} className="relative aspect-square group rounded-lg overflow-hidden">
             <AssetImageWithData
               image={image}
-              className="object-cover rounded-lg"
+              className="object-cover"
             />
             <button
               onClick={() => onImageRemoveAction(image)}
@@ -121,11 +129,11 @@ export function ImageUpload({
 
         {/* 正在上传的图片 */}
         {uploadingImages.map(img => (
-          <div key={img.id} className="relative aspect-square">
+          <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden">
             <img
               src={img.preview}
               alt="正在上传"
-              className="object-cover rounded-lg opacity-50"
+              className="object-cover w-full h-full opacity-50"
             />
             {img.error
               ? (
@@ -169,6 +177,7 @@ export function ImageUpload({
         <input
           ref={fileInputRef}
           type="file"
+          multiple
           accept="image/*"
           onChange={handleFileChange}
           className="hidden"

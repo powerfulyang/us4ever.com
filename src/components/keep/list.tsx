@@ -49,8 +49,8 @@ function KeepCard({ keep }: { keep: any }) {
       </Link>
       <Confirm
         isOpen={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        onConfirm={() => mutate({ id: keep.id })}
+        onCloseAction={() => setShowConfirm(false)}
+        onConfirmAction={() => mutate({ id: keep.id })}
         isConfirmLoading={isPending}
         title="删除笔记"
         content="确定要删除这个笔记吗？此操作不可逆"

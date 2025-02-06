@@ -63,7 +63,7 @@ export function Dialog({ isOpen, onCloseAction, children, className }: DialogPro
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div ref={modalRef} className="fixed inset-0 z-50">
+        <div ref={modalRef} className={cn('fixed inset-0 z-50 flex items-center justify-center', className)}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -74,9 +74,7 @@ export function Dialog({ isOpen, onCloseAction, children, className }: DialogPro
             )}
             onClick={onCloseAction}
           />
-          <div className={cn('fixed inset-0 flex items-center justify-center p-4', className)}>
-            {children}
-          </div>
+          {children}
         </div>
       )}
     </AnimatePresence>,

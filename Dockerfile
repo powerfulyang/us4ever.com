@@ -19,6 +19,9 @@ FROM node:lts AS production
 
 WORKDIR /app
 
+# 安装 ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
+
 # 复制 prisma
 COPY prisma ./prisma
 # 复制 public 文件夹

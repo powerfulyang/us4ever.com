@@ -8,7 +8,7 @@ import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
 
 export interface TodoItemProps {
@@ -16,12 +16,9 @@ export interface TodoItemProps {
 }
 
 export function TodoItem({ todo }: TodoItemProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const [hasOverflow, setHasOverflow] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editTitle, setEditTitle] = useState(todo.title)
-  const contentRef = useRef<HTMLDivElement>(null)
   const utils = api.useUtils()
 
   const { currentUser } = useUserStore()
@@ -63,18 +60,6 @@ export function TodoItem({ todo }: TodoItemProps) {
       handleEdit()
     }
   }
-
-  useEffect(() => {
-    const checkOverflow = () => {
-      if (contentRef.current) {
-        setHasOverflow(contentRef.current.scrollHeight > contentRef.current.clientHeight)
-      }
-    }
-
-    checkOverflow()
-    window.addEventListener('resize', checkOverflow)
-    return () => window.removeEventListener('resize', checkOverflow)
-  }, [todo.title])
 
   function handleEdit() {
     if (!editTitle.trim())
@@ -133,24 +118,9 @@ export function TodoItem({ todo }: TodoItemProps) {
           </motion.button>
 
           <div className="flex-1 min-w-0 space-y-1">
-            {!isExpanded && (
-              <motion.div
-                ref={contentRef}
-                layout="position"
-                className={cn(
-                  'relative text-white break-words whitespace-pre-wrap',
-                  'line-clamp-3',
-                  todo.status && 'line-through text-gray-400',
-                )}
-              >
-                {todo.title}
-              </motion.div>
-            )}
-            {isExpanded && (
-              <MdRender>
-                {todo.title}
-              </MdRender>
-            )}
+            <MdRender className="text-sm">
+              {todo.title}
+            </MdRender>
             <motion.div
               className="flex items-center gap-2 text-sm text-gray-400"
             >
@@ -160,15 +130,6 @@ export function TodoItem({ todo }: TodoItemProps) {
                   {dayjs(todo.createdAt).format('YYYY年MM月DD日 HH:mm:ss')}
                 </span>
               </span>
-              {hasOverflow && (
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="text-purple-400 hover:text-purple-300 transition-colors shrink-0"
-                >
-                  {isExpanded ? '收起' : '展开'}
-                </button>
-              )}
             </motion.div>
           </div>
         </div>

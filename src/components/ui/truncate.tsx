@@ -28,7 +28,7 @@ export function Truncate({
   children,
   className,
   tooltip = true,
-  tooltipMaxWidth = 300,
+  tooltipMaxWidth = 500,
   tooltipClassName,
   placement = 'top',
   ...props

@@ -64,8 +64,8 @@ export default function UserIcon({ onLogoutAction }: Props) {
       <Confirm
         isOpen={showLogoutConfirm}
         isConfirmLoading={isLogoutPending}
-        onClose={() => setShowLogoutConfirm(false)}
-        onConfirm={mutate}
+        onCloseAction={() => setShowLogoutConfirm(false)}
+        onConfirmAction={mutate}
         title="退出登录"
         content="确定要退出登录吗？"
       />

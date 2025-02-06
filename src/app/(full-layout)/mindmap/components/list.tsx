@@ -49,8 +49,8 @@ function MindMapCard({ mindmap }: { mindmap: any }) {
       </Link>
       <Confirm
         isOpen={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        onConfirm={() => mutate({ id: mindmap.id })}
+        onCloseAction={() => setShowConfirm(false)}
+        onConfirmAction={() => mutate({ id: mindmap.id })}
         isConfirmLoading={isPending}
         title="删除思维导图"
         content="确定要删除这个思维导图吗？此操作不可逆"

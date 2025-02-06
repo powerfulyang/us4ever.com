@@ -13,10 +13,11 @@ interface UserState {
 
 export const useUserStore = create<UserState>(set => ({
   currentUser: null,
-  isPending: false,
+  isPending: true,
   setCurrentUser: (user) => {
     const isAuthenticated = !!user
-    set({ currentUser: user, isAuthenticated })
+    const isPending = false
+    set({ currentUser: user, isAuthenticated, isPending })
   },
   setIsPending: isPending => set({ isPending }),
   isAuthenticated: false,

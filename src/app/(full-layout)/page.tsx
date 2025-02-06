@@ -50,8 +50,8 @@ const appLinks: LinkProps[] = [
     ),
   },
   {
-    title: 'Eleven 生活点滴',
-    description: '分享生活点滴',
+    title: 'Eleven 专栏',
+    description: '记录 Eleven 的成长过程',
     href: '/moment/category/eleven',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,8 +61,8 @@ const appLinks: LinkProps[] = [
   },
   {
     title: 'prompt 收藏',
-    description: '分享生活点滴',
-    href: '/moment/category/eleven',
+    description: '收藏有趣的 prompt',
+    href: '/moment/category/prompt',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
@@ -70,7 +70,7 @@ const appLinks: LinkProps[] = [
     ),
   },
   {
-    title: '脑图',
+    title: '思维导图',
     description: '在线思维导图工具',
     href: '/mindmap',
     icon: (

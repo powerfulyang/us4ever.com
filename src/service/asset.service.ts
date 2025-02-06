@@ -62,6 +62,8 @@ export function transformImageToResponse(image: ImageWithIncludes) {
     hash: image.hash,
     name: image.name,
     exif: image.exif,
+    width: image.width,
+    height: image.height,
     isPublic: image.isPublic,
     original_url: getFileUrl(image.original),
     original_size: image.original.size,

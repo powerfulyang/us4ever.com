@@ -1,19 +1,17 @@
 'use client'
 
-import { api } from '@/trpc/react'
 import { useEffect } from 'react'
 
-export function UserProvider() {
-  const { data: currentUser, isPending } = api.user.current.useQuery()
-  const { setCurrentUser, setIsPending } = useUserStore()
+interface Props {
+  user: User | null | undefined
+}
+
+export function UserProvider({ user }: Props) {
+  const { setCurrentUser } = useUserStore()
 
   useEffect(() => {
-    setCurrentUser(currentUser)
-  }, [currentUser, setCurrentUser])
-
-  useEffect(() => {
-    setIsPending(isPending)
-  }, [isPending, setIsPending])
+    setCurrentUser(user)
+  }, [user, setCurrentUser])
 
   return null
 }

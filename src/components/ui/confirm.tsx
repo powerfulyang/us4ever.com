@@ -5,8 +5,8 @@ import { Modal } from './modal'
 
 interface ConfirmProps {
   isOpen: boolean
-  onClose: () => void
-  onConfirm: () => Promise<void> | void
+  onCloseAction: () => void
+  onConfirmAction: () => Promise<void> | void
   title?: string
   content?: string
   isConfirmLoading?: false | true
@@ -14,8 +14,8 @@ interface ConfirmProps {
 
 export function Confirm({
   isOpen,
-  onClose,
-  onConfirm,
+  onCloseAction,
+  onConfirmAction,
   title = '确认',
   content = '确定要执行此操作吗？',
   isConfirmLoading,
@@ -23,7 +23,7 @@ export function Confirm({
   return (
     <Modal
       isOpen={isOpen}
-      onCloseAction={onClose}
+      onCloseAction={onCloseAction}
       title={title}
     >
       <div className="space-y-6">
@@ -31,13 +31,13 @@ export function Confirm({
         <div className="flex justify-end gap-4">
           <Button
             variant="ghost"
-            onClick={onClose}
+            onClick={onCloseAction}
           >
             取消
           </Button>
           <Button
             isLoading={isConfirmLoading}
-            onClick={onConfirm}
+            onClick={onConfirmAction}
           >
             确定
           </Button>

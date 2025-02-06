@@ -30,6 +30,8 @@ export async function imageminService(
   } = options
 
   const image = sharp(input)
+    // 根据 metadata 自动旋转，解决 iOS 旋转问题
+    .rotate()
 
   return image
     .resize({

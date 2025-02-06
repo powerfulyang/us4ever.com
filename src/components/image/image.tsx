@@ -2,7 +2,7 @@
 
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useInView } from 'framer-motion'
 import { useEffect, useState } from 'react'
 
 interface BaseImageProps {
@@ -26,23 +26,33 @@ interface ImageWithDataProps extends BaseImageProps {
 function BaseAssetImage({ image, className }: ImageWithDataProps) {
   const [isImageLoaded, setIsImageLoaded] = useState(false)
 
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, {
+    once: true,
+  })
+
   useEffect(() => {
-    if (image?.thumbnail_320x_url) {
-      const img = new Image()
-      img.src = image.thumbnail_320x_url
-      img.onload = () => setIsImageLoaded(true)
+    if (inView) {
+      if (image?.thumbnail_320x_url) {
+        const img = new Image()
+        img.src = image.thumbnail_320x_url
+        img.onload = () => setIsImageLoaded(true)
+      }
     }
-  }, [image?.thumbnail_320x_url])
+  }, [image.thumbnail_320x_url, inView])
 
   return (
-    <div className={cn('relative aspect-square overflow-hidden', className)}>
+    <div className={cn('relative w-full h-full overflow-hidden')} ref={ref}>
       <AnimatePresence mode="wait">
         {/* 模糊预览图 */}
         {!isImageLoaded && (
-          <motion.div
+          <motion.img
+            loading="lazy"
+            decoding="async"
             key="blur"
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${image.thumbnail_10x_url})` }}
+            className={cn('w-full h-full', className)}
+            src={image.thumbnail_320x_url}
+            alt={image.name}
             initial={{ opacity: 0, filter: 'blur(20px)' }}
             animate={{ opacity: 1, filter: 'blur(10px)' }}
             exit={{ opacity: 0 }}
@@ -53,10 +63,12 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
         {/* 高清图 */}
         {isImageLoaded && (
           <motion.img
+            loading="lazy"
+            decoding="async"
             key="full"
             src={image.thumbnail_320x_url}
             alt={image.name}
-            className="absolute inset-0 w-full h-full object-cover"
+            className={cn('w-full h-full', className)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}

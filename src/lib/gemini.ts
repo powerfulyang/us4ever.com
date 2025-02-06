@@ -2,9 +2,9 @@ import { env } from '@/env'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 // 初始化 Google AI 实例
-const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
+const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY!)
 
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' })
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
 /**
  * 为给定内容生成简短标题
