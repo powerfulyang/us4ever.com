@@ -14,6 +14,7 @@ interface ImageUploadProps {
   onImageRemoveAction: (image: Image) => void
   maxImages?: number
   className?: string
+  category: string
 }
 
 interface UploadingImage {
@@ -28,6 +29,7 @@ export function ImageUpload({
   onImageRemoveAction,
   maxImages = 9,
   className,
+  category,
 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingImages, setUploadingImages] = useState<UploadingImage[]>([])
@@ -83,6 +85,7 @@ export function ImageUpload({
       // 上传文件
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('category', category)
       formData.append('tempId', tempId) // 将 tempId 添加到 FormData
       uploadImage(formData, {
         onSuccess() {

@@ -37,6 +37,9 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
         const img = new Image()
         img.src = image.thumbnail_320x_url
         img.onload = () => setIsImageLoaded(true)
+        return () => {
+          img.onload = null
+        }
       }
     }
   }, [image.thumbnail_320x_url, inView])

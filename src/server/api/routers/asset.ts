@@ -16,6 +16,7 @@ export const assetRouter = createTRPCRouter({
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),
+      category: zfd.text(),
     }))
     .mutation(async ({ input, ctx }) => {
       const isPublic = input.isPublic === 'true'
@@ -23,6 +24,7 @@ export const assetRouter = createTRPCRouter({
         file: input.file,
         uploadedBy: ctx.user.id,
         isPublic,
+        category: input.category,
       })
     }),
 
@@ -30,6 +32,7 @@ export const assetRouter = createTRPCRouter({
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),
+      category: zfd.text(),
     }))
     .mutation(async ({ input, ctx }) => {
       const isPublic = input.isPublic === 'true'
@@ -37,6 +40,7 @@ export const assetRouter = createTRPCRouter({
         file: input.file,
         uploadedBy: ctx.user.id,
         isPublic,
+        category: input.category,
       })
     }),
 

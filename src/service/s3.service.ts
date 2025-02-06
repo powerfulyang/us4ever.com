@@ -18,8 +18,8 @@ interface Options {
 export async function upload_to_bucket(options: Options) {
   const { buffer, name, type, uploadedBy, bucketName, isPublic = false, path_prefix } = options
   const size = buffer.byteLength
-  const original_sha256 = (await sha256(buffer))!
-  const path = path_prefix ? `${path_prefix}/${original_sha256}` : original_sha256
+  const file_sha256 = (await sha256(buffer))!
+  const path = path_prefix ? `${path_prefix}/${file_sha256}` : file_sha256
 
   // 首先创建数据库记录
   const file = await db.file.create({
@@ -29,7 +29,7 @@ export async function upload_to_bucket(options: Options) {
       name,
       type,
       size,
-      hash: original_sha256,
+      hash: file_sha256,
       path,
       isPublic,
     },
@@ -80,6 +80,7 @@ export async function delete_from_bucket(file: FileWithBucket) {
   const other = await db.file.findFirst({
     where: {
       hash: file.hash,
+      path: file.path,
       id: { not: file.id },
     },
   })

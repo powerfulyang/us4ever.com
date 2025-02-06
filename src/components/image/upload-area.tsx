@@ -4,7 +4,7 @@ import { useImageUpload } from '@/hooks/use-image-upload'
 import { cn } from '@/utils/cn'
 import Image from 'next/image'
 import React, { useState } from 'react'
-import { ImagePreviewModal } from './preview-modal'
+import { ImagePreviewModalSimple } from './preview-modal'
 
 interface UploadAreaProps {
   disabledText?: string
@@ -55,7 +55,7 @@ export function UploadArea({
           'border border-dashed border-gray-300 rounded-xl',
           'hover:border-purple-500/50 transition-colors',
           disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
-          preview ? 'p-2' : 'p-8',
+          preview ? 'p-1' : 'p-8',
           className,
         )}
         onDrop={handleAreaDrop}
@@ -114,11 +114,13 @@ export function UploadArea({
             )}
       </div>
 
-      <ImagePreviewModal
-        src={preview}
-        isOpen={isPreviewOpen}
-        onCloseAction={() => setIsPreviewOpen(false)}
-      />
+      {preview && (
+        <ImagePreviewModalSimple
+          src={preview}
+          isOpen={isPreviewOpen}
+          onCloseAction={() => setIsPreviewOpen(false)}
+        />
+      )}
     </>
   )
 }

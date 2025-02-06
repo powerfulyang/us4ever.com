@@ -7,23 +7,23 @@ import { formatFileSize } from '@/utils'
 interface ImageInfoModalProps {
   image: Image
   isOpen: boolean
-  onClose: () => void
+  onCloseAction: () => void
 }
 
-export function ImageInfoModal({ image, isOpen, onClose }: ImageInfoModalProps) {
+export function ImageInfoModal({ image, isOpen, onCloseAction }: ImageInfoModalProps) {
   return (
     <Modal
       isOpen={isOpen}
-      onCloseAction={onClose}
+      onCloseAction={onCloseAction}
       title="图片信息"
     >
       <div className="space-y-6">
         <div>
           <h4 className="text-sm font-medium text-gray-400 mb-2">基本信息</h4>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 break-all">
             <div>
               <div className="text-sm text-gray-400">文件名</div>
-              <div className="text-white font-medium truncate">{image.name}</div>
+              <div className="text-white font-medium">{image.name}</div>
             </div>
             <div>
               <div className="text-sm text-gray-400">文件大小</div>
@@ -52,9 +52,9 @@ export function ImageInfoModal({ image, isOpen, onClose }: ImageInfoModalProps) 
                 {Object.entries(image.exif)
                   .sort((a, b) => a[0].localeCompare(b[0]))
                   .map(([key, value]) => (
-                    <div key={key}>
+                    <div key={key} className="break-all">
                       <div className="text-sm text-gray-400">{key}</div>
-                      <div className="text-white font-medium truncate">
+                      <div className="text-white font-medium">
                         {String(value)}
                       </div>
                     </div>

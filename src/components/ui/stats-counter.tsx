@@ -1,4 +1,3 @@
-
 interface StatsCounterProps {
   views?: number
   likes?: number

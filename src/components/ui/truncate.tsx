@@ -11,7 +11,7 @@ interface TruncateProps extends React.HTMLAttributes<HTMLDivElement> {
    */
   tooltip?: boolean
   /**
-   * tooltip 的最大宽度，默认为 300px
+   * tooltip 的最大宽度，默认为 500px
    */
   tooltipMaxWidth?: number
   /**

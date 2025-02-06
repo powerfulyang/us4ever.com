@@ -68,6 +68,7 @@ export function loadSyncRouter() {
           const json = await upload_image({
             file,
             uploadedBy: user.id,
+            category: 'eleven',
           })
           images.push({
             id: json.id,
@@ -81,6 +82,7 @@ export function loadSyncRouter() {
           const json = await upload_video({
             file,
             uploadedBy: user.id,
+            category: 'eleven',
           })
           videos.push({
             id: json.id,

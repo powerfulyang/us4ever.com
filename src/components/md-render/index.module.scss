@@ -58,13 +58,14 @@
       width: 0;
       height: 3px;
       background: linear-gradient(
-          90deg,
-          rgba(255, 255, 255, 0) 0%,
-          rgba(255, 255, 255, 0.8) 50%,
-          rgba(255, 255, 255, 0) 100%
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.8) 50%,
+        rgba(255, 255, 255, 0) 100%
       );
-      transition: width 0.4s ease,
-      opacity 0.4s ease;
+      transition:
+        width 0.4s ease,
+        opacity 0.4s ease;
       opacity: 0;
       transform: translateX(-50%);
     }

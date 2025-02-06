@@ -52,9 +52,10 @@ export async function upload_image(
     file: File
     uploadedBy: string
     isPublic?: boolean
+    category: string
   },
 ) {
-  const { file, isPublic = false, uploadedBy } = options
+  const { file, isPublic = false, uploadedBy, category } = options
   const buffer = await file.arrayBuffer()
   const name = file.name
   const type = file.type
@@ -85,6 +86,7 @@ export async function upload_image(
       uploadedBy,
       bucketName: 'uploads',
       isPublic,
+      path_prefix: `images/${category}/original`,
     })
 
     const thumbnail_mime_type = 'image/avif'
@@ -104,7 +106,7 @@ export async function upload_image(
       type: thumbnail_mime_type,
       uploadedBy,
       bucketName: 'thumbnails',
-      path_prefix: '320x',
+      path_prefix: `images/${category}/320x`,
       isPublic,
     })
 
@@ -118,7 +120,7 @@ export async function upload_image(
       type: thumbnail_mime_type,
       uploadedBy,
       bucketName: 'thumbnails',
-      path_prefix: '768x',
+      path_prefix: `images/${category}/768x`,
       isPublic,
     })
 
@@ -130,7 +132,7 @@ export async function upload_image(
       type: thumbnail_mime_type,
       uploadedBy,
       bucketName: 'thumbnails',
-      path_prefix: 'compressed',
+      path_prefix: `images/${category}/compressed`,
       isPublic,
     })
 
@@ -190,8 +192,9 @@ export async function upload_video(options: {
   file: File
   uploadedBy: string
   isPublic?: boolean
+  category: string
 }) {
-  const { file, uploadedBy, isPublic = false } = options
+  const { file, uploadedBy, isPublic = false, category } = options
   const buffer = await file.arrayBuffer()
   const duration = await getVideoDuration(file)
   const name = file.name
@@ -202,7 +205,7 @@ export async function upload_video(options: {
     type,
     uploadedBy,
     bucketName: 'uploads',
-    path_prefix: 'videos',
+    path_prefix: `videos/${category}/original`,
     isPublic,
   })
 

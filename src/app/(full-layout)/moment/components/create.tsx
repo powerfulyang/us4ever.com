@@ -14,7 +14,7 @@ interface Props {
   category?: string
 }
 
-export function MomentCreate({ category }: Props) {
+export function MomentCreate({ category = 'default' }: Props) {
   const [isPublic, setIsPublic] = useState(false)
   const [content, setContent] = useState('')
   const [selectedImages, setSelectedImages] = useState<Image[]>([])
@@ -66,6 +66,7 @@ export function MomentCreate({ category }: Props) {
       />
 
       <ImageUpload
+        category={category}
         images={selectedImages}
         onImageSelectAction={handleImageSelect}
         onImageRemoveAction={handleImageRemove}

@@ -7,52 +7,41 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 interface ImageType {
   src: string
-  placeholder: string
+  placeholder?: string
   alt?: string
-  width: number
-  height: number
+  width?: number
+  height?: number
 }
 
-type ImagePreviewModalProps = {
+interface ImagePreviewModalProps {
   isOpen: boolean
   onCloseAction: () => void
   currentIndex?: number
-} & (
-  | {
-  // 多图片预览模式
-    images: ImageType[]
-    onCurrentIndexChange?: (index: number) => void
-  }
-  | {
-  // 单图片预览模式
-    src: string
-    placeholder?: string
-    alt?: string
-  }
-  )
+  images: ImageType[]
+  onCurrentIndexChange?: (index: number) => void
+}
+
+interface ImagePreviewModalSimpleProps {
+  isOpen: boolean
+  onCloseAction: () => void
+  src: string
+  alt?: string
+  placeholder?: string
+}
+
+export function ImagePreviewModalSimple(props: ImagePreviewModalSimpleProps) {
+  const { src, alt, placeholder, ...rest } = props
+  const images = useMemo(() => {
+    return [{ src, alt, placeholder: placeholder || src }]
+  }, [alt, placeholder, src])
+  return <ImagePreviewModal {...rest} images={images} />
+}
 
 export function ImagePreviewModal(props: ImagePreviewModalProps) {
-  const { isOpen, onCloseAction } = props
+  const { isOpen, onCloseAction, images, currentIndex = 0, onCurrentIndexChange } = props
 
   // 判断是否为多图片模式
-  const isMultipleMode = 'images' in props
-
-  // 处理多图片模式的图片数组
-  const images = isMultipleMode
-    ? props.images
-    : [
-        {
-          src: props.src,
-          placeholder: props.placeholder || props.src,
-          alt: props.alt || '预览图片',
-        },
-      ]
-
-  // 内部索引状态
-  const [internalIndex, setInternalIndex] = useState(0)
-
-  // 当前索引，优先使用外部传入的索引
-  const currentIndex = isMultipleMode && props.currentIndex !== undefined ? props.currentIndex : internalIndex
+  const isMultipleMode = images.length > 1
 
   const [scale, setScale] = useState(1)
   const [rotation, setRotation] = useState(0)
@@ -60,15 +49,8 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
   const dragX = useMotionValue(0)
   const dragY = useMotionValue(0)
 
-  // 同步外部 currentIndex 到内部状态
-  useEffect(() => {
-    if (isMultipleMode && props.currentIndex !== undefined) {
-      setInternalIndex(props.currentIndex)
-    }
-  }, [isMultipleMode, props.currentIndex])
-
-  const currentImage = images[currentIndex]
-  const isWideImage = currentImage && 'width' in currentImage && currentImage.width > currentImage.height
+  const currentImage = images[currentIndex]!
+  const isWideImage = (currentImage.width || 0) > (currentImage.height || 0)
 
   const canDrag = scale !== 1
 
@@ -93,7 +75,6 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
   function handleClose() {
     onCloseAction()
     handleReset()
-    setInternalIndex(0)
   }
 
   // 旋转图片
@@ -104,11 +85,8 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
   // 切换图片
   const updateIndex = (newIndex: number) => {
     handleReset()
-    if (isMultipleMode && props.onCurrentIndexChange) {
-      props.onCurrentIndexChange(newIndex)
-    }
-    else {
-      setInternalIndex(newIndex)
+    if (isMultipleMode && onCurrentIndexChange) {
+      onCurrentIndexChange(newIndex)
     }
     setIsImageLoaded(false)
   }
@@ -208,7 +186,6 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
             />
             <span className="text-white text-sm px-2">
               {currentIndex + 1}
-              {' '}
               /
               {images.length}
             </span>
