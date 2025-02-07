@@ -53,7 +53,7 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
             src={image.thumbnail_10x_url}
             alt={image.name}
             initial={{ filter: 'blur(10px)' }}
-            exit={{ opacity: 0 }}
+            exit={{ filter: 'blur(5px)' }}
             transition={{ duration: 0.3 }}
           />
         )}
@@ -67,8 +67,8 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
             src={image.thumbnail_320x_url}
             alt={image.name}
             className={cn('w-full h-full', className)}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ filter: 'blur(5px)' }}
+            animate={{ filter: 'blur(0px)' }}
             transition={{ duration: 0.3 }}
           />
         )}

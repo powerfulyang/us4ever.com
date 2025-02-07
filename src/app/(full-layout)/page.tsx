@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   },
 }
 
-interface LinkProps {
+export interface LinkProps {
   title: string
   description: string
   href: string
@@ -133,6 +133,14 @@ const toyLinks: LinkProps[] = [
       </svg>
     ),
   },
+  {
+    title: 'Demo',
+    description: '一些栗子',
+    href: '/demo',
+    icon: (
+      <svg className="w-8 h-8" xmlns="http://www.w3.org/2000/svg" width={512} height={512} viewBox="0 0 512 512"><path fill="currentColor" fillRule="evenodd" d="m256 34.347l192 110.851v221.703L256 477.752L64 366.901V145.198zM106.666 192.001v150.266l128 73.9V265.902zm298.667.001l-128 73.9v150.265l128-73.9zM256 83.614l-125.867 72.67L256 228.952l125.867-72.67z"></path></svg>
+    ),
+  },
 ]
 
 const toolLinks: LinkProps[] = [
@@ -198,7 +206,7 @@ const toolLinks: LinkProps[] = [
   },
 ]
 
-function LinkGrid({ links, title }: { links: typeof appLinks, title: string }) {
+export function LinkGrid({ links, title }: { links: typeof appLinks, title: string }) {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-white">{title}</h2>

@@ -37,12 +37,20 @@ export async function regeo(location: string) {
 export async function getAddressFromExif(exif?: any) {
   const GPSLatitude = exif?.GPSLatitude
   const GPSLongitude = exif?.GPSLongitude
-  let address = ''
+  let address: any = ''
   if (GPSLatitude && GPSLongitude) {
     const [gcj02Longitude, gcj02Latitude] = wgs84togcj02(formatBearing(GPSLongitude), formatBearing(GPSLatitude))
     const location = `${gcj02Longitude},${gcj02Latitude}`
     const res = await regeo(location)
     address = res.formatted_address
+    try {
+      if (typeof address !== 'string') {
+        address = JSON.stringify(address)
+      }
+    }
+    catch {
+      // ignore error
+    }
   }
   return address
 }

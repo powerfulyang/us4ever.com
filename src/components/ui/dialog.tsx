@@ -22,37 +22,18 @@ export function Dialog({ isOpen, onCloseAction, children, className }: DialogPro
   }, [])
 
   useEffect(() => {
-    const modalElement = modalRef.current
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onCloseAction()
       }
     }
 
-    const handleWheel = (e: WheelEvent) => {
-      if (!modalElement)
-        return
-
-      const { scrollTop, scrollHeight, clientHeight } = modalElement
-      const isScrolledToTop = scrollTop === 0
-      const isScrolledToBottom = scrollTop + clientHeight >= scrollHeight
-
-      if (
-        (isScrolledToTop && e.deltaY < 0)
-        || (isScrolledToBottom && e.deltaY > 0)
-      ) {
-        e.preventDefault()
-      }
-    }
-
     if (isOpen) {
       document.addEventListener('keydown', handleEsc)
-      modalElement?.addEventListener('wheel', handleWheel, { passive: false })
     }
 
     return () => {
       document.removeEventListener('keydown', handleEsc)
-      modalElement?.removeEventListener('wheel', handleWheel)
     }
   }, [isOpen, onCloseAction])
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useIsomorphicLayoutEffect } from 'framer-motion'
 
 interface Props {
   user: User | null | undefined
@@ -9,7 +9,7 @@ interface Props {
 export function UserProvider({ user }: Props) {
   const { setCurrentUser } = useUserStore()
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     setCurrentUser(user)
   }, [user, setCurrentUser])
 

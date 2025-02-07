@@ -28,7 +28,7 @@ export function Modal({
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ duration: 0.2 }}
         className={cn(
-          'relative w-full max-w-2xl max-h-[90vh] overflow-y-auto',
+          'relative w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4',
           'bg-white/10 backdrop-blur-lg rounded-xl border border-white/20',
           className,
         )}

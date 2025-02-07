@@ -1,6 +1,11 @@
 name: Build json4u Docker Image
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/json4u.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
@@ -13,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          repository: https://github.com/powerfulyang/json4u
+          repository: powerfulyang/json4u
 
       - name: Set variables
         run: |
@@ -43,8 +48,6 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/json4u:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/json4u:cache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/json4u:cache,mode=max
           build-args: |
             APP_URL=https://json.us4ever.com
 
