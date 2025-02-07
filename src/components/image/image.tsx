@@ -1,5 +1,6 @@
 'use client'
 
+import type { Image as ImageResponse } from '@/server/api/routers/asset'
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
 import { AnimatePresence, motion, useInView } from 'framer-motion'
@@ -14,12 +15,7 @@ interface ImageWithIdProps extends BaseImageProps {
 }
 
 interface ImageWithDataProps extends BaseImageProps {
-  image: {
-    name: string
-    thumbnail_10x_url: string
-    thumbnail_320x_url: string
-    thumbnail_768x_url: string
-  }
+  image: ImageResponse
 }
 
 // 基础图片渲染组件
@@ -54,10 +50,9 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
             decoding="async"
             key="blur"
             className={cn('w-full h-full', className)}
-            src={image.thumbnail_320x_url}
+            src={image.thumbnail_10x_url}
             alt={image.name}
-            initial={{ opacity: 0, filter: 'blur(20px)' }}
-            animate={{ opacity: 1, filter: 'blur(10px)' }}
+            initial={{ filter: 'blur(10px)' }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           />

@@ -49,8 +49,8 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
   const dragX = useMotionValue(0)
   const dragY = useMotionValue(0)
 
-  const currentImage = images[currentIndex]!
-  const isWideImage = (currentImage.width || 0) > (currentImage.height || 0)
+  const currentImage = images[currentIndex]
+  const isWideImage = (currentImage?.width || 0) > (currentImage?.height || 0)
 
   const canDrag = scale !== 1
 

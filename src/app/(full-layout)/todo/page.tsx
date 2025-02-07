@@ -17,7 +17,7 @@ export default async function Todo() {
   return (
     <HydrateClient>
       <Container title="待办事项" description="记录你的待办事项">
-        <div className="flex gap-4 flex-col max-w-2xl m-auto">
+        <div className="flex gap-4 flex-col max-w-xl m-auto">
           <TodoForm />
           <TodoList />
         </div>

@@ -1,19 +1,24 @@
-name: CI/CD for ARM
-
+name: Build json4u Docker Image
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
-  docker-build-and-push-arm:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          repository: https://github.com/powerfulyang/json4u
 
+      - name: Set variables
+        run: |
+          VER=$(grep '"version"' package.json | cut -d '"' -f 4)
+          echo "VERSION=$VER" >> $GITHUB_ENV
       # Set up QEMU for ARM support
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -37,6 +42,9 @@ jobs:
           platforms: linux/arm64
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/api.us4ever:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/api.us4ever:cache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/api.us4ever:cache,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/json4u:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/json4u:cache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/json4u:cache,mode=max
+          build-args: |
+            APP_URL=https://json.us4ever.com
+
