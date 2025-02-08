@@ -28,6 +28,7 @@ export function loadLpRouter() {
     const currentUser = await createOrSignIn(user)
     const token = await sign({ user: currentUser }, env.JWT_SECRET)
     setCookie(ctx, COOKIE_NAME, token, COOKIE_OPTIONS)
-    return ctx.redirect(redirect)
+    ctx.header('Content-Type', 'text/html; charset=utf-8')
+    return ctx.body(`<script>window.location.href = '${redirect}';</script>`)
   })
 }

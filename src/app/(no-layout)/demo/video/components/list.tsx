@@ -12,11 +12,9 @@ export function VideoList() {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-4 p-4 border border-gray-200 rounded">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border border-gray-200 rounded">
       {data.map(video => (
-        <video key={video.id} controls>
-          <source src={video.url} type={video.type} />
-        </video>
+        <video key={video.id} controls src={video.url} className="aspect-square object-cover rounded-lg" />
       ))}
     </div>
   )

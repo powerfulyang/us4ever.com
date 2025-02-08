@@ -22,7 +22,7 @@ export function VideoUpload() {
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 items-center pt-4">
       <input accept={'video/*'} type="file" onChange={handleFileChange} />
       {isPending && <span>上传中...</span>}
     </div>

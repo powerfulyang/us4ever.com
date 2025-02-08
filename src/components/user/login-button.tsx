@@ -6,8 +6,8 @@ export default function LoginButton() {
 
   useEffect(() => {
     const origin = window.location.origin
-    const currentPath = window.location.pathname
-    const redirect = `${origin}/api/lp?_redirect=${currentPath}`
+    const currentUrl = window.location.href
+    const redirect = `${origin}/api/lp?_redirect=${encodeURIComponent(currentUrl)}`
     const loginUrl = `https://api.littleeleven.com/api/auth/google?_redirect=${encodeURIComponent(redirect)}`
     setLoginUrl(loginUrl)
   }, [])

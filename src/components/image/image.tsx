@@ -47,7 +47,6 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
         {!isImageLoaded && (
           <motion.img
             loading="lazy"
-            decoding="async"
             key="blur"
             className={cn('w-full h-full', className)}
             src={image.thumbnail_10x_url}
@@ -62,7 +61,6 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
         {isImageLoaded && (
           <motion.img
             loading="lazy"
-            decoding="async"
             key="full"
             src={image.thumbnail_320x_url}
             alt={image.name}
