@@ -1,8 +1,9 @@
 import type { BaseListFilter, BaseUpdateInput } from '@/types/common'
+import type { Prisma } from '@prisma/client'
 import { db } from '@/server/db'
 import { HTTPException } from 'hono/http-exception'
 
-interface CreateKeepInput {
+interface CreateKeepInput extends Prisma.KeepUncheckedCreateInput {
   content: string
   isPublic?: boolean
   ownerId: string
@@ -31,6 +32,7 @@ export async function listKeeps({ userId }: BaseListFilter) {
 export async function createKeep(input: CreateKeepInput) {
   return db.keep.create({
     data: {
+      ...input,
       content: input.content,
       isPublic: input.isPublic ?? false,
       ownerId: input.ownerId,

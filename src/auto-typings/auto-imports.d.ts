@@ -10,6 +10,7 @@ declare global {
   const FetchProgressEvent: typeof import('../lib/fetch')['FetchProgressEvent']
   const cn: typeof import('../utils/cn')['cn']
   const createRef: typeof import('react')['createRef']
+  const enhancement: typeof import('../lib/gemini')['enhancement']
   const extractText: typeof import('../lib/extractText')['extractText']
   const extractTitle: typeof import('../lib/gemini')['extractTitle']
   const formatBearing: typeof import('../utils/index')['formatBearing']

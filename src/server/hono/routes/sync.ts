@@ -1,5 +1,7 @@
+import { db } from '@/server/db'
 import { app, auth } from '@/server/hono'
 import { upload_image, upload_video } from '@/service/file.service'
+import { createKeep } from '@/service/keep.service'
 import { createMoment, findMoment } from '@/service/moment.service'
 import { HTTPException } from 'hono/http-exception'
 import { getExtension } from 'hono/utils/mime'
@@ -99,6 +101,47 @@ export function loadSyncRouter() {
         category: 'eleven',
         createdAt: item.createdAt,
       })
+    }
+    return ctx.json({ success: true })
+  })
+
+  app.use(auth).get('/sync/post/powerfulyang', async (ctx) => {
+    const user = ctx.get('user')
+    const res = await fetch('https://api.powerfulyang.com/api/public/post')
+    if (!res.ok) {
+      throw new HTTPException(500, {
+        message: await res.text(),
+      })
+    }
+    const json = await res.json() as { resources: { id: number }[] }
+    const postList = json.resources
+
+    for (const item of postList) {
+      const result = await db.keep.findFirst({
+        where: {
+          category: 'powerfulyang',
+          tags: {
+            path: ['0', 'id'],
+            equals: item.id,
+          },
+        },
+      })
+      if (!result) {
+        const res = await fetch(`https://api.powerfulyang.com/api/public/post/${item.id}`)
+        const json = await res.json() as { content: string, id: number }
+        const content = await enhancement(json.content)
+        await createKeep({
+          content,
+          isPublic: true,
+          ownerId: user.id,
+          category: 'powerfulyang',
+          tags: [
+            {
+              id: json.id,
+            },
+          ],
+        })
+      }
     }
     return ctx.json({ success: true })
   })

@@ -120,7 +120,6 @@ export function TodoItem({ todo }: TodoItemProps) {
           <div className="flex-1 min-w-0 space-y-1">
             <MdRender className={cn(
               todo.status ? '!line-through !text-gray-400' : '',
-              'text-sm',
             )}
             >
               {todo.title}
