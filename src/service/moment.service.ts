@@ -1,6 +1,8 @@
 import type { BaseListFilter } from '@/types/common'
 import type { Prisma } from '@prisma/client'
+import * as process from 'node:process'
 import { db } from '@/server/db'
+import { createKeep } from '@/service/keep.service'
 import { imageInclude, transformImageToResponse } from 'src/service/asset.service'
 
 interface CreateMomentInput extends Prisma.MomentCreateManyInput {
@@ -56,7 +58,7 @@ export async function listMoments({ userIds, category }: ListMomentInput) {
 
 export async function createMoment(input: CreateMomentInput) {
   const { content, category = 'default', images = [], videos = [], ownerId, isPublic = false, createdAt } = input
-  return db.moment.create({
+  const result = await db.moment.create({
     data: {
       content,
       category,
@@ -89,6 +91,28 @@ export async function createMoment(input: CreateMomentInput) {
       },
     },
   })
+
+  if (result.category === 'keyword2blog' && content) {
+    process.nextTick(async () => {
+      const blog = await enhancement(content)
+      const keep = await createKeep({
+        content: blog,
+        isPublic,
+        ownerId,
+        category: 'keyword2blog',
+      })
+      await db.moment.update({
+        where: {
+          id: result.id,
+        },
+        data: {
+          content: `[生成结果](/keep/${keep.id})\n\n${content}`,
+        },
+      })
+    })
+  }
+
+  return result
 }
 
 export async function updateMoment(input: UpdateMomentInput) {

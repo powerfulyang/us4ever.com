@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { MomentCategoryMap } from '@/constants/moment'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -40,8 +41,7 @@ const appLinks: LinkProps[] = [
     ),
   },
   {
-    title: '动态',
-    description: '分享生活点滴',
+    ...MomentCategoryMap.default,
     href: '/moment',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,8 +50,7 @@ const appLinks: LinkProps[] = [
     ),
   },
   {
-    title: 'Eleven 专栏',
-    description: '记录 Eleven 的成长过程',
+    ...MomentCategoryMap.eleven,
     href: '/moment/category/eleven',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,9 +59,17 @@ const appLinks: LinkProps[] = [
     ),
   },
   {
-    title: 'prompt 收藏',
-    description: '收藏有趣的 prompt',
+    ...MomentCategoryMap.prompt,
     href: '/moment/category/prompt',
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+      </svg>
+    ),
+  },
+  {
+    ...MomentCategoryMap.keyword2blog,
+    href: '/moment/category/keyword2blog',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
