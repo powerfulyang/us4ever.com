@@ -215,4 +215,10 @@ Node.js 异步与同步
 
     expect(result).toBeDefined()
   }, Infinity)
+
+  it('enhancement2', async () => {
+    const result = await enhancement(`nodejs 中 async hooks 的介绍，对性能的影响`)
+
+    expect(result).toBeDefined()
+  }, Infinity)
 })
