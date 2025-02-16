@@ -14,6 +14,8 @@ export const env = createEnv({
     JWT_SECRET: z.string().default(process.env.hostname || 'localhost'),
     AMAP_KEY: z.string().optional(),
     GEMINI_API_KEY: z.string().optional(),
+    TENCENT_CLOUD_SECRET_ID: z.string().optional(),
+    TENCENT_CLOUD_SECRET_KEY: z.string().optional(),
   },
 
   /**
@@ -35,6 +37,8 @@ export const env = createEnv({
     JWT_SECRET: process.env.JWT_SECRET,
     AMAP_KEY: process.env.AMAP_KEY,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    TENCENT_CLOUD_SECRET_ID: process.env.TENCENT_CLOUD_SECRET_ID,
+    TENCENT_CLOUD_SECRET_KEY: process.env.TENCENT_CLOUD_SECRET_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
