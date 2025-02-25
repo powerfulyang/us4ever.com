@@ -27,7 +27,9 @@ jobs:
         with:
           platforms: arm64
 
+      # Set up Docker Buildx with a unique builder name
       - name: Set up Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v3
 
       # Log in to Docker Hub
@@ -41,9 +43,15 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/arm64
           context: .
+          platforms: linux/arm64
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/api.us4ever:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/api.us4ever:cache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/api.us4ever:cache,mode=max
+          cache-from: |
+            type=local,src=/home/runner/.buildx-cache
+          cache-to: |
+            type=local,dest=/home/runner/.buildx-cache-new,mode=max
+      - name: Move cache
+        run: |
+          rm -rf /home/runner/.buildx-cache
+          mv /home/runner/.buildx-cache-new /home/runner/.buildx-cache
