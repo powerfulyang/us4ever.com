@@ -31,13 +31,15 @@ RUN apt-get update && apt-get install -y ffmpeg
 # 复制必要的文件（按需分层，避免重复构建）
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
-COPY public ./public
 
 # 安装 pnpm 和生产依赖
 RUN npm install -g pnpm
 RUN pnpm install --prod --frozen-lockfile
 
+#
 COPY --from=builder /app/.next ./.next
+#
+COPY public ./public
 
 # 启动命令
 CMD ["pnpm", "run", "start"]

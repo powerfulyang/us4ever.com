@@ -51,7 +51,15 @@ jobs:
             type=local,src=/home/runner/.buildx-cache
           cache-to: |
             type=local,dest=/home/runner/.buildx-cache-new,mode=max
+
       - name: Move cache
         run: |
           rm -rf /home/runner/.buildx-cache
           mv /home/runner/.buildx-cache-new /home/runner/.buildx-cache
+
+      - name: Update container
+        run: |
+          cd /root/applications
+          docker pull ${{ secrets.DOCKER_USERNAME }}/api.us4ever
+          docker-compose up -d --force-recreate api.us4ever
+          docker image prune -a -f
