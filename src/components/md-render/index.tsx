@@ -45,21 +45,22 @@ interface Props {
 
 export function MdRender({ children, className }: Props) {
   return (
-    <ReactMarkdown
-      className={cn(styles.markdownBody, className)}
-      remarkPlugins={[
-        remarkGfm,
-        remarkMath,
-      ]}
-      rehypePlugins={[
-        rehypeKatex,
-      ]}
-      components={{
-        pre: Pre,
-        a: Link,
-      }}
-    >
-      {children.trim()}
-    </ReactMarkdown>
+    <div className={cn(styles.markdownBody, className)}>
+      <ReactMarkdown
+        remarkPlugins={[
+          remarkGfm,
+          remarkMath,
+        ]}
+        rehypePlugins={[
+          rehypeKatex,
+        ]}
+        components={{
+          pre: Pre,
+          a: Link,
+        }}
+      >
+        {children.trim()}
+      </ReactMarkdown>
+    </div>
   )
 }

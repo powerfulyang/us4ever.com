@@ -7,13 +7,12 @@
  * need to use are documented accordingly near the end.
  */
 
-import type { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers'
-import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
+import type { RequestCookies } from 'next/dist/server/web/spec-extension/cookies'
 import { env } from '@/env'
 import { db } from '@/server/db'
 import { COOKIE_NAME } from '@/server/hono'
-import { findUserWithGroupById } from '@/service/user.serivce'
 
+import { findUserWithGroupById } from '@/service/user.serivce'
 import { initTRPC } from '@trpc/server'
 import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
@@ -33,8 +32,8 @@ import { ZodError } from 'zod'
  * @see https://trpc.io/docs/server/context
  */
 export async function createTRPCContext(opts: {
-  headers: ReadonlyHeaders
-  cookies: ReadonlyRequestCookies
+  headers: Headers
+  cookies: RequestCookies
 }) {
   return {
     db,

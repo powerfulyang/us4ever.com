@@ -1,4 +1,3 @@
-import type { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies'
 import type { NextRequest } from 'next/server'
 import { env } from '@/env'
 
@@ -15,7 +14,7 @@ import '@/corn'
 async function createContext(req: NextRequest) {
   return createTRPCContext({
     headers: req.headers,
-    cookies: req.cookies as unknown as ReadonlyRequestCookies,
+    cookies: req.cookies,
   })
 }
 
