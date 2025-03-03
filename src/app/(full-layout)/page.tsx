@@ -191,7 +191,7 @@ const toolLinks: LinkProps[] = [
   {
     title: '1Panel',
     description: '现代化的 Linux 服务器运维管理面板',
-    href: 'http://tools.us4ever.com:12345',
+    href: 'https://1panel.us4ever.com',
     target: '_blank',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,12 +203,22 @@ const toolLinks: LinkProps[] = [
   {
     title: 'RabbitMQ',
     description: 'RabbitMQ 消息队列管理面板',
-    href: 'http://tools.us4ever.com:15672',
+    href: 'https://rabbit-mq-management.us4ever.com',
     target: '_blank',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
+    ),
+  },
+  // Dify
+  {
+    title: 'Dify',
+    description: 'Dify 是一个开源的智能对话平台，用于构建智能对话应用程序。',
+    href: 'https://dify.us4ever.com',
+    target: '_target',
+    icon: (
+      <img className="w-8 h-8" src="/icons/dify.avif" alt="" />
     ),
   },
 ]
