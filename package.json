@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.2.0",
+  "packageManager": "pnpm@10.5.2",
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
@@ -35,6 +35,7 @@
     "@trpc/client": "11.0.0-rc.648",
     "@trpc/react-query": "11.0.0-rc.648",
     "@trpc/server": "11.0.0-rc.648",
+    "@waline/client": "^3.5.5",
     "clsx": "^2.1.1",
     "coordtransform": "^2.1.2",
     "dayjs": "^1.11.13",
