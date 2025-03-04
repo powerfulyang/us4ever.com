@@ -17,7 +17,7 @@ const emoji = [
   '/waline/emoji/qq',
   '/waline/emoji/bilibili',
   '/waline/emoji/alus',
-].map(x => `https://littleeleven.com/${x}` as const)
+].map(x => `https://littleeleven.com${x}` as const)
 
 const reaction = [
   '/waline/reaction/clear-day.svg',
@@ -27,29 +27,35 @@ const reaction = [
   '/waline/reaction/extreme-snow.svg',
   '/waline/reaction/hurricane.svg',
   '/waline/reaction/starry-night.svg',
-].map(x => `https://littleeleven.com/${x}`)
+].map(x => `https://littleeleven.com${x}`)
 
 export function Waline(props: WalineOptions) {
   const walineInstanceRef = useRef<WalineInstance | null>(null)
   const containerRef = useRef<HTMLDivElement>(null!)
 
   useEffect(() => {
-    walineInstanceRef.current = init({
-      el: containerRef.current,
-      lang: 'zh-CN',
-      dark: true,
-      serverURL: 'https://waline.us4ever.com',
-      emoji,
-      reaction,
-    })
+    if (!walineInstanceRef.current) {
+      walineInstanceRef.current = init({
+        el: containerRef.current,
+        lang: 'zh-CN',
+        dark: true,
+        serverURL: 'https://waline.us4ever.com',
+        emoji,
+        reaction,
+      })
+    }
 
-    return () => walineInstanceRef.current?.destroy()
+    return () => {
+      if (walineInstanceRef.current) {
+        walineInstanceRef.current?.destroy()
+        walineInstanceRef.current = null // 清理引用
+      }
+    }
   }, [])
 
   const pathname = usePathname()
 
   useEffect(() => {
-    console.log(pathname)
     walineInstanceRef.current?.update({
       ...props,
       path: pathname,

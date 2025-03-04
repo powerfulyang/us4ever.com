@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { OwnerOnly } from '@/components/auth/owner-only'
 import { Back } from '@/components/keep/back'
-import { MdRender } from '@/components/md-render'
+import RemoteMdx from '@/components/md-render/remote'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -108,9 +108,9 @@ export default async function DetailPage({ params }: PageProps) {
             </OwnerOnly>
           </div>
 
-          <MdRender className="text-sm">
+          <RemoteMdx enableMermaid>
             {keep.content}
-          </MdRender>
+          </RemoteMdx>
         </Card>
 
       </div>

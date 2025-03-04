@@ -120,17 +120,17 @@
   }
 
   p {
-    @apply mb-[0.75em] cursor-text;
-    font-size: 1em;
-    color: var(--text-color);
+      @apply mb-[0.75em] cursor-text;
+      font-size: 1em;
 
-    &:has(+ ul, + ol) {
-      @apply mb-[0.5em];
-    }
 
-    &:last-child {
-      @apply mb-0;
-    }
+      &:has(+ ul, + ol) {
+        @apply mb-[0.5em];
+      }
+
+      &:last-child {
+        @apply mb-0;
+      }
   }
 
   a {
