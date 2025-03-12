@@ -20,29 +20,30 @@ function getDescription(category: keyof typeof MomentCategoryMap) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const category = (await params).category as keyof typeof MomentCategoryMap
-
+  const category = (await params).category
+  const decoded = decodeURIComponent(category) as keyof typeof MomentCategoryMap
   return {
-    title: getTitle(category),
-    description: getDescription(category),
+    title: getTitle(decoded),
+    description: getDescription(decoded),
     alternates: {
-      canonical: `/moment/category/${category}`,
+      canonical: `/moment/category/${decoded}`,
     },
   }
 }
 
 export default async function MomentPage({ params }: PageProps) {
-  const category = (await params).category as keyof typeof MomentCategoryMap
-  await api.moment.list.prefetch({ category })
+  const category = (await params).category
+  const decoded = decodeURIComponent(category) as keyof typeof MomentCategoryMap
+  await api.moment.list.prefetch({ category: decoded })
   return (
     <HydrateClient>
       <Container
-        title={getTitle(category)}
-        description={getDescription(category)}
+        title={getTitle(decoded)}
+        description={getDescription(decoded)}
       >
         <div className="space-y-6 max-w-[500px] m-auto">
-          <MomentCreate category={category} />
-          <MomentList category={category} />
+          <MomentCreate category={decoded} />
+          <MomentList category={decoded} />
         </div>
       </Container>
     </HydrateClient>

@@ -2,6 +2,7 @@ import type { CookieOptions } from 'hono/utils/cookie'
 import { env } from '@/env'
 import { loadLpRouter } from '@/server/hono/routes/lp'
 import { loadSyncRouter } from '@/server/hono/routes/sync'
+import { loadSyncTelegramRouter } from '@/server/hono/routes/telegram'
 import { Hono } from 'hono'
 import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
@@ -42,3 +43,4 @@ export const auth = createMiddleware(async (ctx, next) => {
 
 loadLpRouter()
 loadSyncRouter()
+loadSyncTelegramRouter()

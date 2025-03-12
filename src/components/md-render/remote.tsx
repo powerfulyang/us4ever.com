@@ -40,12 +40,14 @@ interface Props {
   children: string
   className?: string
   enableMermaid?: boolean
+  format?: 'md' | 'mdx'
 }
 
 export default function RemoteMdx({
   children: source,
   className,
   enableMermaid,
+  format = 'md',
 }: Props) {
   const options: MDXRemoteOptions = {
     mdxOptions: {
@@ -57,8 +59,10 @@ export default function RemoteMdx({
       ],
       rehypePlugins: [
         rehypeKatex,
+        // rehypeSanitize, // 清理不合法的 HTML
+        // rehypeStringify, // 转换为字符串
       ],
-      format: 'md',
+      format,
     },
     parseFrontmatter: true,
     vfileDataIntoScope: 'toc', // <---------

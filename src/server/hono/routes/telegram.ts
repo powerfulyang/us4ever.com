@@ -1,9 +1,9 @@
 import { syncTelegram } from '@/lib/sync.telegram'
 import { db } from '@/server/db'
 import { app, auth } from '@/server/hono'
-import { createKeep } from '@/service/keep.service'
+import { createMoment } from '@/service/moment.service'
 
-export async function loadSyncTelegramRouter() {
+export function loadSyncTelegramRouter() {
   app.use(auth).get('/sync/telegram/emt_channel', async (ctx) => {
     const user = ctx.get('user')
     const posts = await syncTelegram()
@@ -20,11 +20,11 @@ export async function loadSyncTelegramRouter() {
       })
       if (!result) {
         const content = item.content || ''
-        await createKeep({
+        await createMoment({
           content,
           isPublic: true,
           ownerId: user.id,
-          category: 'powerfulyang',
+          category: 'telegram:emt_channel',
           tags: [
             {
               id: item.id,

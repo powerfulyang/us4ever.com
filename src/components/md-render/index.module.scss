@@ -138,8 +138,8 @@
     word-break: break-word;
     color: var(--link-color);
     text-decoration: none;
-    margin: 0 0.3em;
-    padding: 0.1em 0.2em;
+    //margin: 0 0.3em;
+    padding: 0.15em 0;
     transition: color 0.3s ease;
 
     &::after {

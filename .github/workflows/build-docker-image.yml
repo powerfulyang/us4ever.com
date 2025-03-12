@@ -62,5 +62,5 @@ jobs:
           cd /root/applications
           docker pull ${{ secrets.DOCKER_USERNAME }}/api.us4ever
           docker-compose up -d --force-recreate api.us4ever
-          docker ps -a --filter "ancestor=${{ secrets.DOCKER_USERNAME }}/api.us4ever" -q | xargs docker rm -f
+          docker image prune -f
           docker-compose up -d

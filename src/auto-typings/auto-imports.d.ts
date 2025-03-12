@@ -24,6 +24,7 @@ declare global {
   const parseXMindFile: typeof import('../lib/xmind')['parseXMindFile']
   const startTransition: typeof import('react')['startTransition']
   const summaryContent: typeof import('../lib/gemini')['summaryContent']
+  const syncTelegram: typeof import('../lib/sync.telegram')['syncTelegram']
   const trackRequestProgress: typeof import('../lib/fetch')['trackRequestProgress']
   const useCallback: typeof import('react')['useCallback']
   const useContext: typeof import('react')['useContext']

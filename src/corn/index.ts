@@ -82,7 +82,7 @@ async function mindMapCorn() {
 interval(1000 * 60 * 3)
   .pipe(
     startWith(env.NODE_ENV),
-    filter(value => value !== 'production'),
+    filter(value => value === 'production'),
     concatMap(async () => {
       const keepResults = await keepCorn()
       const mindMapResults = await mindMapCorn()
