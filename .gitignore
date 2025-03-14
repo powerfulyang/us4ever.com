@@ -48,3 +48,5 @@ yarn-error.log*
 
 prisma/client
 prisma/seed.ts
+
+src/auto-typings
