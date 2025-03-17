@@ -4,5 +4,5 @@ describe('telegram', () => {
   it('should sync telegram', async () => {
     const result = await syncTelegram()
     expect(result).toBe(true)
-  })
+  }, Infinity)
 })

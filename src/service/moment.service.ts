@@ -5,9 +5,17 @@ import { db } from '@/server/db'
 import { createKeep } from '@/service/keep.service'
 import { imageInclude, transformImageToResponse } from 'src/service/asset.service'
 
+export interface MomentImage {
+  id: string
+  sort: number
+}
+
+export interface MomentVideo extends MomentImage {
+}
+
 interface CreateMomentInput extends Prisma.MomentCreateManyInput {
-  images?: { id: string, sort: number }[]
-  videos?: { id: string, sort: number }[]
+  images?: MomentImage[]
+  videos?: MomentVideo[]
   ownerId: string
 }
 
@@ -57,14 +65,19 @@ export async function listMoments({ userIds, category }: ListMomentInput) {
 }
 
 export async function createMoment(input: CreateMomentInput) {
-  const { content, category = 'default', images = [], videos = [], ownerId, isPublic = false, createdAt } = input
+  const {
+    category = 'default',
+    images = [],
+    videos = [],
+    isPublic = false,
+    ...rest
+  } = input
+  const { content, ownerId } = rest
   const result = await db.moment.create({
     data: {
-      content,
       category,
-      ownerId,
       isPublic,
-      createdAt,
+      ...rest,
       images: {
         create: images.map((image) => {
           return {
@@ -181,4 +194,56 @@ export async function findMoment(content: string, createdAt: Date) {
       createdAt,
     },
   })
+}
+
+// 给 moment 增加 image 或者 video 关联
+export async function addMomentAttachment(momentId: string, attachments: {
+  images: MomentImage[]
+  videos: MomentVideo[]
+}) {
+  const moment = await db.moment.findUnique({
+    where: {
+      id: momentId,
+    },
+  })
+
+  if (!moment) {
+    throw new Error('moment not found')
+  }
+
+  const { images = [], videos = [] } = attachments
+  for (const image of images) {
+    db.momentImages.create({
+      data: {
+        moment: {
+          connect: {
+            id: momentId,
+          },
+        },
+        image: {
+          connect: {
+            id: image.id,
+          },
+        },
+        sort: image.sort,
+      },
+    })
+  }
+  for (const video of videos) {
+    db.momentVideos.create({
+      data: {
+        moment: {
+          connect: {
+            id: momentId,
+          },
+        },
+        video: {
+          connect: {
+            id: video.id,
+          },
+        },
+        sort: video.sort,
+      },
+    })
+  }
 }

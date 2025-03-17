@@ -28,6 +28,9 @@ model Bucket {
   secretKey   String // 私密密钥，需加密存储
   description String   @default("") // 存储桶描述
 
+  //
+  extraData Json @default("{}")
+
   // relations
   ownerId String // 所属用户
   owner   User   @relation(fields: [ownerId], references: [id])
@@ -52,6 +55,9 @@ model File {
   isPublic    Boolean @default(false) // 是否公开
   description String  @default("") // 文件描述
   tags        Json    @default("[]") // 文件标签
+
+  //
+  extraData Json @default("{}")
 
   // 320x 缩略图
   thumbnail_320x_image Image[] @relation(name: "thumbnail_320x")
@@ -143,6 +149,9 @@ model Keep {
   likes    Int    @default(0) // 点赞数
 
   //
+  extraData Json @default("{}")
+
+  //
   ownerId   String // 所属用户
   owner     User     @relation(fields: [ownerId], references: [id])
   //
@@ -161,6 +170,9 @@ model Todo {
   dueDate  DateTime?
   isPublic Boolean   @default(false)
   pinned   Boolean   @default(false)
+
+  //
+  extraData Json @default("{}")
 
   //
   ownerId   String
@@ -184,6 +196,9 @@ model MindMap {
   likes Int @default(0)
 
   //
+  extraData Json @default("{}")
+
+  //
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id])
   //
@@ -201,6 +216,9 @@ model Moment {
   tags     Json    @default("[]")
   views    Int     @default(0)
   likes    Int     @default(0)
+
+  //
+  extraData Json @default("{}")
 
   //
   ownerId   String
@@ -309,6 +327,11 @@ model Video {
   // 时长
   duration Int
   isPublic Boolean @default(false)
+
+  //
+  extraData Json @default("{}")
+
+  //
   posterId String?
   poster   File?   @relation(fields: [posterId], references: [id], name: "posterVideo")
   fileId   String

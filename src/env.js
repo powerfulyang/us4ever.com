@@ -16,6 +16,7 @@ export const env = createEnv({
     GEMINI_API_KEY: z.string().optional(),
     TENCENT_CLOUD_SECRET_ID: z.string().optional(),
     TENCENT_CLOUD_SECRET_KEY: z.string().optional(),
+    TELEGRAM_API_ENDPOINT: z.string().default('http://api.telegram'),
   },
 
   /**
@@ -39,6 +40,7 @@ export const env = createEnv({
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     TENCENT_CLOUD_SECRET_ID: process.env.TENCENT_CLOUD_SECRET_ID,
     TENCENT_CLOUD_SECRET_KEY: process.env.TENCENT_CLOUD_SECRET_KEY,
+    TELEGRAM_API_ENDPOINT: process.env.TELEGRAM_API_ENDPOINT,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
