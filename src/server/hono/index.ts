@@ -1,3 +1,4 @@
+import type { User } from '@/store/user'
 import type { CookieOptions } from 'hono/utils/cookie'
 import { env } from '@/env'
 import { loadLpRouter } from '@/server/hono/routes/lp'
@@ -36,6 +37,12 @@ export const auth = createMiddleware(async (ctx, next) => {
   catch {
     throw new HTTPException(401, {
       message: 'Unauthorized',
+    })
+  }
+  const user = ctx.get('user')
+  if (!user.isAdmin) {
+    throw new HTTPException(403, {
+      message: 'Forbidden',
     })
   }
   await next()

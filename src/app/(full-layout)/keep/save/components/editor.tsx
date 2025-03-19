@@ -2,8 +2,8 @@
 
 import type { Keep } from '@prisma/client'
 import { Back } from '@/components/keep/back'
+import { MdRender } from '@/components/md-render'
 
-import RemoteMdx from '@/components/md-render/remote'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -117,7 +117,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
             options={{
               minimap: { enabled: false },
               wordWrap: 'on',
-              fontFamily: 'Fira Code, sans-serif',
+              fontFamily: 'inherit',
               pasteAs: {
                 enabled: false,
               },
@@ -125,9 +125,9 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
             theme="vs-dark"
           />
           <div className="hidden sm:block rounded overflow-y-auto p-2 border border-amber-200">
-            <RemoteMdx enableMermaid>
+            <MdRender enableMermaid>
               {content}
-            </RemoteMdx>
+            </MdRender>
           </div>
         </div>
       </Card>
