@@ -28,7 +28,7 @@ export function Pre({ node }: React.ClassAttributes<HTMLPreElement> & React.HTML
 
     if (language === 'mermaid') {
       return (
-        <pre className="mermaid flex justify-center items-center">{value}</pre>
+        <pre key={value} className="mermaid flex justify-center items-center">{value}</pre>
       )
     }
 

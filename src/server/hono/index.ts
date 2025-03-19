@@ -38,6 +38,12 @@ export const auth = createMiddleware(async (ctx, next) => {
       message: 'Unauthorized',
     })
   }
+  const user = ctx.get('user')
+  if (!user.isAdmin) {
+    throw new HTTPException(403, {
+      message: 'Forbidden',
+    })
+  }
   await next()
 })
 

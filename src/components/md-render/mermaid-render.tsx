@@ -16,7 +16,7 @@ export default function MermaidRender({ source }: { source: string }) {
 
   useEffect(() => {
     if (source && isInitialized) {
-      mermaid.run({
+      void mermaid.run({
         querySelector: '.mermaid',
       })
     }
