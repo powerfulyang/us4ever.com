@@ -9,7 +9,7 @@ export interface TelegramMessage {
   updatedAt: number
 }
 
-export async function syncTelegram(offsetId = 0, limit = 10) {
+export async function syncTelegram(offsetId = 0, limit = 1000) {
   const params = new URLSearchParams({
     offsetId: offsetId.toString(),
     limit: limit.toString(),
