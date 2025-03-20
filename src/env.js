@@ -16,7 +16,7 @@ export const env = createEnv({
     GEMINI_API_KEY: z.string().optional(),
     TENCENT_CLOUD_SECRET_ID: z.string().optional(),
     TENCENT_CLOUD_SECRET_KEY: z.string().optional(),
-    TELEGRAM_API_ENDPOINT: z.string().default('http://api.telegram'),
+    TELEGRAM_API_ENDPOINT: z.string().default('http://api.telegram:8000'),
   },
 
   /**
