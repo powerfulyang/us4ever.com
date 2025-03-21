@@ -8,9 +8,11 @@ import { imageInclude, transformImageToResponse } from 'src/service/asset.servic
 export interface MomentImage {
   id: string
   sort: number
+  name?: string
 }
 
 export interface MomentVideo extends MomentImage {
+
 }
 
 interface CreateMomentInput extends Prisma.MomentCreateManyInput {
@@ -197,13 +199,28 @@ export async function findMoment(content: string, createdAt: Date) {
 }
 
 // 给 moment 增加 image 或者 video 关联
-export async function addMomentAttachment(momentId: string, attachments: {
-  images: MomentImage[]
-  videos: MomentVideo[]
-}) {
+export async function addMomentAttachment(
+  momentId: string,
+  attachments: {
+    images: MomentImage[]
+    videos: MomentVideo[]
+  },
+) {
   const moment = await db.moment.findUnique({
     where: {
       id: momentId,
+    },
+    include: {
+      images: {
+        include: {
+          image: true,
+        },
+      },
+      videos: {
+        include: {
+          video: true,
+        },
+      },
     },
   })
 
@@ -213,6 +230,10 @@ export async function addMomentAttachment(momentId: string, attachments: {
 
   const { images = [], videos = [] } = attachments
   for (const image of images) {
+    const exist = moment.images.some(item => item.image.name === image.name)
+    if (exist) {
+      continue
+    }
     db.momentImages.create({
       data: {
         moment: {
@@ -230,6 +251,10 @@ export async function addMomentAttachment(momentId: string, attachments: {
     })
   }
   for (const video of videos) {
+    const exist = moment.videos.some(item => item.video.name === video.name)
+    if (exist) {
+      continue
+    }
     db.momentVideos.create({
       data: {
         moment: {
