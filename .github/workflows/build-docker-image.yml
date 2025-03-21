@@ -14,20 +14,50 @@ concurrency:
 
 jobs:
   docker-build-and-push-arm:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Build Image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/api.us4ever .
 
+      # Set up QEMU for ARM support
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      # Set up Docker Buildx with a unique builder name
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Build and push Docker image
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/api.us4ever:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [ docker-build-and-push-arm ]
+    runs-on: self-hosted
+    steps:
       - name: Update container
         run: |
           cd /root/applications
+          docker pull ${{ secrets.DOCKER_USERNAME }}/api.us4ever
           docker-compose up -d --force-recreate api.us4ever
           docker image prune -f
           docker-compose up -d
