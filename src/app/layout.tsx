@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from 'next'
 import { UserProvider } from '@/components/auth/user-provider'
+import { BASE_URL } from '@/lib/constants'
 import { TRPCReactProvider } from '@/trpc/react'
 import { api } from '@/trpc/server'
 import Script from 'next/script'
 import React from 'react'
-import { ToastContainer } from 'react-toastify'
 
+import { ToastContainer } from 'react-toastify'
 import '@/styles/globals.scss'
 import 'react-toastify/dist/ReactToastify.css'
 

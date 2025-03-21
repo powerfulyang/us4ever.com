@@ -29,7 +29,8 @@ model Bucket {
   description String   @default("") // 存储桶描述
 
   //
-  extraData Json @default("{}")
+  extraData Json   @default("{}")
+  category  String @default("default")
 
   // relations
   ownerId String // 所属用户
@@ -57,7 +58,8 @@ model File {
   tags        Json    @default("[]") // 文件标签
 
   //
-  extraData Json @default("{}")
+  extraData Json   @default("{}")
+  category  String @default("default")
 
   // 320x 缩略图
   thumbnail_320x_image Image[] @relation(name: "thumbnail_320x")
@@ -84,43 +86,48 @@ model File {
 }
 
 model Image {
-  id                String  @id @default(uuid()) // 主键，UUID 自��生成
+  id          String  @id @default(uuid()) // 主键，UUID 自��生成
   // 原始文件名
-  name              String
+  name        String
   // 文件类型
-  type              String
+  type        String
   // 文件大小
-  size              BigInt
+  size        BigInt
   // 图片的宽度
-  width             Int
+  width       Int
   // 图片的高度
-  height            Int
+  height      Int
   // 图片的 exif 信息
-  exif              Json    @default("{}")
+  exif        Json    @default("{}")
   // sha256
-  hash              String
+  hash        String
   // exif address
-  address           String  @default("")
+  address     String  @default("")
   // 是否公开
-  isPublic          Boolean @default(false)
+  isPublic    Boolean @default(false)
   // 图片描述
-  description       String  @default("")
+  description String  @default("")
   // 图片标签
-  tags              Json    @default("[]")
+  tags        Json    @default("[]")
+
+  //
+  extraData Json   @default("{}")
+  category  String @default("default")
+
   // 10x 缩略图
   thumbnail_10x     Bytes
   // 320x 缩略图
   thumbnail_320x_id String
-  thumbnail_320x    File    @relation(name: "thumbnail_320x", fields: [thumbnail_320x_id], references: [id])
+  thumbnail_320x    File   @relation(name: "thumbnail_320x", fields: [thumbnail_320x_id], references: [id])
   // 768x 缩略图
   thumbnail_768x_id String
-  thumbnail_768x    File    @relation(name: "thumbnail_768x", fields: [thumbnail_768x_id], references: [id])
+  thumbnail_768x    File   @relation(name: "thumbnail_768x", fields: [thumbnail_768x_id], references: [id])
   // 原大小压缩图
   compressed_id     String
-  compressed        File    @relation(name: "compressed", fields: [compressed_id], references: [id])
+  compressed        File   @relation(name: "compressed", fields: [compressed_id], references: [id])
   // 原图
   original_id       String
-  original          File    @relation(name: "original", fields: [original_id], references: [id])
+  original          File   @relation(name: "original", fields: [original_id], references: [id])
 
   // 上传用户
   uploadedBy     String // 上传用户的 ID
@@ -144,12 +151,12 @@ model Keep {
   isPublic Boolean @default(false) // 是否公开
   tags     Json    @default("[]") // 笔记标签
 
-  category String @default("default") // 笔记分类
-  views    Int    @default(0) // 查看次数
-  likes    Int    @default(0) // 点赞数
+  views Int @default(0) // 查看次数
+  likes Int @default(0) // 点赞数
 
   //
-  extraData Json @default("{}")
+  extraData Json   @default("{}")
+  category  String @default("default") // 笔记分类
 
   //
   ownerId   String // 所属用户
@@ -162,9 +169,9 @@ model Keep {
 }
 
 model Todo {
-  id       String    @id @default(uuid())
-  title    String
-  content  String?
+  id      String  @id @default(uuid())
+  title   String
+  content String?
   status   Boolean   @default(false)
   priority Int       @default(0)
   dueDate  DateTime?
@@ -172,7 +179,8 @@ model Todo {
   pinned   Boolean   @default(false)
 
   //
-  extraData Json @default("{}")
+  extraData Json   @default("{}")
+  category  String @default("default")
 
   //
   ownerId   String
@@ -197,6 +205,7 @@ model MindMap {
 
   //
   extraData Json @default("{}")
+  category String  @default("default")
 
   //
   ownerId   String
@@ -211,7 +220,6 @@ model MindMap {
 model Moment {
   id       String  @id @default(uuid())
   content  String  @default("")
-  category String  @default("default")
   isPublic Boolean @default(false)
   tags     Json    @default("[]")
   views    Int     @default(0)
@@ -219,6 +227,7 @@ model Moment {
 
   //
   extraData Json @default("{}")
+  category String  @default("default")
 
   //
   ownerId   String
@@ -330,6 +339,7 @@ model Video {
 
   //
   extraData Json @default("{}")
+  category String  @default("default")
 
   //
   posterId String?

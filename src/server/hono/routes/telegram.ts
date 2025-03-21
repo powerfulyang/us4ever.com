@@ -88,11 +88,12 @@ const syncProcessor$ = telegramSync$.pipe(
   }),
 )
 
-// 启动处理器
-syncProcessor$.subscribe()
-
 export function loadSyncTelegramRouter() {
   app.use(auth).get('/sync/telegram/emt_channel', async (ctx) => {
+    if (!telegramSync$.observed) {
+      // 启动处理器
+      syncProcessor$.subscribe()
+    }
     const user = ctx.get('user')
     const force = ctx.req.query('force') !== undefined
     // 查询数据库中最新的 id

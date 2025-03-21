@@ -1,5 +1,4 @@
 import { codeInspectorPlugin } from 'code-inspector-plugin'
-import AutoImport from 'unplugin-auto-import/webpack'
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
@@ -14,23 +13,10 @@ const config = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  webpack: (config) => {
-    config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
-    config.plugins.push(
-      AutoImport({
-        imports: [
-          'react',
-        ],
-        resolvers: [],
-        dts: 'src/auto-typings/auto-imports.d.ts',
-        dirs: [
-          'src/store/**',
-          'src/utils/**',
-          'src/hooks',
-          'src/lib/**',
-        ],
-      }),
-    )
+  webpack: (config, context) => {
+    if (context.dev) {
+      config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
+    }
     return config
   },
 }

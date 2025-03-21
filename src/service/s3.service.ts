@@ -13,10 +13,20 @@ interface Options {
   bucketName: string
   path_prefix?: string
   isPublic?: boolean
+  category: string
 }
 
 export async function upload_to_bucket(options: Options) {
-  const { buffer, name, type, uploadedBy, bucketName, isPublic = false, path_prefix } = options
+  const {
+    buffer,
+    name,
+    type,
+    uploadedBy,
+    bucketName,
+    isPublic = false,
+    path_prefix,
+    category,
+  } = options
   const size = buffer.byteLength
   const file_sha256 = (await sha256(buffer))!
   const path = path_prefix ? `${path_prefix}/${file_sha256}` : file_sha256
@@ -32,6 +42,7 @@ export async function upload_to_bucket(options: Options) {
       hash: file_sha256,
       path,
       isPublic,
+      category,
     },
     include: {
       bucket: true,

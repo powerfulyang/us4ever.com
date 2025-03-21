@@ -1,3 +1,4 @@
+import type { User } from '@/store/user'
 import { env } from '@/env'
 import { app, COOKIE_NAME, COOKIE_OPTIONS } from '@/server/hono'
 import { createOrSignIn } from '@/service/user.serivce'

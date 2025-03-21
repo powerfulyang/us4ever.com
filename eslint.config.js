@@ -4,6 +4,8 @@ export default antfu(
   {
     ignores: [
       // eslint ignore globs here
+      'prisma/**',
+      'public/**',
     ],
     react: true,
     formatters: {

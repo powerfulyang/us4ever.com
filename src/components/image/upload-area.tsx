@@ -3,7 +3,7 @@
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { cn } from '@/utils/cn'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ImagePreviewModalSimple } from './preview-modal'
 
 interface UploadAreaProps {

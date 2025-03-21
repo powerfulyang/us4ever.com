@@ -3,7 +3,7 @@
 import { Dialog } from '@/components/ui/dialog'
 import { cn } from '@/utils/cn'
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface ImageType {
   src: string

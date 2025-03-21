@@ -76,6 +76,7 @@ export async function upload_image(
     address = await getAddressFromExif(exif)
   }
   catch (e) {
+    console.error('getAddressFromExif error')
     console.error(e)
     // ignore error
   }
@@ -95,6 +96,7 @@ export async function upload_image(
       bucketName: 'uploads',
       isPublic,
       path_prefix: `images/${category}/original`,
+      category,
     })
 
     const thumbnail_mime_type = 'image/avif'
@@ -116,6 +118,7 @@ export async function upload_image(
       bucketName: 'thumbnails',
       path_prefix: `images/${category}/320x`,
       isPublic,
+      category,
     })
 
     // 生成 768x 的缩略图
@@ -130,6 +133,7 @@ export async function upload_image(
       bucketName: 'thumbnails',
       path_prefix: `images/${category}/768x`,
       isPublic,
+      category,
     })
 
     // 生成压缩图
@@ -142,6 +146,7 @@ export async function upload_image(
       bucketName: 'thumbnails',
       path_prefix: `images/${category}/compressed`,
       isPublic,
+      category,
     })
 
     // 创建图片记录
@@ -215,6 +220,7 @@ export async function upload_video(options: {
     bucketName: 'uploads',
     path_prefix: `videos/${category}/original`,
     isPublic,
+    category,
   })
 
   return await db.video.create({

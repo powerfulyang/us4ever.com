@@ -116,19 +116,17 @@ import { cn } from '@/utils/cn'
 
 ### SSR 注意事项
 
-由于项目使用 Next.js 的 SSR 功能，在使用浏览器 API 时需要注意：
+由于项目使用 Next.js 的 SSR 功能，在使用浏览器 API时需要注意：
 
 ```tsx
-// 正确使用方式
-useEffect(() => {
-  // 现在可以安全地访问 window 和 document
-  const handleResize = () => {
-    // 处理窗口大小变化
-  }
-
-  window.addEventListener('resize', handleResize)
-  return () => window.removeEventListener('resize', handleResize)
-}, [])
+function Component() {
+  useEffect(() => {
+    // 仅在客户端执行
+    if (typeof window !== 'undefined') {
+      // 执行浏览器 API
+    }
+  }, [])
+}
 ```
 
 ## 贡献指南

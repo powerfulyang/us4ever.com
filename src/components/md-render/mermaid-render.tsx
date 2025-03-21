@@ -2,6 +2,7 @@
 
 import { useIsomorphicLayoutEffect } from 'framer-motion'
 import mermaid from 'mermaid'
+import { useEffect, useState } from 'react'
 
 export default function MermaidRender({ source }: { source: string }) {
   const [isInitialized, setIsInitialized] = useState(false)

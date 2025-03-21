@@ -1,6 +1,7 @@
 import type { BaseListFilter } from '@/types/common'
 import type { Prisma } from '@prisma/client'
 import * as process from 'node:process'
+import { enhancement } from '@/lib/deepseek'
 import { db } from '@/server/db'
 import { createKeep } from '@/service/keep.service'
 import { imageInclude, transformImageToResponse } from 'src/service/asset.service'

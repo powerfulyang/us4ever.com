@@ -2,7 +2,7 @@
 
 import { cn } from '@/utils'
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 interface DialogProps {
