@@ -9,6 +9,7 @@ import { bufferTime, catchError, concatMap, distinct, EMPTY, from, mergeMap, Sub
 export interface TelegramSyncItem {
   value: TelegramMessage & { ownerId: string }
   force: boolean
+  category: string
 }
 
 // 创建一个 Subject 来接收所有同步请求的数据
@@ -20,8 +21,7 @@ const syncProcessor$ = telegramSync$.pipe(
   mergeMap(items => from(items)), // 展平数组
   distinct(item => item.value.id), // 确保消息 ID 唯一性
   concatMap(async (value) => {
-    const { value: item, force } = value
-    const category = 'telegram:emt_channel'
+    const { value: item, force, category } = value
     const content = item.message || ''
     let updatedAt
     if (item.updatedAt) {
@@ -39,21 +39,20 @@ const syncProcessor$ = telegramSync$.pipe(
       },
     })
     if (exist) {
-      if (force) {
-        db.moment.update({
-          where: {
-            id: exist.id,
-          },
-          data: {
-            content,
-            updatedAt,
-            createdAt,
-          },
-        })
-      }
-      else {
+      if (!force) {
         return 'Moment already exists'
       }
+      await db.moment.update({
+        where: {
+          id: exist.id,
+        },
+        data: {
+          content,
+          updatedAt,
+          createdAt,
+        },
+      })
+      return 'Update moment'
     }
 
     const { imageList, videoList, needCreateMoment } = await handleFile(value)
@@ -76,7 +75,7 @@ const syncProcessor$ = telegramSync$.pipe(
       return 'Create new moment'
     }
     else {
-      return 'Attach to exist moment'
+      return 'Grouped moment'
     }
   }),
   tap((result) => {
@@ -89,7 +88,9 @@ const syncProcessor$ = telegramSync$.pipe(
 )
 
 export function loadSyncTelegramRouter() {
-  app.use(auth).get('/sync/telegram/emt_channel', async (ctx) => {
+  app.use(auth).get('/sync/telegram/:channel_name', async (ctx) => {
+    const channel_name = ctx.req.param('channel_name')
+    const category = `telegram:${channel_name}`
     if (!telegramSync$.observed) {
       // 启动处理器
       syncProcessor$.subscribe()
@@ -99,7 +100,7 @@ export function loadSyncTelegramRouter() {
     // 查询数据库中最新的 id
     const latestItem = await db.moment.findFirst({
       where: {
-        category: 'telegram:emt_channel',
+        category,
       },
       orderBy: {
         createdAt: 'desc',
@@ -108,41 +109,45 @@ export function loadSyncTelegramRouter() {
         extraData: true,
       },
     })
-    let latestId
-    if (!force) {
-      latestId = Number(get(latestItem, 'extraData.id'))
+    let latestId = 0
+    const itemId = get(latestItem, 'extraData.id')
+    if (!force && itemId) {
+      latestId = Number(itemId)
     }
 
     // 循环调用 syncTelegram 直到没有新数据
     let allPosts: TelegramMessage[] = []
     let hasMoreData = true
-    let currentLastId
+    let currentLastId = 0
     const limit = 10
 
     while (hasMoreData) {
-      const posts = await syncTelegram(currentLastId, limit)
+      const posts = await syncTelegram(
+        currentLastId,
+        limit,
+        channel_name,
+      )
 
-      if (posts.length === 0) {
+      const filteredPosts = posts.filter((post) => {
+        const id = post.id
+        return id > latestId
+      })
+
+      // 更新 currentLastId 为最后一条消息的 id
+      if (posts.length > 0) {
+        currentLastId = Math.min(...filteredPosts.map(post => post.id))
+      }
+
+      allPosts = [...allPosts, ...filteredPosts]
+
+      if (currentLastId && latestId && currentLastId <= latestId) {
         hasMoreData = false
       }
-      else {
-        // 更新 currentLastId 为最后一条消息的 id
-        if (posts.length > 0) {
-          currentLastId = Math.min(...posts.map(post => post.id))
-        }
 
-        if (currentLastId && latestId && currentLastId <= latestId) {
-          hasMoreData = false
-          continue
-        }
-
-        allPosts = [...allPosts, ...posts]
-
-        // 如果返回的数据量小于 limit，说明没有更多数据了
-        if (posts.length < limit) {
-          hasMoreData = false
-        }
-      }
+      // 如果返回的数据量小于 limit，说明没有更多数据了
+      // if (filteredPosts.length < limit) {
+      //   hasMoreData = false
+      // }
     }
 
     // 将新的同步数据推送到 Subject
@@ -153,6 +158,7 @@ export function loadSyncTelegramRouter() {
           ...post,
         },
         force,
+        category,
       })
     })
 

@@ -36,6 +36,7 @@ export function loadSyncRouter() {
     }
     const json = await res.json()
     const list = json.data as Moment[]
+    const category = 'eleven'
 
     for (const item of list) {
       // find moment
@@ -71,7 +72,7 @@ export function loadSyncRouter() {
           const json = await upload_image({
             file,
             uploadedBy: user.id,
-            category: 'eleven',
+            category,
           })
           images.push({
             id: json.id,
@@ -85,7 +86,7 @@ export function loadSyncRouter() {
           const json = await upload_video({
             file,
             uploadedBy: user.id,
-            category: 'eleven',
+            category,
           })
           videos.push({
             id: json.id,
@@ -99,7 +100,7 @@ export function loadSyncRouter() {
         content,
         images,
         videos,
-        category: 'eleven',
+        category,
         createdAt: item.createdAt,
       })
     }
@@ -116,11 +117,12 @@ export function loadSyncRouter() {
     }
     const json = await res.json() as { resources: { id: number }[] }
     const postList = json.resources
+    const category = 'powerfulyang'
 
     for (const item of postList) {
       const result = await db.keep.findFirst({
         where: {
-          category: 'powerfulyang',
+          category,
           tags: {
             path: ['0', 'id'],
             equals: item.id,
@@ -135,7 +137,7 @@ export function loadSyncRouter() {
           content,
           isPublic: true,
           ownerId: user.id,
-          category: 'powerfulyang',
+          category,
           tags: [
             {
               id: json.id,

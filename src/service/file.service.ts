@@ -182,6 +182,7 @@ export async function upload_image(
           connect: { id: uploadedBy },
         },
         isPublic,
+        category,
       },
       include: imageInclude,
     })
@@ -237,6 +238,7 @@ export async function upload_video(options: {
         connect: { id: uploadedFile.id },
       },
       isPublic,
+      category,
     },
   })
 }

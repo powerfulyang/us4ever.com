@@ -235,41 +235,27 @@ export async function addMomentAttachment(
     if (exist) {
       continue
     }
-    db.momentImages.create({
+    const result = await db.momentImages.create({
       data: {
-        moment: {
-          connect: {
-            id: momentId,
-          },
-        },
-        image: {
-          connect: {
-            id: image.id,
-          },
-        },
+        momentId,
+        imageId: image.id,
         sort: image.sort,
       },
     })
+    console.log(`addMomentAttachment[images]: ${momentId}`, result.imageId)
   }
   for (const video of videos) {
     const exist = moment.videos.some(item => item.video.name === video.name)
     if (exist) {
       continue
     }
-    db.momentVideos.create({
+    const result = await db.momentVideos.create({
       data: {
-        moment: {
-          connect: {
-            id: momentId,
-          },
-        },
-        video: {
-          connect: {
-            id: video.id,
-          },
-        },
+        momentId,
+        videoId: video.id,
         sort: video.sort,
       },
     })
+    console.log(`addMomentAttachment[videos]: ${momentId}`, result.videoId)
   }
 }

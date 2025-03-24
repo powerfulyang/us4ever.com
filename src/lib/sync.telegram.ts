@@ -15,11 +15,16 @@ export interface TelegramMessage {
   updatedAt: number
 }
 
-export async function syncTelegram(offsetId = 0, limit = 100) {
+export async function syncTelegram(
+  offsetId = 0,
+  limit = 100,
+  channel_name = 'emt_channel',
+) {
   const params = new URLSearchParams({
     offsetId: offsetId.toString(),
     limit: limit.toString(),
     download_media: 'true',
+    peer: channel_name,
   })
   const response = await fetch(
     `${env.TELEGRAM_API_ENDPOINT}/history?${params.toString()}`,
@@ -31,8 +36,9 @@ export async function syncTelegram(offsetId = 0, limit = 100) {
   return []
 }
 
-export async function handleFile({ value: item }: TelegramSyncItem) {
-  const category = 'telegram:emt_channel'
+export async function handleFile(
+  { value: item, category }: TelegramSyncItem,
+) {
   // 根据 groupedId 查询
   const groupedId = item.groupedId
   const filePath = item.filePath
@@ -51,8 +57,39 @@ export async function handleFile({ value: item }: TelegramSyncItem) {
 
   // download file
   const url = new URL(`${env.TELEGRAM_API_ENDPOINT}/${filePath}`)
-  const blob = await fetch(url.toString()).then(res => res.blob())
   const filename = path.basename(url.pathname)
+  if (groupedId) {
+    const moment = await db.moment.findFirst({
+      where: {
+        category,
+        extraData: {
+          path: ['groupedId'],
+          equals: groupedId,
+        },
+      },
+      include: {
+        images: {
+          include: {
+            image: true,
+          },
+        },
+        videos: {
+          include: {
+            video: true,
+          },
+        },
+      },
+    })
+    const imageAlreadyTaken = moment?.images.some(item => item.image.name === filename)
+    const videoAlreadyTaken = moment?.videos.some(item => item.video.name === filename)
+    if (imageAlreadyTaken || videoAlreadyTaken) {
+      console.log('File already taken:', filename)
+      return {
+        needCreateMoment: false,
+      }
+    }
+  }
+  const blob = await fetch(url.toString()).then(res => res.blob())
   const file = new File([blob], filename, { type: blob.type })
 
   const fileType = file.type
@@ -99,9 +136,8 @@ export async function handleFile({ value: item }: TelegramSyncItem) {
         images: imageList,
         videos: videoList,
       })
+      console.log('addAttachment', exist.id, imageList.map(x => x.id), videoList.map(x => x.id))
       return {
-        imageList,
-        videoList,
         needCreateMoment: false,
       }
     }
