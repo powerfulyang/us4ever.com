@@ -119,7 +119,7 @@ export function loadSyncTelegramRouter() {
     let allPosts: TelegramMessage[] = []
     let hasMoreData = true
     let currentLastId = 0
-    const limit = 10
+    const limit = 100
 
     while (hasMoreData) {
       const posts = await syncTelegram(
@@ -134,13 +134,18 @@ export function loadSyncTelegramRouter() {
       })
 
       // 更新 currentLastId 为最后一条消息的 id
-      if (posts.length > 0) {
+      if (filteredPosts.length > 0) {
         currentLastId = Math.min(...filteredPosts.map(post => post.id))
       }
+      else {
+        currentLastId = currentLastId - limit
+      }
+
+      console.log('currentLastId', currentLastId, 'latestId', latestId)
 
       allPosts = [...allPosts, ...filteredPosts]
 
-      if (currentLastId && latestId && currentLastId <= latestId) {
+      if (currentLastId <= latestId) {
         hasMoreData = false
       }
 

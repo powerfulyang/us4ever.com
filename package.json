@@ -124,7 +124,7 @@
     "pre-commit": "npm run pre-commit"
   },
   "lint-staged": {
-    "*": "eslint . --fix"
+    "*": "eslint --fix"
   },
   "ct3aMetadata": {
     "initVersion": "7.38.1"
