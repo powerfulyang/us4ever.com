@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:lts AS builder
+FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
@@ -21,12 +21,12 @@ COPY . .
 RUN pnpm run build
 
 # 生产阶段
-FROM node:lts AS production
+FROM node:lts-alpine AS production
 
 WORKDIR /app
 
 # 安装 ffmpeg（单独一层，便于缓存）
-RUN apt-get update && apt-get install -y ffmpeg
+RUN apk update && apk add --no-cache ffmpeg
 
 # 复制必要的文件（按需分层，避免重复构建）
 COPY package.json pnpm-lock.yaml ./

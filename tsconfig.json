@@ -20,11 +20,15 @@
       ]
     },
     "resolveJsonModule": true,
+    "types": [
+      "vitest/globals"
+    ],
     "allowJs": true,
     "checkJs": true,
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "useUnknownInCatchVariables": false,
     "noEmit": true,
     /* Base Options: */
     "esModuleInterop": true,
@@ -34,11 +38,7 @@
       {
         "name": "next"
       }
-    ],
-    "types": [
-      "vitest/globals"
-    ],
-    "useUnknownInCatchVariables": false
+    ]
   },
   "include": [
     "eslint.config.js",

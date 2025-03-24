@@ -33,6 +33,14 @@ export default async function RootLayout({
   const user = await api.user.current()
   return (
     <html lang="zh-CN">
+      <head>
+        <title>
+          {metadata.title as string}
+        </title>
+        <Script id="load-env-variables" strategy="beforeInteractive">
+          { `window["EXCALIDRAW_ASSET_PATH"] = '/excalidraw/';` }
+        </Script>
+      </head>
       <Script
         defer
         src="https://umami.us4ever.com/script.js"

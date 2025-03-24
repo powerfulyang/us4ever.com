@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,4 +50,3 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/json4u:latest
           build-args: |
             APP_URL=https://json.us4ever.com
-

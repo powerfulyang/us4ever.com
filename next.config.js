@@ -17,6 +17,9 @@ const config = {
     if (context.dev) {
       config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
     }
+    // excalidraw
+    config.resolve.fullySpecified = false
+
     return config
   },
 }
