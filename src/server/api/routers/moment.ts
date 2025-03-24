@@ -26,9 +26,10 @@ export const momentRouter = createTRPCRouter({
       isPublic: z.boolean().default(false),
     }))
     .mutation(async ({ input, ctx }) => {
-      const images = input.imageIds.map((id, index) => ({ id, sort: index }))
+      const { imageIds, ...rest } = input
+      const images = imageIds.map((id, index) => ({ id, sort: index }))
       return createMoment({
-        ...input,
+        ...rest,
         images,
         ownerId: ctx.user.id,
       })
