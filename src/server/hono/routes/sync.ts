@@ -1,8 +1,6 @@
-import { enhancement } from '@/lib/deepseek'
 import { db } from '@/server/db'
 import { app, auth } from '@/server/hono'
 import { upload_image, upload_video } from '@/service/file.service'
-import { createKeep } from '@/service/keep.service'
 import { createMoment, findMoment } from '@/service/moment.service'
 import { HTTPException } from 'hono/http-exception'
 import { getExtension } from 'hono/utils/mime'
@@ -21,7 +19,8 @@ interface Attachment {
 interface Moment {
   id: number
   content: string
-  attachments: Attachment[]
+  attachments?: Attachment[]
+  assets?: Attachment[]
   createdAt: Date
 }
 
@@ -107,6 +106,48 @@ export function loadSyncRouter() {
     return ctx.json({ success: true })
   })
 
+  app.use(auth).get('/sync/moment/powerfulyang', async (ctx) => {
+    const user = ctx.get('user')
+    const res = await fetch('https://api.powerfulyang.com/api/public/feed')
+    if (!res.ok) {
+      throw new HTTPException(500, {
+        message: await res.text(),
+      })
+    }
+    const json = await res.json()
+    const list = json.resources as Moment[]
+    const category = 'powerfulyang'
+
+    const array = []
+
+    for (const item of list) {
+      const content = item.content
+      const createdAt = item.createdAt
+      const updatedAt = item.createdAt
+      // find moment
+      const moment = await findMoment(content, createdAt)
+      const assets = (item.assets || [])
+      if (moment || assets.length) {
+        // skip
+        continue
+      }
+      array.push({
+        isPublic: true,
+        ownerId: user.id,
+        content,
+        category,
+        createdAt,
+        updatedAt,
+      })
+    }
+
+    await db.moment.createMany({
+      data: array,
+    })
+
+    return ctx.json({ success: true })
+  })
+
   app.use(auth).get('/sync/post/powerfulyang', async (ctx) => {
     const user = ctx.get('user')
     const res = await fetch('https://api.powerfulyang.com/api/public/post')
@@ -115,37 +156,46 @@ export function loadSyncRouter() {
         message: await res.text(),
       })
     }
-    const json = await res.json() as { resources: { id: number }[] }
+    const json = await res.json()
     const postList = json.resources
     const category = 'powerfulyang'
+
+    const array = []
 
     for (const item of postList) {
       const result = await db.keep.findFirst({
         where: {
           category,
-          tags: {
-            path: ['0', 'id'],
+          extraData: {
+            path: ['id'],
             equals: item.id,
           },
         },
       })
       if (!result) {
         const res = await fetch(`https://api.powerfulyang.com/api/public/post/${item.id}`)
-        const json = await res.json() as { content: string, id: number }
-        const content = await enhancement(json.content)
-        await createKeep({
+        const json = await res.json()
+        const content = json.content
+        const createdAt = json.createdAt
+        const updatedAt = json.updatedAt
+        array.push({
           content,
           isPublic: true,
           ownerId: user.id,
           category,
-          tags: [
-            {
-              id: json.id,
-            },
-          ],
+          extraData: {
+            id: item.id,
+          },
+          createdAt,
+          updatedAt,
         })
       }
     }
+
+    await db.keep.createMany({
+      data: array,
+    })
+
     return ctx.json({ success: true })
   })
 }

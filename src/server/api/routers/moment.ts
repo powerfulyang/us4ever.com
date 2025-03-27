@@ -8,7 +8,7 @@ export const momentRouter = createTRPCRouter({
   list: publicProcedure
     .input(
       z.object({
-        category: z.string().default('default'),
+        category: z.string().optional(),
       }).default({}),
     )
     .query(async ({ ctx, input }) => {
