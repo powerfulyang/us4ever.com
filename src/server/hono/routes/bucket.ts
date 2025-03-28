@@ -29,7 +29,7 @@ export function loadBucketRouter() {
         await uploadFile({
           file,
           uploadedBy: user.id,
-          isPublic: true,
+          isPublic: false,
           category: 'powerfulyang',
         })
       }
