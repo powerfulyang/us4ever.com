@@ -1,5 +1,6 @@
 import type { AmapRegeoCode } from '@/types/amap'
 import type { Prisma } from '@prisma/client'
+import type { UploadFileInput } from './upload.service'
 import { Buffer } from 'node:buffer'
 import { env } from '@/env'
 import { getVideoDuration } from '@/lib/ffmpeg'
@@ -241,4 +242,25 @@ export async function upload_video(options: {
       category,
     },
   })
+}
+
+export async function upload_file(input: UploadFileInput) {
+  const { file, uploadedBy, isPublic = false, category, fileCategory } = input
+  const mimeType = file.type
+  const c = fileCategory || mimeType.split('/')[0] || 'files'
+
+  const buffer = await file.arrayBuffer()
+  const name = file.name
+  const type = file.type
+  const uploadedFile = await upload_to_bucket({
+    buffer,
+    name,
+    type,
+    uploadedBy,
+    bucketName: 'uploads',
+    path_prefix: `${c}/${category}/original`,
+    isPublic,
+    category,
+  })
+  return uploadedFile
 }

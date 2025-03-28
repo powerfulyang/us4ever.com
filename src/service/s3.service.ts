@@ -2,8 +2,8 @@ import type { FileWithBucket } from '@/service/file.service'
 import type { Prisma } from '@prisma/client'
 import { Buffer } from 'node:buffer'
 import { db } from '@/server/db'
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
-import { sha256 } from 'hono/utils/crypto'
+import { DeleteObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { sha1, sha256 } from 'hono/utils/crypto'
 
 interface Options {
   buffer: ArrayBuffer
@@ -29,6 +29,7 @@ export async function upload_to_bucket(options: Options) {
   } = options
   const size = buffer.byteLength
   const file_sha256 = (await sha256(buffer))!
+  const file_sha1 = (await sha1(buffer))!
   const path = path_prefix ? `${path_prefix}/${file_sha256}` : file_sha256
 
   // 首先创建数据库记录
@@ -43,6 +44,9 @@ export async function upload_to_bucket(options: Options) {
       path,
       isPublic,
       category,
+      extraData: {
+        sha1: file_sha1,
+      },
     },
     include: {
       bucket: true,
@@ -107,4 +111,70 @@ export async function delete_from_bucket(file: FileWithBucket) {
   }
 
   await db.file.delete({ where: { id: file.id } })
+}
+
+// 获取所有的 Objects
+export async function list_all_objects(bucketName: string, maxObjects?: number) {
+  const bucket = await db.bucket.findUnique({
+    where: {
+      name: bucketName,
+    },
+  })
+  if (!bucket) {
+    throw new Error('Bucket not found')
+  }
+  const s3_client = get_s3_client(bucket)
+  const objects: { Key: string, Size: number, LastModified: Date }[] = []
+  let continuationToken: string | undefined
+
+  // 数量可能超过单次查询的限制，需要使用 continuationToken 来分页查询
+  while (true) {
+    // 每次查询 1000 个对象
+    const response = await s3_client.send(new ListObjectsV2Command({
+      Bucket: bucket.bucketName,
+      MaxKeys: 1000,
+      ContinuationToken: continuationToken,
+    }))
+
+    if (response.Contents) {
+      objects.push(...response.Contents.map(obj => ({
+        Key: obj.Key!,
+        Size: obj.Size!,
+        LastModified: obj.LastModified!,
+      })))
+    }
+
+    // 如果设置了最大返回数量且已达到限制，则停止查询
+    if (maxObjects && objects.length >= maxObjects) {
+      objects.length = maxObjects
+      break
+    }
+
+    // 如果没有更多数据，则停止查询
+    if (!response.IsTruncated) {
+      break
+    }
+
+    continuationToken = response.NextContinuationToken
+  }
+
+  return objects
+}
+
+export async function delete_object(bucketName: string, objectKey: string) {
+  const bucket = await db.bucket.findUnique({
+    where: {
+      name: bucketName,
+    },
+  })
+  if (!bucket) {
+    throw new Error('Bucket not found')
+  }
+  const s3_client = get_s3_client(bucket)
+  const deleteObjectCommand = new DeleteObjectCommand({
+    Bucket: bucket.bucketName,
+    Key: objectKey,
+  })
+  const result = await s3_client.send(deleteObjectCommand)
+  return result.$metadata.httpStatusCode === 204
 }
