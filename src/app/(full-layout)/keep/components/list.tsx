@@ -92,7 +92,7 @@ export function KeepList() {
       loading={isFetchingNextPage}
       hasMore={hasNextPage}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnimatePresence mode="popLayout">
           {allKeeps.map(keep => (
             <KeepCard key={keep.id} keep={keep} />
