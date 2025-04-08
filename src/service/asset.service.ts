@@ -1,37 +1,20 @@
+import type { BaseListFilter } from '@/types/common'
 import type { Prisma } from '@prisma/client'
 import { Buffer } from 'node:buffer'
 import { db } from '@/server/db'
 import { TRPCError } from '@trpc/server'
 import { getFileUrl } from './file.service'
 
-// 定义包含关联数据的图片类型
-export type ImageWithIncludes = Prisma.ImageGetPayload<{
-  include: {
-    original: {
-      include: {
-        bucket: true
-      }
-    }
-    compressed: {
-      include: {
-        bucket: true
-      }
-    }
-    thumbnail_320x: {
-      include: {
-        bucket: true
-      }
-    }
-    thumbnail_768x: {
-      include: {
-        bucket: true
-      }
-    }
-  }
-}>
-
-// 图片查询时的 include 配置
+/**
+ * 图片资源包含的关联数据
+ */
 export const imageInclude = {
+  uploadedByUser: true,
+  moments: {
+    include: {
+      moment: true,
+    },
+  },
   original: {
     include: {
       bucket: true,
@@ -54,17 +37,47 @@ export const imageInclude = {
   },
 } as const
 
-// 转换图片数据为 API 响应格式
+/**
+ * 视频资源包含的关联数据
+ */
+export const videoInclude = {
+  uploadedByUser: true,
+  moments: {
+    include: {
+      moment: true,
+    },
+  },
+  file: {
+    include: {
+      bucket: true,
+    },
+  },
+} as const
+
+/**
+ * 图片资源类型
+ */
+export type ImageWithIncludes = Prisma.ImageGetPayload<{
+  include: typeof imageInclude
+}>
+
+/**
+ * 视频资源类型
+ */
+export type VideoWithIncludes = Prisma.VideoGetPayload<{
+  include: typeof videoInclude
+}>
+
+/**
+ * 将图片资源转换为响应格式
+ * @param image 图片资源
+ * @returns 转换后的图片资源
+ */
 export function transformImageToResponse(image: ImageWithIncludes) {
   const base64_1x1 = Buffer.from(image.thumbnail_10x).toString('base64')
   return {
-    id: image.id,
-    hash: image.hash,
-    name: image.name,
-    exif: image.exif,
-    width: image.width,
-    height: image.height,
-    isPublic: image.isPublic,
+    ...image,
+    moments: image.moments?.map(({ moment }) => moment) ?? [],
     original_url: getFileUrl(image.original),
     original_size: image.original.size,
     compressed_url: getFileUrl(image.compressed),
@@ -75,13 +88,39 @@ export function transformImageToResponse(image: ImageWithIncludes) {
     thumbnail_768x_size: image.thumbnail_768x.size,
     thumbnail_10x_url: `data:image/avif;base64,${base64_1x1}`,
     thumbnail_10x_size: image.thumbnail_10x.byteLength,
-    address: image.address,
   }
 }
 
-// 获取用户可访问的图片列表
-export async function listAccessibleImages(userIds: string[]) {
-  const images = await db.image.findMany({
+/**
+ * 将视频资源转换为响应格式
+ * @param video 视频资源
+ * @returns 转换后的视频资源
+ */
+export function transformVideoToResponse(video: VideoWithIncludes) {
+  return {
+    ...video,
+    file_url: getFileUrl(video.file),
+  }
+}
+
+/**
+ * 查询图片列表的输入参数接口
+ */
+interface ListImageInput extends BaseListFilter {
+  take?: number
+  cursor?: string
+}
+
+/**
+ * 分页查询图片列表
+ * @param params 查询参数
+ * @param params.userIds 用户ID列表
+ * @param params.take 每页数量
+ * @param params.cursor 游标ID
+ * @returns 图片列表
+ */
+export async function listImages({ userIds, take, cursor }: ListImageInput) {
+  const list = await db.image.findMany({
     include: imageInclude,
     where: {
       OR: [
@@ -90,53 +129,193 @@ export async function listAccessibleImages(userIds: string[]) {
             in: userIds,
           },
         },
-        {
-          isPublic: true,
-        },
+        { isPublic: true },
       ],
     },
     orderBy: {
       createdAt: 'desc',
     },
+    take,
+    cursor: cursor ? { id: cursor } : undefined,
   })
 
-  return images.map(transformImageToResponse)
+  return list.map(transformImageToResponse)
 }
 
-//
-export async function listAccessibleVideos(userIds: string[]) {
-  const videos = await db.video.findMany({
-    include: {
-      file: {
-        include: {
-          bucket: true,
-        },
-      },
-    },
+/**
+ * 查询视频列表的输入参数接口
+ */
+interface ListVideoInput extends BaseListFilter {
+  take?: number
+  cursor?: string
+}
+
+/**
+ * 分页查询视频列表
+ * @param params 查询参数
+ * @param params.userIds 用户ID列表
+ * @param params.take 每页数量
+ * @param params.cursor 游标ID
+ * @returns 视频列表
+ */
+export async function listVideos({ userIds, take, cursor }: ListVideoInput) {
+  const list = await db.video.findMany({
+    include: videoInclude,
     where: {
       OR: [
         {
-          uploadedByUser: {
-            id: {
-              in: userIds,
-            },
+          uploadedBy: {
+            in: userIds,
           },
         },
-        {
-          isPublic: true,
-        },
+        { isPublic: true },
       ],
     },
     orderBy: {
       createdAt: 'desc',
     },
+    take,
+    cursor: cursor ? { id: cursor } : undefined,
   })
 
-  return videos.map((video) => {
-    return {
-      ...video,
-      url: getFileUrl(video.file),
-    }
+  return list.map(transformVideoToResponse)
+}
+
+/**
+ * 创建图片资源的输入参数接口
+ */
+interface CreateImageInput extends Omit<Prisma.ImageCreateInput, 'uploadedByUser' | 'thumbnail_10x'> {
+  uploadedById: string
+  thumbnail_10x: Buffer
+}
+
+/**
+ * 创建新的图片资源
+ * @param input 创建图片的参数
+ * @returns 创建的图片资源
+ */
+export async function createImage(input: CreateImageInput) {
+  const { isPublic = false, uploadedById, thumbnail_10x, ...rest } = input
+  return db.image.create({
+    data: {
+      isPublic,
+      thumbnail_10x,
+      ...rest,
+      uploadedByUser: {
+        connect: {
+          id: uploadedById,
+        },
+      },
+    },
+  })
+}
+
+/**
+ * 创建视频资源的输入参数接口
+ */
+interface CreateVideoInput extends Omit<Prisma.VideoCreateInput, 'uploadedByUser'> {
+  uploadedById: string
+}
+
+/**
+ * 创建新的视频资源
+ * @param input 创建视频的参数
+ * @returns 创建的视频资源
+ */
+export async function createVideo(input: CreateVideoInput) {
+  const { isPublic = false, uploadedById, ...rest } = input
+  return db.video.create({
+    data: {
+      isPublic,
+      ...rest,
+      uploadedByUser: {
+        connect: {
+          id: uploadedById,
+        },
+      },
+    },
+  })
+}
+
+/**
+ * 更新图片资源的输入参数接口
+ */
+interface UpdateImageInput extends Omit<Prisma.ImageUpdateInput, 'uploadedByUser' | 'thumbnail_10x'> {
+  id: string
+  uploadedById: string
+  thumbnail_10x?: Buffer
+}
+
+/**
+ * 更新图片资源
+ * @param input 更新图片的参数
+ * @returns 更新后的图片资源
+ */
+export async function updateImage(input: UpdateImageInput) {
+  const { id, uploadedById, thumbnail_10x, ...rest } = input
+  return db.image.update({
+    where: {
+      id,
+      uploadedBy: uploadedById,
+    },
+    data: {
+      ...rest,
+      ...(thumbnail_10x ? { thumbnail_10x } : {}),
+    },
+  })
+}
+
+/**
+ * 更新视频资源的输入参数接口
+ */
+interface UpdateVideoInput extends Omit<Prisma.VideoUpdateInput, 'uploadedByUser'> {
+  id: string
+  uploadedById: string
+}
+
+/**
+ * 更新视频资源
+ * @param input 更新视频的参数
+ * @returns 更新后的视频资源
+ */
+export async function updateVideo(input: UpdateVideoInput) {
+  const { id, uploadedById, ...rest } = input
+  return db.video.update({
+    where: {
+      id,
+      uploadedBy: uploadedById,
+    },
+    data: rest,
+  })
+}
+
+/**
+ * 删除图片资源
+ * @param id 图片ID
+ * @param uploadedById 上传者ID
+ * @returns 删除的图片资源
+ */
+export async function deleteImage(id: string, uploadedById: string) {
+  return db.image.delete({
+    where: {
+      id,
+      uploadedBy: uploadedById,
+    },
+  })
+}
+
+/**
+ * 删除视频资源
+ * @param id 视频ID
+ * @param uploadedById 上传者ID
+ * @returns 删除的视频资源
+ */
+export async function deleteVideo(id: string, uploadedById: string) {
+  return db.video.delete({
+    where: {
+      id,
+      uploadedBy: uploadedById,
+    },
   })
 }
 

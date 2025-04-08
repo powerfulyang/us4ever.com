@@ -1,7 +1,7 @@
 'use client'
 
 import type { Keep } from '@prisma/client'
-import { Back } from '@/components/keep/back'
+import { Back } from '@/app/(full-layout)/keep/components/back'
 import { MdRender } from '@/components/md-render'
 
 import { Button } from '@/components/ui/button'
@@ -12,7 +12,7 @@ import { api } from '@/trpc/react'
 import { loader } from '@monaco-editor/react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 const MdEditor = dynamic(
   async () => {
@@ -33,8 +33,12 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
   const id = keep?.id
 
   const router = useRouter()
-  const [content, setContent] = useState('')
-  const [isPublic, setIsPublic] = useState(false)
+  const [content, setContent] = useState(() => {
+    return keep?.content ?? ''
+  })
+  const [isPublic, setIsPublic] = useState(() => {
+    return keep?.isPublic ?? false
+  })
 
   const { mutate: createMutate, isPending: isCreatePending } = api.keep.create.useMutation({
     onSuccess: (data) => {
@@ -48,13 +52,6 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
   })
 
   const isPending = isCreatePending || isUpdatePending
-
-  useEffect(() => {
-    if (keep) {
-      setContent(keep.content)
-      setIsPublic(keep.isPublic)
-    }
-  }, [keep])
 
   function handleSave() {
     if (!content)

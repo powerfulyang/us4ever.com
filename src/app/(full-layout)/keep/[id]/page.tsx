@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
+import { Back } from '@/app/(full-layout)/keep/components/back'
 import { OwnerOnly } from '@/components/auth/owner-only'
-import { Back } from '@/components/keep/back'
 import RemoteMdx from '@/components/md-render/remote'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

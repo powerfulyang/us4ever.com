@@ -1,3 +1,4 @@
+'use client'
 import { api } from '@/trpc/react'
 import React from 'react'
 
@@ -5,7 +6,7 @@ export function VideoUpload() {
   const utils = api.useUtils()
   const { mutate, isPending } = api.asset.upload_video.useMutation({
     onSuccess() {
-      return utils.asset.list_video.invalidate()
+      return utils.asset.infiniteList_video.invalidate()
     },
   })
 

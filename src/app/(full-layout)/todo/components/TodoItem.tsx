@@ -14,9 +14,10 @@ import TextareaAutosize from 'react-textarea-autosize'
 
 export interface TodoItemProps {
   todo: Todo
+  onUpdate?: () => void
 }
 
-export function TodoItem({ todo }: TodoItemProps) {
+export function TodoItem({ todo, onUpdate }: TodoItemProps) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editTitle, setEditTitle] = useState(todo.title)
@@ -26,33 +27,35 @@ export function TodoItem({ todo }: TodoItemProps) {
 
   const toggleStatus = api.todo.toggleStatus.useMutation({
     onSuccess: () => {
-      return utils.todo.getAll.invalidate()
+      void utils.todo.infiniteList.invalidate()
+      onUpdate?.()
     },
   })
 
   const togglePublic = api.todo.togglePublic.useMutation({
     onSuccess: () => {
-      return utils.todo.getAll.invalidate()
+      return utils.todo.infiniteList.invalidate()
     },
   })
 
   const togglePin = api.todo.togglePin.useMutation({
     onSuccess: () => {
-      return utils.todo.getAll.invalidate()
+      return utils.todo.infiniteList.invalidate()
     },
   })
 
   const deleteTodo = api.todo.delete.useMutation({
     onSuccess: () => {
       setIsDeleteModalOpen(false)
-      return utils.todo.getAll.invalidate()
+      void utils.todo.infiniteList.invalidate()
+      onUpdate?.()
     },
   })
 
   const updateTodo = api.todo.update.useMutation({
     onSuccess: () => {
       setIsEditModalOpen(false)
-      return utils.todo.getAll.invalidate()
+      return utils.todo.infiniteList.invalidate()
     },
   })
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { CustomNoteContent } from '@/components/mindmap/CustomNoteContent'
+import { CustomNoteContent } from '@/app/(full-layout)/mindmap/components/CustomNoteContent'
 import { useMindMapNoteStore } from '@/store/mind-map-note'
 import { useEffect, useRef } from 'react'
 import MindMap from 'simple-mind-map'

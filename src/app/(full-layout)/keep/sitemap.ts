@@ -3,7 +3,7 @@ import { BASE_URL } from '@/lib/constants'
 import { api } from '@/trpc/server'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const keeps = await api.keep.list()
+  const keeps = await api.keep.list_public()
   return keeps.map(keep => ({
     url: `${BASE_URL}/keep/${keep.id}`,
     lastModified: keep.updatedAt,

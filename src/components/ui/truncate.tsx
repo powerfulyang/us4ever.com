@@ -11,10 +11,6 @@ interface TruncateProps extends React.HTMLAttributes<HTMLDivElement> {
    */
   tooltip?: boolean
   /**
-   * tooltip 的最大宽度，默认为 500px
-   */
-  tooltipMaxWidth?: number
-  /**
    * 自定义 tooltip 的类名
    */
   tooltipClassName?: string
@@ -28,7 +24,6 @@ export function Truncate({
   children,
   className,
   tooltip = true,
-  tooltipMaxWidth = 500,
   tooltipClassName,
   placement = 'top',
   ...props
@@ -43,6 +38,7 @@ export function Truncate({
       return
 
     const hasOverflow = element.scrollWidth > element.clientWidth
+    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
     setIsOverflow(hasOverflow)
   }, [children])
 
@@ -61,16 +57,16 @@ export function Truncate({
       <AnimatePresence>
         {tooltip && isOverflow && showTooltip && (
           <motion.div
-            initial={{ opacity: 0, y: placement === 'top' ? 8 : -8, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, x: '-50%' }}
-            exit={{ opacity: 0, y: placement === 'top' ? 8 : -8, x: '-50%' }}
+            initial={{ opacity: 0, y: placement === 'top' ? 8 : -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: placement === 'top' ? 8 : -8 }}
             transition={{ duration: 0.2 }}
             className={cn(
-              'absolute left-1/2 z-50 px-2 py-1 text-sm bg-black/80 backdrop-blur-sm text-white rounded-lg break-all',
+              'w-100% sm:w-max',
+              'absolute left-0 z-50 px-2 py-1 text-sm bg-black/80 backdrop-blur-sm text-white rounded-lg break-all',
               placement === 'top' ? 'bottom-full mb-1' : 'top-full mt-1',
               tooltipClassName,
             )}
-            style={{ maxWidth: tooltipMaxWidth }}
           >
             {children}
           </motion.div>

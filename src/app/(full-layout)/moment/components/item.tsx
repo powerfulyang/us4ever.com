@@ -1,8 +1,8 @@
 'use client'
 
 import type { Moment } from '@/server/api/routers/moment'
-import { AssetImageWithData } from '@/components/image/image'
-import { ImagePreviewModal } from '@/components/image/preview-modal'
+import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
+import { ImagePreviewModal } from '@/app/(full-layout)/image/components/preview-modal'
 import { MdRender } from '@/components/md-render'
 import { Card } from '@/components/ui/card'
 import { Confirm } from '@/components/ui/confirm'

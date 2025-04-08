@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function MomentPage() {
-  await api.moment.list.prefetch()
+  await api.moment.infiniteList.prefetch({})
   return (
     <HydrateClient>
       <Container

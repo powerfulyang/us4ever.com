@@ -25,6 +25,50 @@ export const todoRouter = createTRPCRouter({
     })
   }),
 
+  infiniteList: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 10 // 默认每页 10 条
+      const { cursor } = input
+      const items = await ctx.db.todo.findMany({
+        take: limit + 1, // 获取多一条用于判断是否有下一页
+        where: {
+          OR: [
+            {
+              ownerId: ctx.user?.id,
+            },
+            {
+              isPublic: true,
+            },
+          ],
+        },
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: [
+          {
+            pinned: 'desc',
+          },
+          {
+            createdAt: 'desc',
+          },
+        ],
+      })
+
+      let nextCursor: typeof cursor | undefined
+      if (items.length > limit) {
+        const nextItem = items.pop()
+        nextCursor = nextItem!.id
+      }
+      return {
+        items,
+        nextCursor,
+      }
+    }),
+
   create: protectedProcedure
     .input(
       z.object({

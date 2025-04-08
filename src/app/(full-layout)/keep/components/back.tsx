@@ -3,7 +3,7 @@
 import type { FC, HTMLAttributes, PropsWithChildren } from 'react'
 import { clsx } from 'clsx'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 
 export const Back: FC<
   PropsWithChildren<
@@ -13,13 +13,17 @@ export const Back: FC<
   >
 > = ({ className, fallback, ...props }) => {
   const router = useRouter()
-  // 判断 window.document.referrer 是不是同源的
-  const [isSameOrigin, setIsSameOrigin] = useState(false)
+  const isSameOrigin = useMemo(() => {
+    if (typeof window === 'undefined')
+      return false
 
-  useEffect(() => {
-    const origin = window.location.origin
-    const referrer = window.document.referrer
-    setIsSameOrigin(referrer.startsWith(origin))
+    try {
+      const referrerOrigin = new URL(document.referrer).origin
+      return window.location.origin === referrerOrigin
+    }
+    catch {
+      return false
+    }
   }, [])
 
   function handleBack() {

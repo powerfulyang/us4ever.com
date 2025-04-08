@@ -2,8 +2,9 @@
 
 import { cn } from '@/utils'
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useMountedState } from 'react-use'
 
 interface DialogProps {
   isOpen: boolean
@@ -14,12 +15,7 @@ interface DialogProps {
 
 export function Dialog({ isOpen, onCloseAction, children, className }: DialogProps) {
   const modalRef = useRef<HTMLDivElement>(null)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    return () => setMounted(false)
-  }, [])
+  const isMounted = useMountedState()
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -37,7 +33,7 @@ export function Dialog({ isOpen, onCloseAction, children, className }: DialogPro
     }
   }, [isOpen, onCloseAction])
 
-  if (!mounted) {
+  if (!isMounted()) {
     return null
   }
 

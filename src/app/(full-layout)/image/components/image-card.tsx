@@ -11,7 +11,12 @@ interface Thumbnail {
   size: bigint | number
 }
 
-export function ImageCard({ image }: { image: Image }) {
+interface ImageCardProps {
+  image: Image
+  onDelete?: () => void
+}
+
+export function ImageCard({ image, onDelete }: ImageCardProps) {
   const [selectedUrl, setSelectedUrl] = useState(image.thumbnail_320x_url)
   const [showExif, setShowExif] = useState(false)
 
@@ -28,7 +33,10 @@ export function ImageCard({ image }: { image: Image }) {
 
   return (
     <>
-      <div className="bg-white/10 rounded-xl p-2 border border-white/20 hover:border-purple-500/50 transition-all duration-300 group">
+      <div
+        title={image.isPublic ? '公开' : '私密'}
+        className="bg-white/10 rounded-xl p-2 border border-white/20 hover:border-purple-500/50 transition-all duration-300 group"
+      >
         <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
           <img
             src={selectedUrl}
@@ -37,10 +45,16 @@ export function ImageCard({ image }: { image: Image }) {
               'blur-[32px]': is_10x,
             })}
           />
-          <div title={image.isPublic ? '公开' : '私密'} className="absolute top-2 left-2 p-2 bg-black/60 rounded-lg hover:bg-black/80 text-white">
+          <div className="absolute top-2 left-2 p-2 bg-black/60 rounded-lg hover:bg-black/80 text-white">
             {image.isPublic
               ? (
-                  <svg className="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                  >
                     <path fill="currentColor" d="M10.5 16a1.5 1.5 0 1 1 3 0a1.5 1.5 0 0 1-3 0" />
                     <path
                       fill="currentColor"
@@ -82,15 +96,28 @@ export function ImageCard({ image }: { image: Image }) {
               </span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowExif(true)}
-            className="absolute top-2 right-2 p-2 bg-black/60 rounded-lg hover:bg-black/80"
-          >
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </button>
+          <div className="absolute top-2 right-2 flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowExif(true)}
+              className="p-2 bg-black/60 rounded-lg hover:bg-black/80"
+            >
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+            {onDelete && (
+              <button
+                type="button"
+                onClick={onDelete}
+                className="p-2 bg-black/60 rounded-lg hover:bg-black/80"
+              >
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
         <div className="grid grid-cols-5 gap-0.5 overflow-x-auto pt-2">
           {thumbnails.map(thumb => (

@@ -1,10 +1,10 @@
 'use client'
 
+import { UploadArea } from '@/app/(full-layout)/image/components/upload-area'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
-import { UploadArea } from '@/components/image/upload-area'
 import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 export function ImageUpload() {
   const utils = api.useUtils()
@@ -14,7 +14,7 @@ export function ImageUpload() {
   const uploadMutation = api.asset.upload_image.useMutation({
     onSuccess: () => {
       setSelectedFile(null)
-      return utils.asset.list_image.invalidate()
+      return utils.asset.infiniteList_image.invalidate()
     },
   })
 

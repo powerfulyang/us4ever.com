@@ -3,9 +3,31 @@ import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
 
 export const keepRouter = createTRPCRouter({
-  list: publicProcedure
+  list_public: publicProcedure
     .query(async ({ ctx }) => {
       return await ctx.db.keep.findMany({
+        where: {
+          isPublic: true,
+        },
+        select: {
+          id: true,
+          updatedAt: true,
+        },
+      })
+    }),
+
+  infiniteList: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(), // <-- "cursor" needs to exist, but can be any type
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input.limit ?? 6 // Default limit
+      const { cursor } = input
+      const items = await ctx.db.keep.findMany({
+        take: limit + 1, // get an extra item at the end which we'll use as next cursor
         where: {
           OR: [
             {
@@ -16,10 +38,21 @@ export const keepRouter = createTRPCRouter({
             },
           ],
         },
+        cursor: cursor ? { id: cursor } : undefined,
         orderBy: {
           createdAt: 'desc',
         },
       })
+
+      let nextCursor: typeof cursor | undefined
+      if (items.length > limit) {
+        const nextItem = items.pop()
+        nextCursor = nextItem!.id
+      }
+      return {
+        items,
+        nextCursor,
+      }
     }),
 
   create: protectedProcedure
@@ -68,21 +101,24 @@ export const keepRouter = createTRPCRouter({
         where: {
           id: input.id,
           OR: [
+            // Allow owner to see their own private keeps
             { ownerId: ctx.user?.id },
+            // Allow anyone to see public keeps
             { isPublic: true },
           ],
         },
       })
 
       if (!keep) {
+        // Consider throwing a TRPCError with code 'NOT_FOUND' for better client handling
         throw new HTTPException(404, {
           message: 'Keep not found',
         })
       }
 
-      if (input.updateViews) {
-        // 更新浏览次数
-        await ctx.db.keep.update({
+      if (input.updateViews && keep.ownerId !== ctx.user?.id) { // Only increment views if not the owner
+        // Update view count asynchronously (fire-and-forget) for better performance
+        void ctx.db.keep.update({
           where: { id: input.id },
           data: { views: { increment: 1 } },
         })

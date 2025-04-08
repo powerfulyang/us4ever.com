@@ -4,7 +4,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import dynamic from 'next/dynamic'
 
 const MindMapView = dynamic(
-  () => import('@/components/mindmap'),
+  () => import('@/app/(full-layout)/mindmap/components'),
   {
     ssr: false,
     loading: () => <LoadingSpinner text="加载中..." />,

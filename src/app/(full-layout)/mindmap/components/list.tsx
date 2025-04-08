@@ -3,6 +3,7 @@
 import { Empty } from '@/components/layout/Empty'
 import { Confirm } from '@/components/ui/confirm'
 import { ContentCard } from '@/components/ui/content-card'
+import { InfiniteScroll } from '@/components/ui/infinite-scroll'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -15,7 +16,7 @@ function MindMapCard({ mindmap }: { mindmap: any }) {
   const { mutate, isPending } = api.mindmap.delete.useMutation({
     onSuccess() {
       setShowConfirm(false)
-      return utils.mindmap.list.invalidate()
+      return utils.mindmap.infiniteList.invalidate()
     },
   })
 
@@ -60,25 +61,44 @@ function MindMapCard({ mindmap }: { mindmap: any }) {
 }
 
 export function MindMapList() {
-  const { isPending, data: mindmapList } = api.mindmap.list.useQuery()
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = api.mindmap.infiniteList.useInfiniteQuery(
+    {},
+    {
+      getNextPageParam: lastPage => lastPage.nextCursor,
+    },
+  )
 
-  if (isPending) {
+  if (isLoading) {
     return <LoadingSpinner text="正在获取思维导图..." />
   }
 
-  if (!mindmapList?.length) {
+  if (!data?.pages[0]?.items.length) {
     return (
       <Empty title="暂无思维导图" />
     )
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <AnimatePresence mode="popLayout">
-        {mindmapList.map(mindmap => (
-          <MindMapCard key={mindmap.id} mindmap={mindmap} />
-        ))}
-      </AnimatePresence>
-    </div>
+    <InfiniteScroll
+      onLoadMore={fetchNextPage}
+      hasMore={hasNextPage}
+      loading={isFetchingNextPage}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <AnimatePresence mode="popLayout">
+          {data.pages.map(page =>
+            page.items.map(mindmap => (
+              <MindMapCard key={mindmap.id} mindmap={mindmap} />
+            )),
+          )}
+        </AnimatePresence>
+      </div>
+    </InfiniteScroll>
   )
 }

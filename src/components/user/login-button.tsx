@@ -1,15 +1,14 @@
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 
 export default function LoginButton() {
-  const [loginUrl, setLoginUrl] = useState<string>('')
-
-  useEffect(() => {
+  const loginUrl = useMemo(() => {
+    if (typeof window === 'undefined')
+      return ''
     const origin = window.location.origin
     const currentUrl = window.location.href
     const redirect = `${origin}/api/lp?_redirect=${encodeURIComponent(currentUrl)}`
-    const loginUrl = `https://api.littleeleven.com/api/auth/google?_redirect=${encodeURIComponent(redirect)}`
-    setLoginUrl(loginUrl)
+    return `https://api.littleeleven.com/api/auth/google?_redirect=${encodeURIComponent(redirect)}`
   }, [])
 
   return (

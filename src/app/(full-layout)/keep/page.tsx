@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
+import { KeepList } from '@/app/(full-layout)/keep/components/list'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
-import { KeepList } from '@/components/keep/list'
 import { Container } from '@/components/layout/Container'
 import { Button } from '@/components/ui/button'
 import { api, HydrateClient } from '@/trpc/server'
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 }
 
 export default async function KeepPage() {
-  await api.keep.list.prefetch()
+  await api.keep.infiniteList.prefetch({})
   return (
     <HydrateClient>
       <Container

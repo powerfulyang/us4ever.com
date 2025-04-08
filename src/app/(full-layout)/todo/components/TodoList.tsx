@@ -1,13 +1,27 @@
 'use client'
 
 import { Empty } from '@/components/layout/Empty'
+import { InfiniteScroll } from '@/components/ui/infinite-scroll'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
 import { AnimatePresence } from 'framer-motion'
 import { TodoItem } from './TodoItem'
 
 export default function TodoList() {
-  const { data: todos = [], isPending } = api.todo.getAll.useQuery()
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isPending,
+  } = api.todo.infiniteList.useInfiniteQuery(
+    {},
+    {
+      getNextPageParam: lastPage => lastPage.nextCursor,
+    },
+  )
+
+  const todos = data?.pages.flatMap(page => page.items) ?? []
 
   if (isPending) {
     return (
@@ -16,17 +30,24 @@ export default function TodoList() {
   }
 
   if (!todos.length) {
-    return <Empty title="暂无待办事项"></Empty>
+    return <Empty title="暂无待办事项" />
   }
 
   return (
-    <AnimatePresence mode="popLayout">
-      {todos.map(todo => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-        />
-      ))}
-    </AnimatePresence>
+    <InfiniteScroll
+      onLoadMore={fetchNextPage}
+      hasMore={hasNextPage}
+      loading={isFetchingNextPage}
+      className="flex gap-4 flex-col"
+    >
+      <AnimatePresence mode="popLayout">
+        {todos.map(todo => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+          />
+        ))}
+      </AnimatePresence>
+    </InfiniteScroll>
   )
 }

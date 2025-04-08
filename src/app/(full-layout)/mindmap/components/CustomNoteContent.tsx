@@ -1,18 +1,18 @@
 /* eslint-disable react-dom/no-dangerously-set-innerhtml */
 'use client'
 
-import { useOutsideClick } from '@/hooks/useOutsideClick'
 import { useMindMapNoteStore } from '@/store/mind-map-note'
 import { cn } from '@/utils'
 import DOMPurify from 'dompurify'
 import { useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useClickAway } from 'react-use'
 import styles from './note.module.scss'
 
 export function CustomNoteContent() {
   const ref = useRef<HTMLDivElement>(null!)
   const { isVisible, content, left, top, hideNote } = useMindMapNoteStore()
-  useOutsideClick(ref, hideNote)
+  useClickAway(ref, hideNote)
 
   const safeHtml = useMemo(() => {
     return DOMPurify.sanitize(content)

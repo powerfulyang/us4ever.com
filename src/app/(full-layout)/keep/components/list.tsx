@@ -1,13 +1,14 @@
 'use client'
 
+import { Empty } from '@/components/layout/Empty'
 import { Confirm } from '@/components/ui/confirm'
 import { ContentCard } from '@/components/ui/content-card'
+import { InfiniteScroll } from '@/components/ui/infinite-scroll'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import React, { useState } from 'react'
-import { Empty } from '../layout/Empty'
 
 function KeepCard({ keep }: { keep: any }) {
   const [showConfirm, setShowConfirm] = useState(false)
@@ -15,7 +16,7 @@ function KeepCard({ keep }: { keep: any }) {
   const { mutate, isPending } = api.keep.delete.useMutation({
     onSuccess() {
       setShowConfirm(false)
-      return utils.keep.list.invalidate()
+      return utils.keep.infiniteList.invalidate()
     },
   })
 
@@ -60,25 +61,44 @@ function KeepCard({ keep }: { keep: any }) {
 }
 
 export function KeepList() {
-  const { isPending, data: keepList } = api.keep.list.useQuery()
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = api.keep.infiniteList.useInfiniteQuery(
+    {},
+    {
+      getNextPageParam: lastPage => lastPage.nextCursor,
+    },
+  )
 
-  if (isPending) {
+  const allKeeps = data?.pages.flatMap(page => page.items) ?? []
+
+  if (isLoading) {
     return <LoadingSpinner text="正在获取笔记..." />
   }
 
-  if (!keepList?.length) {
+  if (!allKeeps.length && !isLoading) {
     return (
       <Empty title="暂无笔记" />
     )
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <AnimatePresence mode="popLayout">
-        {keepList.map(keep => (
-          <KeepCard key={keep.id} keep={keep} />
-        ))}
-      </AnimatePresence>
-    </div>
+    <InfiniteScroll
+      onLoadMore={fetchNextPage}
+      loading={isFetchingNextPage}
+      hasMore={hasNextPage}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <AnimatePresence mode="popLayout">
+          {allKeeps.map(keep => (
+            <KeepCard key={keep.id} keep={keep} />
+          ))}
+        </AnimatePresence>
+      </div>
+    </InfiniteScroll>
   )
 }

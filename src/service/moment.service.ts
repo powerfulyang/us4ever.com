@@ -6,31 +6,55 @@ import { db } from '@/server/db'
 import { createKeep } from '@/service/keep.service'
 import { imageInclude, transformImageToResponse } from 'src/service/asset.service'
 
+/**
+ * 动态图片关联接口
+ */
 export interface MomentImage {
   id: string
   sort: number
   name?: string
 }
 
-export interface MomentVideo extends MomentImage {
+/**
+ * 动态视频关联接口
+ */
+export interface MomentVideo extends MomentImage {}
 
-}
-
+/**
+ * 创建动态的输入参数接口
+ */
 interface CreateMomentInput extends Prisma.MomentCreateManyInput {
   images?: MomentImage[]
   videos?: MomentVideo[]
   ownerId: string
 }
 
+/**
+ * 更新动态的输入参数接口
+ */
 interface UpdateMomentInput extends CreateMomentInput {
   id: string
 }
 
+/**
+ * 查询动态列表的输入参数接口
+ */
 interface ListMomentInput extends BaseListFilter {
   category?: string
+  take?: number
+  cursor?: string
 }
 
-export async function listMoments({ userIds, category }: ListMomentInput) {
+/**
+ * 分页查询动态列表
+ * @param params 查询参数
+ * @param params.userIds 用户ID列表
+ * @param params.category 动态分类
+ * @param params.take 每页数量
+ * @param params.cursor 游标ID
+ * @returns 动态列表
+ */
+export async function listMoments({ userIds, category, take, cursor }: ListMomentInput) {
   const list = await db.moment.findMany({
     include: {
       images: {
@@ -59,6 +83,8 @@ export async function listMoments({ userIds, category }: ListMomentInput) {
     orderBy: {
       createdAt: 'desc',
     },
+    take,
+    cursor: cursor ? { id: cursor } : undefined,
   })
 
   return list.map(moment => ({
@@ -67,6 +93,11 @@ export async function listMoments({ userIds, category }: ListMomentInput) {
   }))
 }
 
+/**
+ * 创建新的动态
+ * @param input 创建动态的参数
+ * @returns 创建的动态
+ */
 export async function createMoment(input: CreateMomentInput) {
   const {
     category = 'default',
@@ -108,6 +139,7 @@ export async function createMoment(input: CreateMomentInput) {
     },
   })
 
+  // 如果是关键词转博客类型，异步生成博客内容
   if (result.category === 'keyword2blog' && content) {
     process.nextTick(async () => {
       const blog = await enhancement(content)
@@ -131,6 +163,11 @@ export async function createMoment(input: CreateMomentInput) {
   return result
 }
 
+/**
+ * 更新动态内容
+ * @param input 更新动态的参数
+ * @returns 更新后的动态
+ */
 export async function updateMoment(input: UpdateMomentInput) {
   const { id, content, category, images = [], ownerId } = input
 
@@ -173,6 +210,12 @@ export async function updateMoment(input: UpdateMomentInput) {
   })
 }
 
+/**
+ * 删除动态
+ * @param id 动态ID
+ * @param ownerId 所有者ID
+ * @returns 删除的动态
+ */
 export async function deleteMoment(id: string, ownerId: string) {
   // 删除关联的图片关系
   await db.momentImages.deleteMany({
@@ -190,6 +233,12 @@ export async function deleteMoment(id: string, ownerId: string) {
   })
 }
 
+/**
+ * 根据内容和创建时间查找动态
+ * @param content 动态内容
+ * @param createdAt 创建时间
+ * @returns 找到的动态
+ */
 export async function findMoment(content: string, createdAt: Date) {
   return db.moment.findFirst({
     where: {
@@ -199,7 +248,13 @@ export async function findMoment(content: string, createdAt: Date) {
   })
 }
 
-// 给 moment 增加 image 或者 video 关联
+/**
+ * 为动态添加图片或视频附件
+ * @param momentId 动态ID
+ * @param attachments 附件信息
+ * @param attachments.images 图片列表
+ * @param attachments.videos 视频列表
+ */
 export async function addMomentAttachment(
   momentId: string,
   attachments: {
@@ -230,6 +285,8 @@ export async function addMomentAttachment(
   }
 
   const { images = [], videos = [] } = attachments
+
+  // 添加图片附件
   for (const image of images) {
     const exist = moment.images.some(item => item.image.name === image.name)
     if (exist) {
@@ -244,6 +301,8 @@ export async function addMomentAttachment(
     })
     console.log(`addMomentAttachment[images]: ${momentId}`, result.imageId)
   }
+
+  // 添加视频附件
   for (const video of videos) {
     const exist = moment.videos.some(item => item.video.name === video.name)
     if (exist) {

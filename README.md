@@ -119,7 +119,7 @@ import { cn } from '@/utils/cn'
 由于项目使用 Next.js 的 SSR 功能，在使用浏览器 API时需要注意：
 
 ```tsx
-function Component() {
+export function Component() {
   useEffect(() => {
     // 仅在客户端执行
     if (typeof window !== 'undefined') {

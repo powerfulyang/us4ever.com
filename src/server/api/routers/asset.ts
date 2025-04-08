@@ -4,12 +4,12 @@ import {
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc'
-import { getImageById, listAccessibleImages, listAccessibleVideos } from '@/service/asset.service'
+import { getImageById, listImages, listVideos } from '@/service/asset.service'
 import { upload_image, upload_video } from '@/service/file.service'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
-export type Image = RouterOutputs['asset']['list_image'][number]
+export type Image = RouterOutputs['asset']['infiniteList_image']['items'][number]
 
 export const assetRouter = createTRPCRouter({
   upload_image: protectedProcedure
@@ -44,14 +44,61 @@ export const assetRouter = createTRPCRouter({
       })
     }),
 
-  list_image: publicProcedure
-    .query(async ({ ctx }) => {
-      return listAccessibleImages(ctx.groupUserIds)
+  infiniteList_image: publicProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(6),
+      cursor: z.string().optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor } = input
+      const items = await listImages({
+        userIds: ctx.groupUserIds,
+        take: limit + 1,
+        cursor,
+      })
+
+      let nextCursor: typeof cursor | undefined
+      if (items.length > limit) {
+        const nextItem = items.pop()
+        nextCursor = nextItem!.id
+      }
+
+      return {
+        items,
+        nextCursor,
+      }
     }),
 
   list_video: publicProcedure
     .query(async ({ ctx }) => {
-      return listAccessibleVideos(ctx.groupUserIds)
+      return listVideos({
+        userIds: ctx.groupUserIds,
+      })
+    }),
+
+  infiniteList_video: publicProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(6),
+      cursor: z.string().optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor } = input
+      const items = await listVideos({
+        userIds: ctx.groupUserIds,
+        take: limit + 1,
+        cursor,
+      })
+
+      let nextCursor: typeof cursor | undefined
+      if (items.length > limit) {
+        const nextItem = items.pop()
+        nextCursor = nextItem!.id
+      }
+
+      return {
+        items,
+        nextCursor,
+      }
     }),
 
   get_image_by_id: publicProcedure

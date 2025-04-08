@@ -21,6 +21,43 @@ export const mindmapRouter = createTRPCRouter({
     })
   }),
 
+  infiniteList: publicProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(6),
+      cursor: z.string().nullish(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const { limit, cursor } = input
+      const items = await ctx.db.mindMap.findMany({
+        where: {
+          OR: [
+            {
+              ownerId: ctx.user?.id,
+            },
+            {
+              isPublic: true,
+            },
+          ],
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: limit + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+      })
+
+      let nextCursor: typeof cursor | undefined
+      if (items.length > limit) {
+        const nextItem = items.pop()
+        nextCursor = nextItem!.id
+      }
+
+      return {
+        items,
+        nextCursor,
+      }
+    }),
+
   getById: publicProcedure
     .input(z.object({
       id: z.string(),

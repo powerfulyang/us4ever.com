@@ -1,27 +1,25 @@
 'use client'
 
-import { useIsomorphicLayoutEffect } from 'framer-motion'
 import mermaid from 'mermaid'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { useEffectOnce } from 'react-use'
 
 export default function MermaidRender({ source }: { source: string }) {
-  const [isInitialized, setIsInitialized] = useState(false)
-  useIsomorphicLayoutEffect(() => {
+  useEffectOnce(() => {
     mermaid.initialize({
       startOnLoad: false,
       theme: 'forest',
       fontFamily: 'inherit',
     })
-    setIsInitialized(true)
-  }, [])
+  })
 
   useEffect(() => {
-    if (source && isInitialized) {
+    if (source) {
       void mermaid.run({
         querySelector: '.mermaid',
       })
     }
-  }, [isInitialized, source])
+  }, [source])
 
   return null
 }
