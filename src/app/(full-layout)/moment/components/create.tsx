@@ -24,7 +24,7 @@ export function MomentCreate({ category = 'default' }: Props) {
     onSuccess: () => {
       setContent('')
       setSelectedImages([])
-      return utils.moment.infinite_list.invalidate({ category })
+      return utils.moment.infinite_list.invalidate()
     },
   })
 
