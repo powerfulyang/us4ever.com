@@ -15,7 +15,7 @@ export interface TelegramMessage {
   updatedAt: number
 }
 
-export async function syncTelegram(
+export async function sync_telegram(
   offsetId = 0,
   limit = 100,
   channel_name = 'emt_channel',

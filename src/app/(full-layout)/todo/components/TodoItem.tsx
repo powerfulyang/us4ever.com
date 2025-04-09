@@ -25,29 +25,29 @@ export function TodoItem({ todo, onUpdate }: TodoItemProps) {
 
   const { currentUser } = useUserStore()
 
-  const toggleStatus = api.todo.toggleStatus.useMutation({
+  const toggleStatus = api.todo.toggle_status.useMutation({
     onSuccess: () => {
-      void utils.todo.infiniteList.invalidate()
+      void utils.todo.infinite_list.invalidate()
       onUpdate?.()
     },
   })
 
-  const togglePublic = api.todo.togglePublic.useMutation({
+  const togglePublic = api.todo.toggle_public.useMutation({
     onSuccess: () => {
-      return utils.todo.infiniteList.invalidate()
+      return utils.todo.infinite_list.invalidate()
     },
   })
 
-  const togglePin = api.todo.togglePin.useMutation({
+  const togglePin = api.todo.toggle_pin.useMutation({
     onSuccess: () => {
-      return utils.todo.infiniteList.invalidate()
+      return utils.todo.infinite_list.invalidate()
     },
   })
 
   const deleteTodo = api.todo.delete.useMutation({
     onSuccess: () => {
       setIsDeleteModalOpen(false)
-      void utils.todo.infiniteList.invalidate()
+      void utils.todo.infinite_list.invalidate()
       onUpdate?.()
     },
   })
@@ -55,7 +55,7 @@ export function TodoItem({ todo, onUpdate }: TodoItemProps) {
   const updateTodo = api.todo.update.useMutation({
     onSuccess: () => {
       setIsEditModalOpen(false)
-      return utils.todo.infiniteList.invalidate()
+      return utils.todo.infinite_list.invalidate()
     },
   })
 

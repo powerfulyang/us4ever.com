@@ -2,30 +2,7 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/
 import { z } from 'zod'
 
 export const todoRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.todo.findMany({
-      where: {
-        OR: [
-          {
-            ownerId: ctx.user?.id,
-          },
-          {
-            isPublic: true,
-          },
-        ],
-      },
-      orderBy: [
-        {
-          pinned: 'desc',
-        },
-        {
-          createdAt: 'desc',
-        },
-      ],
-    })
-  }),
-
-  infiniteList: publicProcedure
+  infinite_list: publicProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
@@ -51,6 +28,9 @@ export const todoRouter = createTRPCRouter({
         orderBy: [
           {
             pinned: 'desc',
+          },
+          {
+            status: 'asc',
           },
           {
             createdAt: 'desc',
@@ -122,7 +102,7 @@ export const todoRouter = createTRPCRouter({
       return { id: input.id }
     }),
 
-  toggleStatus: protectedProcedure
+  toggle_status: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -141,7 +121,7 @@ export const todoRouter = createTRPCRouter({
       })
     }),
 
-  togglePublic: protectedProcedure
+  toggle_public: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -160,7 +140,7 @@ export const todoRouter = createTRPCRouter({
       })
     }),
 
-  togglePin: protectedProcedure
+  toggle_pin: protectedProcedure
     .input(
       z.object({
         id: z.string(),

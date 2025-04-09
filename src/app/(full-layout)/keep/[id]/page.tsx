@@ -41,7 +41,7 @@ export default async function DetailPage({ params }: PageProps) {
         </h3>
         <Back
           fallback="/keep"
-          className="mt-6 px-6 py-2.5 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-105"
+          className="mt-6 px-6 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-105"
         >
           返回笔记列表
         </Back>

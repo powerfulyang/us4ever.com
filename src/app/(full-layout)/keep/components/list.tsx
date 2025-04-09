@@ -16,7 +16,7 @@ function KeepCard({ keep }: { keep: any }) {
   const { mutate, isPending } = api.keep.delete.useMutation({
     onSuccess() {
       setShowConfirm(false)
-      return utils.keep.infiniteList.invalidate()
+      return utils.keep.infinite_list.invalidate()
     },
   })
 
@@ -67,7 +67,7 @@ export function KeepList() {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = api.keep.infiniteList.useInfiniteQuery(
+  } = api.keep.infinite_list.useInfiniteQuery(
     {},
     {
       getNextPageParam: lastPage => lastPage.nextCursor,

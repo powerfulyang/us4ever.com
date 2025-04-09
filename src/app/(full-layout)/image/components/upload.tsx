@@ -14,7 +14,7 @@ export function ImageUpload() {
   const uploadMutation = api.asset.upload_image.useMutation({
     onSuccess: () => {
       setSelectedFile(null)
-      return utils.asset.infiniteList_image.invalidate()
+      return utils.asset.infinite_image_list.invalidate()
     },
   })
 

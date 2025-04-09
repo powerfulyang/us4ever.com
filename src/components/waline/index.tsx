@@ -5,9 +5,9 @@ import {
   init,
 } from '@waline/client'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useRef } from 'react'
 
-import { useEffectOnce } from 'react-use'
+import React, { useEffect, useRef } from 'react'
+import { useLifecycles } from 'react-use'
 import '@waline/client/style'
 
 export type WalineOptions = Partial<Omit<WalineInitOptions, 'el'> & { path: string }>
@@ -34,21 +34,22 @@ export function Waline(props: WalineOptions) {
   const walineInstanceRef = useRef<WalineInstance | null>(null)
   const containerRef = useRef<HTMLDivElement>(null!)
 
-  useEffectOnce(() => {
-    walineInstanceRef.current = init({
-      el: containerRef.current,
-      lang: 'zh-CN',
-      dark: true,
-      serverURL: 'https://waline.us4ever.com',
-      emoji,
-      reaction,
-    })
-
-    return () => {
+  useLifecycles(
+    () => {
+      walineInstanceRef.current = init({
+        el: containerRef.current,
+        lang: 'zh-CN',
+        dark: true,
+        serverURL: 'https://waline.us4ever.com',
+        emoji,
+        reaction,
+      })
+    },
+    () => {
       walineInstanceRef.current?.destroy()
       walineInstanceRef.current = null // 清理引用
-    }
-  })
+    },
+  )
 
   const pathname = usePathname()
 

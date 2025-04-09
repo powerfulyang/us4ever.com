@@ -25,7 +25,7 @@ export default function UserIcon({ onLogoutAction }: Props) {
 
   if (isPending) {
     return (
-      <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5">
+      <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-white/5">
         <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
         <div className="w-20 h-5 bg-white/10 animate-pulse rounded" />
       </div>
@@ -38,7 +38,7 @@ export default function UserIcon({ onLogoutAction }: Props) {
 
   return (
     <div className="group relative">
-      <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
+      <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer">
         <img
           src={currentUser.avatar}
           alt={currentUser.nickname}

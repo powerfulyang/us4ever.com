@@ -13,14 +13,14 @@ export const metadata: Metadata = {
 }
 
 export default async function MomentPage() {
-  await api.moment.infiniteList.prefetch({})
+  await api.moment.infinite_list.prefetch({})
   return (
     <HydrateClient>
       <Container
         title="动态"
         description="分享生活点滴"
       >
-        <div className="space-y-6 max-w-[500px] m-auto">
+        <div className="space-y-4 max-w-[500px] m-auto">
           <MomentCreate />
           <MomentList />
         </div>

@@ -1,5 +1,5 @@
-import type { TelegramMessage } from '@/lib/sync.telegram'
-import { handleFile, syncTelegram } from '@/lib/sync.telegram'
+import type { TelegramMessage } from '@/lib/telegram'
+import { handleFile, sync_telegram } from '@/lib/telegram'
 import { db } from '@/server/db'
 import { app, auth } from '@/server/hono'
 import { createMoment } from '@/service/moment.service'
@@ -87,85 +87,114 @@ const syncProcessor$ = telegramSync$.pipe(
   }),
 )
 
+async function handleSyncTelegram(
+  category: string,
+  force: boolean,
+  channel_name: string,
+  userId: string,
+) {
+  if (!telegramSync$.observed) {
+    // 启动处理器
+    syncProcessor$.subscribe()
+  }
+  // 查询数据库中最新的 id
+  const latestItem = await db.moment.findFirst({
+    where: {
+      category,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      extraData: true,
+    },
+  })
+  let latestId = 0
+  const itemId = get(latestItem, 'extraData.id')
+  if (itemId) {
+    latestId = Number(itemId)
+  }
+  if (force) {
+    latestId = 0
+  }
+
+  // 循环调用 syncTelegram 直到没有新数据
+  let allPosts: TelegramMessage[] = []
+  let hasMoreData = true
+  let currentLastId = 0
+  const limit = 100
+
+  while (hasMoreData) {
+    const posts = await sync_telegram(
+      currentLastId,
+      limit,
+      channel_name,
+    )
+
+    const filteredPosts = posts.filter((post) => {
+      const id = post.id
+      return id > latestId
+    })
+
+    // 更新 currentLastId 为最后一条消息的 id
+    if (filteredPosts.length > 0) {
+      currentLastId = Math.min(...filteredPosts.map(post => post.id))
+    }
+    else {
+      currentLastId = currentLastId - limit
+    }
+
+    console.log('currentLastId', currentLastId, 'latestId', latestId)
+
+    allPosts = [...allPosts, ...filteredPosts]
+
+    if (currentLastId <= latestId) {
+      hasMoreData = false
+    }
+
+    // 如果返回的数据量小于 limit，说明没有更多数据了
+    // if (filteredPosts.length < limit) {
+    //   hasMoreData = false
+    // }
+  }
+
+  // 将新的同步数据推送到 Subject
+  allPosts.forEach((post) => {
+    telegramSync$.next({
+      value: {
+        ownerId: userId,
+        ...post,
+      },
+      force,
+      category,
+    })
+  })
+  return allPosts
+}
+
 export function loadSyncTelegramRouter() {
   app.use(auth).get('/sync/telegram/:channel_name', async (ctx) => {
     const channel_name = ctx.req.param('channel_name')
     const category = `telegram:${channel_name}`
-    if (!telegramSync$.observed) {
-      // 启动处理器
-      syncProcessor$.subscribe()
-    }
+
     const user = ctx.get('user')
     const force = ctx.req.query('force') !== undefined
-    // 查询数据库中最新的 id
-    const latestItem = await db.moment.findFirst({
+    const allPosts = await handleSyncTelegram(category, force, channel_name, user.id)
+
+    return ctx.json({ success: true, count: allPosts.length })
+  })
+
+  app.get('/internal/sync/telegram/:channel_name', async (ctx) => {
+    const channel_name = ctx.req.param('channel_name')
+    const category = `telegram:${channel_name}`
+    const force = ctx.req.query('force') !== undefined
+    // find first admin user
+    const admin = await db.user.findFirstOrThrow({
       where: {
-        category,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        extraData: true,
+        isAdmin: true,
       },
     })
-    let latestId = 0
-    const itemId = get(latestItem, 'extraData.id')
-    if (!force && itemId) {
-      latestId = Number(itemId)
-    }
-
-    // 循环调用 syncTelegram 直到没有新数据
-    let allPosts: TelegramMessage[] = []
-    let hasMoreData = true
-    let currentLastId = 0
-    const limit = 100
-
-    while (hasMoreData) {
-      const posts = await syncTelegram(
-        currentLastId,
-        limit,
-        channel_name,
-      )
-
-      const filteredPosts = posts.filter((post) => {
-        const id = post.id
-        return id > latestId
-      })
-
-      // 更新 currentLastId 为最后一条消息的 id
-      if (filteredPosts.length > 0) {
-        currentLastId = Math.min(...filteredPosts.map(post => post.id))
-      }
-      else {
-        currentLastId = currentLastId - limit
-      }
-
-      console.log('currentLastId', currentLastId, 'latestId', latestId)
-
-      allPosts = [...allPosts, ...filteredPosts]
-
-      if (currentLastId <= latestId) {
-        hasMoreData = false
-      }
-
-      // 如果返回的数据量小于 limit，说明没有更多数据了
-      // if (filteredPosts.length < limit) {
-      //   hasMoreData = false
-      // }
-    }
-
-    // 将新的同步数据推送到 Subject
-    allPosts.forEach((post) => {
-      telegramSync$.next({
-        value: {
-          ownerId: user.id,
-          ...post,
-        },
-        force,
-        category,
-      })
-    })
+    const allPosts = await handleSyncTelegram(category, force, channel_name, admin.id)
 
     return ctx.json({ success: true, count: allPosts.length })
   })

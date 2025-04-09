@@ -13,7 +13,7 @@ export const metadata = {
 }
 
 export default async function Todo() {
-  await api.todo.infiniteList.prefetch({})
+  await api.todo.infinite_list.prefetch({})
   return (
     <HydrateClient>
       <Container title="待办事项" description="记录你的待办事项">

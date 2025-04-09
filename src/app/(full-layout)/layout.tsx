@@ -18,7 +18,7 @@ export default async function FullLayout({
               <nav className="flex items-center gap-8">
                 <Link
                   href="/"
-                  className="group flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300"
+                  className="group flex items-center gap-4 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300"
                 >
                   <svg
                     className="w-5 h-5 text-purple-400 group-hover:text-white transition-colors"
@@ -41,7 +41,7 @@ export default async function FullLayout({
           </div>
         </header>
 
-        <main className="flex-1 max-w-7xl w-full mx-auto p-6">
+        <main className="flex-1 max-w-7xl w-full mx-auto p-8">
           {children}
         </main>
 

@@ -2,26 +2,8 @@ import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc'
 
-export const mindmapRouter = createTRPCRouter({
-  list: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.mindMap.findMany({
-      where: {
-        OR: [
-          {
-            ownerId: ctx.user?.id,
-          },
-          {
-            isPublic: true,
-          },
-        ],
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-  }),
-
-  infiniteList: publicProcedure
+export const mindMapRouter = createTRPCRouter({
+  infinite_list: publicProcedure
     .input(z.object({
       limit: z.number().min(1).max(100).default(6),
       cursor: z.string().nullish(),
@@ -64,7 +46,7 @@ export const mindmapRouter = createTRPCRouter({
       updateViews: z.boolean().default(false),
     }))
     .query(async ({ ctx, input }) => {
-      const mindmap = await ctx.db.mindMap.findUnique({
+      const mindMap = await ctx.db.mindMap.findUnique({
         where: {
           id: input.id,
           OR: [
@@ -78,7 +60,7 @@ export const mindmapRouter = createTRPCRouter({
         },
       })
 
-      if (!mindmap) {
+      if (!mindMap) {
         throw new HTTPException(404, {
           message: 'mind map not found',
         })
@@ -91,15 +73,15 @@ export const mindmapRouter = createTRPCRouter({
           data: { views: { increment: 1 } },
         })
       }
-      const editable = mindmap.ownerId === ctx.user?.id
+      const editable = mindMap.ownerId === ctx.user?.id
 
       return {
-        ...mindmap,
+        ...mindMap,
         editable,
       }
     }),
 
-  createByXmind: protectedProcedure
+  createByXMind: protectedProcedure
     .input(z.object({
       title: z.string().optional(),
       content: z.record(z.any()),

@@ -1,5 +1,5 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
-import { HTTPException } from 'hono/http-exception'
+import { after } from 'next/server'
 import { z } from 'zod'
 
 export const keepRouter = createTRPCRouter({
@@ -16,7 +16,7 @@ export const keepRouter = createTRPCRouter({
       })
     }),
 
-  infiniteList: publicProcedure
+  infinite_list: publicProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
@@ -109,19 +109,13 @@ export const keepRouter = createTRPCRouter({
         },
       })
 
-      if (!keep) {
-        // Consider throwing a TRPCError with code 'NOT_FOUND' for better client handling
-        throw new HTTPException(404, {
-          message: 'Keep not found',
-        })
-      }
-
-      if (input.updateViews && keep.ownerId !== ctx.user?.id) { // Only increment views if not the owner
+      // Only increment views if not the owner
+      if (keep && input.updateViews && keep.ownerId !== ctx.user?.id) {
         // Update view count asynchronously (fire-and-forget) for better performance
-        void ctx.db.keep.update({
+        after(ctx.db.keep.update({
           where: { id: input.id },
           data: { views: { increment: 1 } },
-        })
+        }))
       }
 
       return keep

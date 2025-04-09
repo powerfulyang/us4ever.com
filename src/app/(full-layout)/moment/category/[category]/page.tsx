@@ -41,7 +41,7 @@ export default async function MomentPage({ params }: PageProps) {
         title={getTitle(decoded)}
         description={getDescription(decoded)}
       >
-        <div className="space-y-6 max-w-[500px] m-auto">
+        <div className="space-y-4 max-w-[500px] m-auto">
           <MomentCreate category={decoded} />
           <MomentList category={decoded} />
         </div>

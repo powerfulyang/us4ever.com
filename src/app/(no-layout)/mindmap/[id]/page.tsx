@@ -10,7 +10,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const id = (await params).id
-  const { title, summary } = await api.mindmap.getById({ id })
+  const { title, summary } = await api.mindMap.getById({ id })
 
   return {
     title: title || 'MindMap - Detail',
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const id = (await params).id
-  const { content, editable } = await api.mindmap.getById({ id, updateViews: true })
+  const { content, editable } = await api.mindMap.getById({ id, updateViews: true })
 
   return (
     <MindMapDetailPage editable={editable} data={content} />

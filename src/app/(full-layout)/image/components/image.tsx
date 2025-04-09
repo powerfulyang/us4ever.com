@@ -77,7 +77,7 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
 
 // 通过 ID 加载图片的组件
 export function AssetImage({ id, className }: ImageWithIdProps) {
-  const { data: image, isPending } = api.asset.get_image_by_id.useQuery({ id })
+  const { data: image, isPending } = api.asset.getImageById.useQuery({ id })
 
   if (isPending) {
     return (

@@ -46,7 +46,7 @@ export function ContentCard({
         {title || '标题生成中...'}
       </span>
 
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         {status && (
           <span className={cn(
             'text-xs px-2 py-0.5 rounded',

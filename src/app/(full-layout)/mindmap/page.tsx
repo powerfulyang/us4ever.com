@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function MindMapPage() {
-  await api.mindmap.infiniteList.prefetch()
+  await api.mindMap.infinite_list.prefetch()
   return (
     <HydrateClient>
       <Container

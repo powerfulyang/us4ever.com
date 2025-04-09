@@ -9,7 +9,7 @@ import { upload_image, upload_video } from '@/service/file.service'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
-export type Image = RouterOutputs['asset']['infiniteList_image']['items'][number]
+export type Image = RouterOutputs['asset']['infinite_image_list']['items'][number]
 
 export const assetRouter = createTRPCRouter({
   upload_image: protectedProcedure
@@ -44,7 +44,7 @@ export const assetRouter = createTRPCRouter({
       })
     }),
 
-  infiniteList_image: publicProcedure
+  infinite_image_list: publicProcedure
     .input(z.object({
       limit: z.number().min(1).max(100).default(6),
       cursor: z.string().optional(),
@@ -69,14 +69,7 @@ export const assetRouter = createTRPCRouter({
       }
     }),
 
-  list_video: publicProcedure
-    .query(async ({ ctx }) => {
-      return listVideos({
-        userIds: ctx.groupUserIds,
-      })
-    }),
-
-  infiniteList_video: publicProcedure
+  infinite_video_list: publicProcedure
     .input(z.object({
       limit: z.number().min(1).max(100).default(6),
       cursor: z.string().optional(),
@@ -101,7 +94,7 @@ export const assetRouter = createTRPCRouter({
       }
     }),
 
-  get_image_by_id: publicProcedure
+  getImageById: publicProcedure
     .input(z.object({
       id: z.string(),
     }))

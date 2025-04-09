@@ -1,26 +1,14 @@
+import type { listMoments } from '@/service/moment.service'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { db } from '@/server/db'
 import { imageInclude, transformImageToResponse } from '@/service/asset.service'
-import { createMoment, deleteMoment, listMoments, updateMoment } from '@/service/moment.service'
+import { createMoment, deleteMoment, updateMoment } from '@/service/moment.service'
 import { z } from 'zod'
 
 export type Moment = Awaited<ReturnType<typeof listMoments>>[number]
 
 export const momentRouter = createTRPCRouter({
-  list: publicProcedure
-    .input(
-      z.object({
-        category: z.string().optional(),
-      }).default({}),
-    )
-    .query(async ({ ctx, input }) => {
-      return listMoments({
-        userIds: ctx.groupUserIds,
-        category: input.category,
-      })
-    }),
-
-  infiniteList: publicProcedure
+  infinite_list: publicProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).default(10),

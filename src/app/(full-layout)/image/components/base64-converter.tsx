@@ -40,7 +40,7 @@ export function Base64Converter() {
   }, [image?.base64])
 
   return (
-    <div className="flex flex-col max-w-3xl m-auto gap-6">
+    <div className="flex flex-col max-w-3xl m-auto gap-4">
       <UploadArea
         onFileSelect={handleFileSelect}
         preview={image?.url}

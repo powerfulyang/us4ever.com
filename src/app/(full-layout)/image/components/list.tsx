@@ -8,7 +8,7 @@ import { ImageCard } from './image-card'
 
 export function ImageList() {
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage }
-    = api.asset.infiniteList_image.useInfiniteQuery(
+    = api.asset.infinite_image_list.useInfiniteQuery(
       {},
       {
         getNextPageParam: lastPage => lastPage.nextCursor,
@@ -31,7 +31,7 @@ export function ImageList() {
       hasMore={hasNextPage}
       loading={isFetchingNextPage}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {data.pages.map(page =>
           page.items.map(image => (
             <ImageCard

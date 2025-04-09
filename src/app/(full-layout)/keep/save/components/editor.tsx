@@ -85,7 +85,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
       </Back>
       <Card>
         <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <h1
               className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500"
             >

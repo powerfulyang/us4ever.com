@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ImagePage() {
-  await api.asset.infiniteList_image.prefetch({})
+  await api.asset.infinite_image_list.prefetch({})
   return (
     <HydrateClient>
       <Container

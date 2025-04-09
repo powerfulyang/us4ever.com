@@ -6,7 +6,7 @@ export function VideoUpload() {
   const utils = api.useUtils()
   const { mutate, isPending } = api.asset.upload_video.useMutation({
     onSuccess() {
-      return utils.asset.infiniteList_video.invalidate()
+      return utils.asset.infinite_video_list.invalidate()
     },
   })
 

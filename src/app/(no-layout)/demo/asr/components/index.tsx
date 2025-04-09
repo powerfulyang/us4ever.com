@@ -120,7 +120,7 @@ export default function ASRDemo() {
           语音识别
         </motion.h1>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <motion.div
             className="flex justify-center"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -160,7 +160,7 @@ export default function ASRDemo() {
 
           <motion.div
             className={cn(
-              'rounded-xl p-6 bg-white shadow-lg',
+              'rounded-xl p-4 bg-white shadow-lg',
               'border border-gray-100',
               'transition-all duration-300',
               { 'ring-2 ring-blue-100': isRecording },

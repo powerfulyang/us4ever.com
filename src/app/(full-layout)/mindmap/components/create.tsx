@@ -13,10 +13,10 @@ export function MindMapImport() {
   const [isPublic, setIsPublic] = useState(false)
   const utils = api.useUtils()
 
-  const { mutateAsync } = api.mindmap.createByXmind.useMutation({
+  const { mutateAsync } = api.mindMap.createByXMind.useMutation({
     onSuccess() {
       setFile(null)
-      return utils.mindmap.list.invalidate()
+      return utils.mindMap.infinite_list.invalidate()
     },
   })
 
@@ -48,7 +48,7 @@ export function MindMapImport() {
   }
 
   return (
-    <div className="flex items-center gap-3 flex-wrap">
+    <div className="flex items-center gap-4 flex-wrap">
       <input
         type="file"
         accept=".xmind"

@@ -57,8 +57,8 @@ export function DuplexStreaming() {
     <div className="max-w-3xl mx-auto p-4">
       <h1 className="text-xl font-bold mb-6">File Upload Progress Demo - Using Fetch Duplex Streaming</h1>
 
-      <div className="space-y-6">
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+      <div className="space-y-4">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
           <input
             type="file"
             ref={fileInputRef}

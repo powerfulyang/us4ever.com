@@ -14,7 +14,7 @@ export default function TodoList() {
     hasNextPage,
     isFetchingNextPage,
     isPending,
-  } = api.todo.infiniteList.useInfiniteQuery(
+  } = api.todo.infinite_list.useInfiniteQuery(
     {},
     {
       getNextPageParam: lastPage => lastPage.nextCursor,
@@ -38,16 +38,17 @@ export default function TodoList() {
       onLoadMore={fetchNextPage}
       hasMore={hasNextPage}
       loading={isFetchingNextPage}
-      className="flex gap-4 flex-col"
     >
-      <AnimatePresence mode="popLayout">
-        {todos.map(todo => (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-          />
-        ))}
-      </AnimatePresence>
+      <div className="flex gap-4 flex-col">
+        <AnimatePresence mode="popLayout">
+          {todos.map(todo => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+            />
+          ))}
+        </AnimatePresence>
+      </div>
     </InfiniteScroll>
   )
 }

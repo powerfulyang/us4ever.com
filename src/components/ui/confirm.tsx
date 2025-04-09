@@ -26,7 +26,7 @@ export function Confirm({
       onCloseAction={onCloseAction}
       title={title}
     >
-      <div className="space-y-6">
+      <div className="space-y-4">
         <p className="text-gray-300">{content}</p>
         <div className="flex justify-end gap-4">
           <Button

@@ -17,7 +17,7 @@ export function ImageInfoModal({ image, isOpen, onCloseAction }: ImageInfoModalP
       onCloseAction={onCloseAction}
       title="图片信息"
     >
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
           <h4 className="text-sm font-medium text-gray-400 mb-2">基本信息</h4>
           <div className="grid grid-cols-2 gap-4 break-all">

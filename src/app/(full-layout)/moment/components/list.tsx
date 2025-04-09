@@ -18,7 +18,7 @@ export function MomentList({ category }: Props) {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = api.moment.infiniteList.useInfiniteQuery(
+  } = api.moment.infinite_list.useInfiniteQuery(
     {
       category,
     },
@@ -39,7 +39,7 @@ export function MomentList({ category }: Props) {
       hasMore={hasNextPage}
       loading={isFetchingNextPage}
     >
-      <div className="flex gap-6 flex-col">
+      <div className="flex gap-4 flex-col">
         <AnimatePresence mode="popLayout">
           {data.pages.map(page =>
             page.items.map(moment => (

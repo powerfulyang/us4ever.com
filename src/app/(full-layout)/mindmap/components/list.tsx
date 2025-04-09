@@ -13,10 +13,10 @@ import React, { useState } from 'react'
 function MindMapCard({ mindmap }: { mindmap: any }) {
   const [showConfirm, setShowConfirm] = useState(false)
   const utils = api.useUtils()
-  const { mutate, isPending } = api.mindmap.delete.useMutation({
+  const { mutate, isPending } = api.mindMap.delete.useMutation({
     onSuccess() {
       setShowConfirm(false)
-      return utils.mindmap.infiniteList.invalidate()
+      return utils.mindMap.infinite_list.invalidate()
     },
   })
 
@@ -67,7 +67,7 @@ export function MindMapList() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = api.mindmap.infiniteList.useInfiniteQuery(
+  } = api.mindMap.infinite_list.useInfiniteQuery(
     {},
     {
       getNextPageParam: lastPage => lastPage.nextCursor,
@@ -93,8 +93,8 @@ export function MindMapList() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnimatePresence mode="popLayout">
           {data.pages.map(page =>
-            page.items.map(mindmap => (
-              <MindMapCard key={mindmap.id} mindmap={mindmap} />
+            page.items.map(mindMap => (
+              <MindMapCard key={mindMap.id} mindmap={mindMap} />
             )),
           )}
         </AnimatePresence>
