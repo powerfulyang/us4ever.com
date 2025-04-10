@@ -2,6 +2,7 @@ import type { User } from '@/store/user'
 import type { CookieOptions } from 'hono/utils/cookie'
 import { env } from '@/env'
 import { loadBucketRouter } from '@/server/hono/routes/bucket'
+import { loadInternalRouter } from '@/server/hono/routes/internal'
 import { loadLpRouter } from '@/server/hono/routes/lp'
 import { loadSyncRouter } from '@/server/hono/routes/sync'
 import { loadSyncTelegramRouter } from '@/server/hono/routes/telegram'
@@ -53,3 +54,4 @@ loadLpRouter()
 loadSyncRouter()
 loadSyncTelegramRouter()
 loadBucketRouter()
+loadInternalRouter()
