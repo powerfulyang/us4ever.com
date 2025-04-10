@@ -1,9 +1,9 @@
 import { db } from '@/server/db'
-import { app } from '@/server/hono'
+import { internalRoutes } from '@/server/hono'
 import { handleSyncTelegram } from '@/server/hono/routes/telegram'
 
 export function loadInternalRouter() {
-  app.get('/internal/sync/telegram/:channel_name', async (ctx) => {
+  internalRoutes.get('/sync/telegram/:channel_name', async (ctx) => {
     const channel_name = ctx.req.param('channel_name')
     const category = `telegram:${channel_name}`
     const force = ctx.req.query('force') !== undefined

@@ -1,5 +1,5 @@
 import { db } from '@/server/db'
-import { app, auth } from '@/server/hono'
+import { protectedRoutes } from '@/server/hono'
 import { upload_image, upload_video } from '@/service/file.service'
 import { createMoment, findMoment } from '@/service/moment.service'
 import { HTTPException } from 'hono/http-exception'
@@ -25,7 +25,7 @@ interface Moment {
 }
 
 export function loadSyncRouter() {
-  app.use(auth).get('/sync/moment/eleven', async (ctx) => {
+  protectedRoutes.get('/moment/eleven', async (ctx) => {
     const user = ctx.get('user')
     const res = await fetch('https://worker.powerfulyang.com/api/moment?type=moment')
     if (!res.ok) {
@@ -106,7 +106,7 @@ export function loadSyncRouter() {
     return ctx.json({ success: true })
   })
 
-  app.use(auth).get('/sync/moment/powerfulyang', async (ctx) => {
+  protectedRoutes.get('/moment/powerfulyang', async (ctx) => {
     const user = ctx.get('user')
     const res = await fetch('https://api.powerfulyang.com/api/public/feed')
     if (!res.ok) {
@@ -148,7 +148,7 @@ export function loadSyncRouter() {
     return ctx.json({ success: true })
   })
 
-  app.use(auth).get('/sync/post/powerfulyang', async (ctx) => {
+  protectedRoutes.get('/post/powerfulyang', async (ctx) => {
     const user = ctx.get('user')
     const res = await fetch('https://api.powerfulyang.com/api/public/post')
     if (!res.ok) {

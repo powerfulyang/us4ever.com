@@ -18,7 +18,7 @@ export interface AppEnv {
   }
 }
 
-export const app = new Hono<AppEnv>().basePath('/api')
+export const app = new Hono().basePath('/api')
 
 export const COOKIE_NAME = 'authorization'
 export const COOKIE_OPTIONS = {
@@ -32,13 +32,14 @@ export const COOKIE_OPTIONS = {
 export const auth = createMiddleware(async (ctx, next) => {
   const token = getCookie(ctx, COOKIE_NAME) || ''
   const secret = env.JWT_SECRET
+  const request_url = ctx.req.url
   try {
     const { user } = await verify(token, secret) as { user: User }
     ctx.set('user', user)
   }
   catch {
     throw new HTTPException(401, {
-      message: 'Unauthorized',
+      message: `Unauthorized, [url: ${request_url}].`,
     })
   }
   const user = ctx.get('user')
@@ -50,8 +51,16 @@ export const auth = createMiddleware(async (ctx, next) => {
   await next()
 })
 
+// 创建子应用
+export const protectedRoutes = new Hono<AppEnv>().use(auth)
+export const internalRoutes = new Hono()
+
 loadLpRouter()
 loadSyncRouter()
 loadSyncTelegramRouter()
 loadBucketRouter()
 loadInternalRouter()
+
+// 挂载子应用
+app.route('/sync', protectedRoutes)
+app.route('/internal', internalRoutes)

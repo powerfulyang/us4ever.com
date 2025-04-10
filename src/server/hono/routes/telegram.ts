@@ -1,7 +1,7 @@
 import type { TelegramMessage } from '@/lib/telegram'
 import { handleFile, sync_telegram } from '@/lib/telegram'
 import { db } from '@/server/db'
-import { app, auth } from '@/server/hono'
+import { protectedRoutes } from '@/server/hono'
 import { createMoment } from '@/service/moment.service'
 import { get } from 'lodash-es'
 import { bufferTime, catchError, concatMap, distinct, EMPTY, from, mergeMap, Subject, tap } from 'rxjs'
@@ -173,7 +173,7 @@ export async function handleSyncTelegram(
 }
 
 export function loadSyncTelegramRouter() {
-  app.use(auth).get('/sync/telegram/:channel_name', async (ctx) => {
+  protectedRoutes.get('/telegram/:channel_name', async (ctx) => {
     const channel_name = ctx.req.param('channel_name')
     const category = `telegram:${channel_name}`
 
