@@ -5,9 +5,10 @@ import { Empty } from '@/components/layout/Empty'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { useMutation } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 
 interface SearchResult {
   id: string
@@ -33,7 +34,7 @@ function generateContentSnippet(content: string | null | undefined, query: strin
   const contentLower = cleanedContent.toLowerCase()
   const queryIndex = contentLower.indexOf(queryLower)
 
-  let snippet = ''
+  let snippet: string
   if (queryIndex === -1) {
     // Query not found: Truncate from the beginning
     snippet = cleanedContent.length <= maxLength ? cleanedContent : `${cleanedContent.substring(0, maxLength)}...`
@@ -94,7 +95,7 @@ function HighlightedText({ text, query }: { text: string | null | undefined, que
       }
 
       result.push(
-        <span key={`match-${i}`} className="bg-purple-300 text-purple-900 px-1 py-0.5 rounded-sm">
+        <span key={`match-${i}`} className="bg-purple-300 text-purple-900 rounded px-[2px] py-[1px]">
           {matchedText}
         </span>,
       )
@@ -114,51 +115,35 @@ function HighlightedText({ text, query }: { text: string | null | undefined, que
   }
 }
 
+async function searchKeeps(searchTerm: string): Promise<SearchResult[]> {
+  const response = await fetch(`https://api.us4ever.com/keeps/search?q=${encodeURIComponent(searchTerm)}`)
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+  return (await response.json() || [])
+}
+
 export default function KeepSearchPage() {
   const searchParams = useSearchParams()
   const initialUrlQuery = searchParams.get('q')
-
   const [query, setQuery] = useState(initialUrlQuery || '')
-  const [results, setResults] = useState<SearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [hasSearched, setHasSearched] = useState(false)
 
-  const handleSearch = useCallback(async () => {
-    const searchTerm = query.trim()
-    if (!searchTerm) {
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-    setResults([])
-    setHasSearched(true)
-
-    try {
-      const response = await fetch(`https://api.us4ever.com/keeps/search?q=${encodeURIComponent(searchTerm)}`)
-      if (!response.ok) {
-        setResults([])
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      const data: SearchResult[] = await response.json()
-      setResults(data)
-    }
-    catch (e: any) {
-      console.error('Search failed:', e)
-      setError(e.message || 'Failed to fetch search results.')
-      setResults([])
-    }
-    finally {
-      setIsLoading(false)
-    }
-  }, [query])
+  const { isPending, mutate, error, data = [], isIdle, isSuccess } = useMutation({
+    mutationFn: searchKeeps,
+  })
 
   useEffect(() => {
     if (initialUrlQuery) {
-      handleSearch()
+      mutate(initialUrlQuery.trim())
     }
-  }, [handleSearch, initialUrlQuery])
+  }, [initialUrlQuery, mutate])
+
+  const onSearch = () => {
+    const searchTerm = query.trim()
+    if (!searchTerm)
+      return
+    mutate(searchTerm)
+  }
 
   return (
     <Container
@@ -174,15 +159,14 @@ export default function KeepSearchPage() {
             placeholder="Enter search term..."
             className="flex-1 rounded-lg bg-white/10 backdrop-blur-lg px-4 py-2 text-white placeholder-gray-400 border border-white/20 focus:border-purple-500/50 focus:outline-none transition-colors resize-none"
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch()
-              }
+              if (e.key === 'Enter')
+                onSearch()
             }}
           />
           <Button
-            onClick={handleSearch}
-            disabled={!query.trim() || isLoading}
-            isLoading={isLoading}
+            onClick={onSearch}
+            disabled={!query.trim() || isPending}
+            isLoading={isPending}
             variant="default"
             size="sm"
           >
@@ -193,18 +177,16 @@ export default function KeepSearchPage() {
         {error && (
           <p className="text-red-500">
             Error:
-            {error}
+            {error.message}
           </p>
         )}
 
-        {isLoading && <LoadingSpinner text="Searching..." />}
+        {isPending && <LoadingSpinner text="Searching..." />}
 
-        {!isLoading && hasSearched && results.length > 0 && (
+        {!isPending && data.length > 0 && (
           <div className="flex flex-col gap-4">
-            {results.map((result) => {
-              // Generate snippet from content around the query
-              const contentSnippet = generateContentSnippet(result.content, query, 150) // Max 150 chars
-
+            {data.map((result) => {
+              const contentSnippet = generateContentSnippet(result.content, query, 150)
               return (
                 <Link key={result.id} href={`/keep/${result.id}`} target="_blank">
                   <Card className="!p-4 block" hoverable={true}>
@@ -213,14 +195,11 @@ export default function KeepSearchPage() {
                     </h3>
                     <p className="text-xs text-gray-400 mt-1">
                       Score:
-                      {' '}
                       {result.score.toFixed(2)}
                     </p>
-                    {/* Display Summary with new style */}
                     <p className="text-xs text-gray-400 mt-2">
                       <HighlightedText text={result.summary} query={query} />
                     </p>
-                    {/* Display Content Snippet with new style */}
                     {contentSnippet && contentSnippet !== result.summary && (
                       <p className="text-sm text-gray-300 mt-2">
                         <HighlightedText text={contentSnippet} query={query} />
@@ -233,11 +212,11 @@ export default function KeepSearchPage() {
           </div>
         )}
 
-        {!isLoading && hasSearched && results.length === 0 && !error && (
+        {!isPending && isSuccess && data.length === 0 && (
           <Empty title="No results found" description={`No keeps match your search for "${query}".`} />
         )}
 
-        {!isLoading && !hasSearched && !error && (
+        {!isPending && isIdle && (
           <Empty title="Start searching" description="Enter a term above to find relevant keeps." />
         )}
       </div>
