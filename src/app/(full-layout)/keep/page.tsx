@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { KeepList } from '@/app/(full-layout)/keep/components/list'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Container } from '@/components/layout/Container'
+import { SearchForm } from '@/components/search-form'
 import { Button } from '@/components/ui/button'
 import { api, HydrateClient } from '@/trpc/server'
 import Link from 'next/link'
@@ -23,9 +24,12 @@ export default async function KeepPage() {
         description="记录灵感与思考的地方"
         rightContent={(
           <AuthenticatedOnly disableChildren>
-            <Button>
-              <Link href="/keep/save">创建笔记</Link>
-            </Button>
+            <div className="flex items-center space-x-2">
+              <SearchForm searchPath="/keep/search" />
+              <Button>
+                <Link href="/keep/save">创建笔记</Link>
+              </Button>
+            </div>
           </AuthenticatedOnly>
         )}
       >

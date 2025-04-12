@@ -49,6 +49,7 @@
     "hono": "^4.7.6",
     "lint-staged": "^15.5.1",
     "lodash-es": "^4.17.21",
+    "lucide-react": "^0.487.0",
     "mermaid": "^11.6.0",
     "monaco-editor": "^0.52.2",
     "next": "15.3.0",
