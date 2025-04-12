@@ -18,7 +18,8 @@ env:
   DOCKER_REPOSITORY: powerfulyang/us4ever.com
 
 jobs:
-  docker-build-and-push-arm:
+  build-with-github-action:
+    if: false
     runs-on: self-hosted
 
     steps:
@@ -56,13 +57,30 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    needs: [docker-build-and-push-arm]
+    needs: [build-with-github-action]
+    if: false
     runs-on: self-hosted
     steps:
       - name: Update container
         run: |
           cd /root/applications
           docker pull ${{ env.DOCKER_REPOSITORY }}
+          docker-compose up -d --force-recreate ${{ env.SERVICE_NAME }}
+          docker image prune -f
+          docker-compose up -d
+
+  build-and-deploy-on-self-host:
+    runs-on: self-hosted
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Build and push Docker image
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ env.DOCKER_REPOSITORY }} .
+          cd /root/applications
           docker-compose up -d --force-recreate ${{ env.SERVICE_NAME }}
           docker image prune -f
           docker-compose up -d
