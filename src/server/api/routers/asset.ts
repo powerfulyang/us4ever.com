@@ -16,7 +16,7 @@ export const assetRouter = createTRPCRouter({
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),
-      category: zfd.text(),
+      category: zfd.text().default('default'),
     }))
     .mutation(async ({ input, ctx }) => {
       const isPublic = input.isPublic === 'true'

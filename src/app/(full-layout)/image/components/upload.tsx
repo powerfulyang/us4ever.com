@@ -1,19 +1,21 @@
 'use client'
 
+import type { UploadAreaRef } from '@/app/(full-layout)/image/components/upload-area'
 import { UploadArea } from '@/app/(full-layout)/image/components/upload-area'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 export function ImageUpload() {
   const utils = api.useUtils()
   const [isPublic, setIsPublic] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File>()
+  const uploadRef = useRef<UploadAreaRef>(null)
 
   const uploadMutation = api.asset.upload_image.useMutation({
     onSuccess: () => {
-      setSelectedFile(null)
+      uploadRef.current?.reset()
       return utils.asset.infinite_image_list.invalidate()
     },
   })
@@ -31,6 +33,7 @@ export function ImageUpload() {
     <div className="max-w-3xl m-auto">
       <div className="flex flex-col max-w-3xl gap-2 mb-4">
         <UploadArea
+          ref={uploadRef}
           onFileSelect={setSelectedFile}
           disabled={uploadMutation.isPending}
         />

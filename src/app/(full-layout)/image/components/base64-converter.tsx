@@ -17,7 +17,9 @@ export function Base64Converter() {
   const [image, setImage] = useState<PreviewImage>()
   const [copied, setCopied] = useState(false)
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = async (file?: File) => {
+    if (!file)
+      return
     const reader = new FileReader()
     reader.onload = (e) => {
       const base64 = e.target?.result as string
@@ -43,7 +45,6 @@ export function Base64Converter() {
     <div className="flex flex-col max-w-3xl m-auto gap-4">
       <UploadArea
         onFileSelect={handleFileSelect}
-        preview={image?.url}
       />
 
       {image && (

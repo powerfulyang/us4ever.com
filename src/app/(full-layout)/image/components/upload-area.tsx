@@ -3,31 +3,41 @@
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { cn } from '@/utils/cn'
 import Image from 'next/image'
-import React, { useRef, useState } from 'react'
+import React, { useImperativeHandle, useRef, useState } from 'react'
 import { ImagePreviewModalSimple } from './preview-modal'
+
+export interface UploadAreaRef {
+  reset: () => void
+}
 
 interface UploadAreaProps {
   disabledText?: string
-  onFileSelect?: (file: File) => void
-  preview?: string
+  onFileSelect?: (file?: File) => void
   className?: string
   disabled?: boolean
+  ref?: React.Ref<UploadAreaRef>
 }
 
 export function UploadArea({
   onFileSelect,
-  preview: externalPreview,
   className,
   disabled = false,
   disabledText = '请先登录',
+  ref,
 }: UploadAreaProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-  const { preview: internalPreview, handleFile, handleDrop, accept } = useImageUpload({
+  const { preview: internalPreview, handleFile, handleDrop, accept, reset } = useImageUpload({
     onFileSelect,
   })
 
+  useImperativeHandle(ref, () => {
+    return {
+      reset,
+    }
+  })
+
   // 使用外部传入的预览或内部状态
-  const preview = externalPreview ?? internalPreview
+  const preview = internalPreview
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
@@ -44,7 +54,7 @@ export function UploadArea({
     handleDrop(e as unknown as DragEvent)
   }
 
-  const ref = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   return (
     <>
@@ -60,10 +70,10 @@ export function UploadArea({
         )}
         onDrop={handleAreaDrop}
         onDragOver={handleDragOver}
-        onClick={() => !disabled && ref.current?.click()}
+        onClick={() => !disabled && inputRef.current?.click()}
       >
         <input
-          ref={ref}
+          ref={inputRef}
           type="file"
           className="hidden"
           accept={accept}
@@ -90,7 +100,7 @@ export function UploadArea({
                   <p
                     onClick={(e) => {
                       e.stopPropagation()
-                      ref.current?.click()
+                      inputRef.current?.click()
                     }}
                     className="text-white text-sm"
                   >

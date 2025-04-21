@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 
 interface UseImageUploadProps {
-  onFileSelect?: (file: File) => void
+  onFileSelect?: (file?: File) => void
   accept?: string
 }
 
-export function useImageUpload({ onFileSelect, accept = 'image/*' }: UseImageUploadProps = {}) {
+export function useImageUpload({
+  onFileSelect,
+  accept = 'image/*',
+}: UseImageUploadProps = {}) {
   const [preview, setPreview] = useState<string>()
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   useEffect(() => {
     return () => {
@@ -28,7 +30,6 @@ export function useImageUpload({ onFileSelect, accept = 'image/*' }: UseImageUpl
     }
 
     setPreview(URL.createObjectURL(file))
-    setSelectedFile(file)
     onFileSelect?.(file)
   }, [preview, onFileSelect])
 
@@ -56,13 +57,12 @@ export function useImageUpload({ onFileSelect, accept = 'image/*' }: UseImageUpl
     if (preview) {
       URL.revokeObjectURL(preview)
     }
+    onFileSelect?.()
     setPreview(undefined)
-    setSelectedFile(null)
-  }, [preview])
+  }, [onFileSelect, preview])
 
   return {
     preview,
-    selectedFile,
     handleFile,
     handleDrop,
     reset,
