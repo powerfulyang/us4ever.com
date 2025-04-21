@@ -41,7 +41,7 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
   }, [image.thumbnail_320x_url, inView])
 
   return (
-    <div className={cn('relative w-full h-full overflow-hidden')} ref={ref}>
+    <div title={image.description} className={cn('relative w-full h-full overflow-hidden')} ref={ref}>
       <AnimatePresence mode="wait">
         {/* 模糊预览图 */}
         {!isImageLoaded && (
@@ -50,7 +50,7 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
             key="blur"
             className={cn('w-full h-full', className)}
             src={image.thumbnail_10x_url}
-            alt={image.name}
+            alt={image.description}
             initial={{ filter: 'blur(10px)' }}
             exit={{ filter: 'blur(5px)' }}
             transition={{ duration: 0.3 }}
@@ -63,7 +63,7 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
             loading="lazy"
             key="full"
             src={image.thumbnail_320x_url}
-            alt={image.name}
+            alt={image.description}
             className={cn('w-full h-full', className)}
             initial={{ filter: 'blur(5px)' }}
             animate={{ filter: 'blur(0px)' }}

@@ -37,9 +37,6 @@ export default async function RootLayout({
         <title>
           {metadata.title as string}
         </title>
-        <Script id="load-env-variables" strategy="beforeInteractive">
-          { `window["EXCALIDRAW_ASSET_PATH"] = '/excalidraw/';` }
-        </Script>
       </head>
       <Script
         defer
