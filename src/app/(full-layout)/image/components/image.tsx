@@ -4,7 +4,7 @@ import type { Image as ImageResponse } from '@/server/api/routers/asset'
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
 import { AnimatePresence, motion, useInView } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 interface BaseImageProps {
   className?: string
@@ -16,10 +16,11 @@ interface ImageWithIdProps extends BaseImageProps {
 
 interface ImageWithDataProps extends BaseImageProps {
   image: ImageResponse
+  showCompressed?: boolean
 }
 
 // 基础图片渲染组件
-function BaseAssetImage({ image, className }: ImageWithDataProps) {
+function BaseAssetImage({ image, className, showCompressed }: ImageWithDataProps) {
   const [isImageLoaded, setIsImageLoaded] = useState(false)
 
   const ref = useRef<HTMLDivElement>(null)
@@ -27,18 +28,25 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
     once: true,
   })
 
+  const imageUrl = useMemo(() => {
+    if (showCompressed) {
+      return image.compressed_url
+    }
+    return image.thumbnail_320x_url
+  }, [image.compressed_url, image.thumbnail_320x_url, showCompressed])
+
   useEffect(() => {
     if (inView) {
-      if (image?.thumbnail_320x_url) {
+      if (imageUrl) {
         const img = new Image()
-        img.src = image.thumbnail_320x_url
+        img.src = imageUrl
         img.onload = () => setIsImageLoaded(true)
         return () => {
           img.onload = null
         }
       }
     }
-  }, [image.thumbnail_320x_url, inView])
+  }, [imageUrl, inView])
 
   return (
     <div title={image.description} className={cn('relative w-full h-full overflow-hidden')} ref={ref}>
@@ -62,7 +70,7 @@ function BaseAssetImage({ image, className }: ImageWithDataProps) {
           <motion.img
             loading="lazy"
             key="full"
-            src={image.thumbnail_320x_url}
+            src={imageUrl}
             alt={image.description}
             className={cn('w-full h-full', className)}
             initial={{ filter: 'blur(5px)' }}

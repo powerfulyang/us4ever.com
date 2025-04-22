@@ -1,5 +1,6 @@
 'use client'
 
+import type { Image as ImageResponse } from '@/server/api/routers/asset'
 import type { Moment } from '@/server/api/routers/moment'
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
 import { ImagePreviewModal } from '@/app/(full-layout)/image/components/preview-modal'
@@ -81,7 +82,17 @@ export function MomentItem({ moment }: MomentItemProps) {
               </MdRender>
             )}
 
-            {moment.images.length > 0 && (
+            {moment.images.length === 1 && (
+              <div onClick={() => handlePreview(0)}>
+                <AssetImageWithData
+                  image={moment.images[0] as ImageResponse}
+                  className="object-contain"
+                  showCompressed
+                />
+              </div>
+            )}
+
+            {moment.images.length > 1 && (
               <div className="grid grid-cols-3 gap-1">
                 {moment.images.map((image, index) => (
                   <div
