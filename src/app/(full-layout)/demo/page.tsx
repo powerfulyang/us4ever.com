@@ -1,5 +1,5 @@
 import type { LinkProps } from '@/app/(full-layout)/page'
-import { LinkGrid } from '@/app/(full-layout)/page'
+import { LinkGrid } from '@/components/link-grid'
 
 const demoLinks: LinkProps[] = [
   {

@@ -86,16 +86,16 @@ function HighlightedText({ text, query }: { text: string | null | undefined, que
     const result: React.ReactNode[] = []
     let lastIndex = 0
 
-    matches.forEach((match, i) => {
+    matches.forEach((match) => {
       const index = match.index!
       const matchedText = match[0]
 
       if (index > lastIndex) {
-        result.push(<Fragment key={`text-${i}`}>{text.substring(lastIndex, index)}</Fragment>)
+        result.push(<Fragment>{text.substring(lastIndex, index)}</Fragment>)
       }
 
       result.push(
-        <span key={`match-${i}`} className="bg-purple-300 text-purple-900 rounded px-[2px] py-[1px]">
+        <span className="bg-purple-300 text-purple-900 rounded px-[2px] py-[1px]">
           {matchedText}
         </span>,
       )
