@@ -1,7 +1,7 @@
 import type { listMoments } from '@/service/moment.service'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { db } from '@/server/db'
-import { imageInclude, transformImageToResponse } from '@/service/asset.service'
+import { imageInclude, transformImageToResponse, videoInclude } from '@/service/asset.service'
 import { createMoment, deleteMoment, updateMoment } from '@/service/moment.service'
 import { map } from 'lodash-es'
 import { z } from 'zod'
@@ -27,6 +27,16 @@ export const momentRouter = createTRPCRouter({
             include: {
               image: {
                 include: imageInclude,
+              },
+            },
+            orderBy: {
+              sort: 'asc',
+            },
+          },
+          videos: {
+            include: {
+              video: {
+                include: videoInclude,
               },
             },
             orderBy: {
@@ -117,12 +127,23 @@ export const momentRouter = createTRPCRouter({
       }
       const result = await searchMoments(input.query)
       const ids = map(result, 'id')
+      const userIds = ctx.groupUserIds
       const list = await db.moment.findMany({
         include: {
           images: {
             include: {
               image: {
                 include: imageInclude,
+              },
+            },
+            orderBy: {
+              sort: 'asc',
+            },
+          },
+          videos: {
+            include: {
+              video: {
+                include: videoInclude,
               },
             },
             orderBy: {
@@ -136,7 +157,11 @@ export const momentRouter = createTRPCRouter({
             in: ids,
           },
           OR: [
-            { ownerId: ctx.user?.id },
+            {
+              ownerId: {
+                in: userIds,
+              },
+            },
             { isPublic: true },
           ],
         },

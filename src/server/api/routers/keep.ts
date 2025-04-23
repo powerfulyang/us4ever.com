@@ -143,6 +143,7 @@ export const keepRouter = createTRPCRouter({
       if (!input.query) {
         return []
       }
+      const userIds = ctx.groupUserIds
       const result = await searchKeeps(input.query)
       const ids = map(result, 'id')
       return await db.keep.findMany({
@@ -151,7 +152,11 @@ export const keepRouter = createTRPCRouter({
             in: ids,
           },
           OR: [
-            { ownerId: ctx.user?.id },
+            {
+              ownerId: {
+                in: userIds,
+              },
+            },
             { isPublic: true },
           ],
         },
