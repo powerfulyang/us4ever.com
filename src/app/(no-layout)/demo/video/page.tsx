@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function VideoDemo() {
   return (
-    <div className="flex flex-col justify-center items-center gap-4">
+    <div className="flex flex-col justify-center items-center gap-4 min-h-screen">
       <VideoUpload />
       <VideoList />
     </div>

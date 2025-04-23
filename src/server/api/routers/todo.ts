@@ -12,12 +12,15 @@ export const todoRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 10 // 默认每页 10 条
       const { cursor } = input
+      const userIds = ctx.groupUserIds
       const items = await ctx.db.todo.findMany({
         take: limit + 1, // 获取多一条用于判断是否有下一页
         where: {
           OR: [
             {
-              ownerId: ctx.user?.id,
+              ownerId: {
+                in: userIds,
+              },
             },
             {
               isPublic: true,

@@ -1,11 +1,12 @@
 import { OwnerOnly } from '@/components/auth/owner-only'
+import React from 'react'
 import { StatsCounter } from './stats-counter'
 
 interface ItemActionsProps {
   views?: number
   likes?: number
   ownerId?: string
-  onDelete?: () => void
+  onDelete?: (e: React.MouseEvent) => void
   className?: string
 }
 

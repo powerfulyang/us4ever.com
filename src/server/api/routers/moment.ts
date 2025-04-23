@@ -1,14 +1,31 @@
 import type { listMoments } from '@/service/moment.service'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { db } from '@/server/db'
-import { imageInclude, transformImageToResponse, videoInclude } from '@/service/asset.service'
-import { createMoment, deleteMoment, updateMoment } from '@/service/moment.service'
+import { imageInclude, transformImageToResponse, transformVideoToResponse, videoInclude } from '@/service/asset.service'
+import { createMoment, deleteMoment, getMomentById, updateMoment } from '@/service/moment.service'
 import { map } from 'lodash-es'
+import { after } from 'next/server'
 import { z } from 'zod'
 
 export type Moment = Awaited<ReturnType<typeof listMoments>>[number]
 
 export const momentRouter = createTRPCRouter({
+  list_public: publicProcedure
+    .query(async ({ ctx }) => {
+      return await ctx.db.moment.findMany({
+        where: {
+          isPublic: true,
+        },
+        select: {
+          id: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      })
+    }),
+
   infinite_list: publicProcedure
     .input(
       z.object({
@@ -73,6 +90,7 @@ export const momentRouter = createTRPCRouter({
         items: items.map(moment => ({
           ...moment,
           images: moment.images.map(({ image }) => transformImageToResponse(image)),
+          videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
         })),
         nextCursor,
       }
@@ -170,7 +188,27 @@ export const momentRouter = createTRPCRouter({
       return list.map(moment => ({
         ...moment,
         images: moment.images.map(({ image }) => transformImageToResponse(image)),
+        videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
       }))
+    }),
+
+  getById: publicProcedure
+    .input(z.object({
+      id: z.string(),
+      updateViews: z.boolean().default(false),
+    }))
+    .query(async ({ input, ctx }) => {
+      const userIds = ctx.groupUserIds
+      const moment = await getMomentById(input.id, userIds)
+      // Only increment views if not the owner
+      if (moment && input.updateViews && moment.ownerId !== ctx.user?.id) {
+        // Update view count asynchronously (fire-and-forget) for better performance
+        after(ctx.db.moment.update({
+          where: { id: input.id },
+          data: { views: { increment: 1 } },
+        }))
+      }
+      return moment
     }),
 })
 

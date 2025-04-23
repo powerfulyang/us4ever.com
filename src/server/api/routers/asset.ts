@@ -99,6 +99,7 @@ export const assetRouter = createTRPCRouter({
       id: z.string(),
     }))
     .query(async ({ ctx, input }) => {
-      return getImageById(input.id, ctx.user?.id)
+      const userIds = ctx.groupUserIds
+      return getImageById(input.id, userIds)
     }),
 })

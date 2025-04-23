@@ -25,6 +25,9 @@ const sitemapData: SitemapData = {
       {
         loc: [`${BASE_URL}/keep/sitemap.xml`],
       },
+      {
+        loc: [`${BASE_URL}/moment/sitemap.xml`],
+      },
     ],
   },
 }

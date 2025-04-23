@@ -10,11 +10,14 @@ export const mindMapRouter = createTRPCRouter({
     }))
     .query(async ({ ctx, input }) => {
       const { limit, cursor } = input
+      const userIds = ctx.groupUserIds
       const items = await ctx.db.mindMap.findMany({
         where: {
           OR: [
             {
-              ownerId: ctx.user?.id,
+              ownerId: {
+                in: userIds,
+              },
             },
             {
               isPublic: true,
@@ -46,12 +49,15 @@ export const mindMapRouter = createTRPCRouter({
       updateViews: z.boolean().default(false),
     }))
     .query(async ({ ctx, input }) => {
+      const userIds = ctx.groupUserIds
       const mindMap = await ctx.db.mindMap.findUnique({
         where: {
           id: input.id,
           OR: [
             {
-              ownerId: ctx.user?.id,
+              ownerId: {
+                in: userIds,
+              },
             },
             {
               isPublic: true,
@@ -113,11 +119,11 @@ export const mindMapRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const mindmap = await ctx.db.mindMap.findUnique({
+      const mindMap = await ctx.db.mindMap.findUnique({
         where: { id: input.id, ownerId: ctx.user.id },
       })
 
-      if (!mindmap) {
+      if (!mindMap) {
         throw new HTTPException(404, {
           message: 'mind map not found',
         })

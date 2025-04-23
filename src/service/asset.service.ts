@@ -320,10 +320,20 @@ export async function deleteVideo(id: string, uploadedById: string) {
 }
 
 // 获取单张图片
-export async function getImageById(id: string, userId?: string) {
+export async function getImageById(id: string, userIds: string[]) {
   const image = await db.image.findUnique({
     where: {
       id,
+      OR: [
+        {
+          uploadedBy: {
+            in: userIds,
+          },
+        },
+        {
+          isPublic: true,
+        },
+      ],
     },
     include: imageInclude,
   })
@@ -331,15 +341,7 @@ export async function getImageById(id: string, userId?: string) {
   if (!image) {
     throw new TRPCError({
       code: 'NOT_FOUND',
-      message: '图片不存在',
-    })
-  }
-
-  // 检查权限
-  if (!image.isPublic && image.uploadedBy !== userId) {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: '无权访问该图片',
+      message: '图片不存在或无权访问',
     })
   }
 

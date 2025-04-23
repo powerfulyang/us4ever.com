@@ -13,6 +13,7 @@ import { api } from '@/trpc/react'
 import { cn } from '@/utils'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
 interface MomentItemProps {
@@ -32,7 +33,8 @@ export function MomentItem({ moment }: MomentItemProps) {
     },
   })
 
-  function handleDelete() {
+  function handleDelete(e: React.MouseEvent) {
+    e.stopPropagation()
     setShowConfirm(true)
   }
 
@@ -42,6 +44,15 @@ export function MomentItem({ moment }: MomentItemProps) {
   }
 
   const showDelete = moment.category !== 'eleven'
+  const router = useRouter()
+
+  function gotoDetail() {
+    router.push(`/moment/${moment.id}`)
+  }
+
+  function stopPropagation(e: React.MouseEvent) {
+    e.stopPropagation()
+  }
 
   return (
     <>
@@ -51,6 +62,7 @@ export function MomentItem({ moment }: MomentItemProps) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
+        onClick={gotoDetail}
       >
         <Card>
           <div className="space-y-4">
@@ -82,47 +94,61 @@ export function MomentItem({ moment }: MomentItemProps) {
               </MdRender>
             )}
 
-            {moment.images.length === 1 && (
-              <div onClick={() => handlePreview(0)}>
-                <AssetImageWithData
-                  image={moment.images[0] as ImageResponse}
-                  className="object-contain"
-                  showCompressed
-                />
-              </div>
-            )}
+            <div className="flex flex-col gap-2" onClick={stopPropagation}>
+              {moment.images.length === 1 && (
+                <div onClick={() => handlePreview(0)}>
+                  <AssetImageWithData
+                    image={moment.images[0] as ImageResponse}
+                    className="object-contain"
+                    showCompressed
+                  />
+                </div>
+              )}
 
-            {moment.images.length > 1 && (
-              <div className="grid grid-cols-3 gap-1">
-                {moment.images.map((image, index) => (
-                  <div
-                    key={image.id}
-                    className="rounded aspect-square overflow-hidden bg-white/5"
-                    onClick={() => handlePreview(index)}
-                  >
-                    <AssetImageWithData
-                      image={image}
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+              {moment.images.length > 1 && (
+                <div className="grid grid-cols-3 gap-1">
+                  {moment.images.map((image, index) => (
+                    <div
+                      key={image.id}
+                      className="rounded aspect-square overflow-hidden bg-white/5"
+                      onClick={() => handlePreview(index)}
+                    >
+                      <AssetImageWithData
+                        image={image}
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
 
-            <ImagePreviewModal
-              images={moment.images.map((image) => {
-                return {
-                  src: image.compressed_url,
-                  placeholder: image.thumbnail_320x_url,
-                  width: image.width,
-                  height: image.height,
-                }
-              })}
-              currentIndex={previewIndex}
-              onCurrentIndexChange={setPreviewIndex}
-              isOpen={isPreviewOpen}
-              onCloseAction={() => setIsPreviewOpen(false)}
-            />
+              {moment.videos.length === 1 && (
+                <div className="rounded aspect-[9/16] overflow-hidden bg-white/5">
+                  <video
+                    src={moment.videos[0]?.file_url}
+                    controls
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              )}
+
+              {moment.videos.length > 1 && (
+                <div className="grid grid-cols-3 gap-1">
+                  {moment.videos.map(video => (
+                    <div
+                      key={video.id}
+                      className="rounded aspect-square overflow-hidden bg-white/5"
+                    >
+                      <video
+                        src={video.file_url}
+                        controls
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div className="mt-auto">
               <Divider className="mb-3 mt-1" />
@@ -136,7 +162,20 @@ export function MomentItem({ moment }: MomentItemProps) {
           </div>
         </Card>
       </motion.div>
-
+      <ImagePreviewModal
+        images={moment.images.map((image) => {
+          return {
+            src: image.compressed_url,
+            placeholder: image.thumbnail_320x_url,
+            width: image.width,
+            height: image.height,
+          }
+        })}
+        currentIndex={previewIndex}
+        onCurrentIndexChange={setPreviewIndex}
+        isOpen={isPreviewOpen}
+        onCloseAction={() => setIsPreviewOpen(false)}
+      />
       <Confirm
         isOpen={showConfirm}
         onCloseAction={() => setShowConfirm(false)}

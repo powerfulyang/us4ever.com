@@ -38,8 +38,8 @@ export function VideoList() {
         className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border-y border-gray-200"
       >
         {allVideos.map(video => (
-          <div key={video.id} className="aspect-video">
-            <video controls src={video.file_url} className="w-full h-full object-cover rounded-lg" />
+          <div key={video.id} className="aspect-[9/16] rounded-lg overflow-hidden bg-white/5">
+            <video controls src={video.file_url} className="w-full h-full object-contain" />
           </div>
         ))}
       </div>

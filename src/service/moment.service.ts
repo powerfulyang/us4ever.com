@@ -4,7 +4,8 @@ import * as process from 'node:process'
 import { enhancement } from '@/lib/deepseek'
 import { db } from '@/server/db'
 import { createKeep } from '@/service/keep.service'
-import { imageInclude, transformImageToResponse } from 'src/service/asset.service'
+import { TRPCError } from '@trpc/server'
+import { imageInclude, transformImageToResponse, transformVideoToResponse, videoInclude } from 'src/service/asset.service'
 
 /**
  * 动态图片关联接口
@@ -18,7 +19,7 @@ export interface MomentImage {
 /**
  * 动态视频关联接口
  */
-export interface MomentVideo extends MomentImage {}
+export interface MomentVideo extends MomentImage { }
 
 /**
  * 创建动态的输入参数接口
@@ -67,6 +68,16 @@ export async function listMoments({ userIds, category, take, cursor }: ListMomen
           sort: 'asc',
         },
       },
+      videos: {
+        include: {
+          video: {
+            include: videoInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
       owner: true,
     },
     where: {
@@ -90,6 +101,7 @@ export async function listMoments({ userIds, category, take, cursor }: ListMomen
   return list.map(moment => ({
     ...moment,
     images: moment.images.map(({ image }) => transformImageToResponse(image)),
+    videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
   }))
 }
 
@@ -316,5 +328,65 @@ export async function addMomentAttachment(
       },
     })
     console.log(`addMomentAttachment[videos]: ${momentId}`, result.videoId)
+  }
+}
+
+/**
+ * 根据ID获取动态详情
+ * @param id 动态ID
+ * @param userIds 用户ID列表
+ * @returns 动态详情
+ */
+export async function getMomentById(id: string, userIds: string[]) {
+  const moment = await db.moment.findUnique({
+    include: {
+      images: {
+        include: {
+          image: {
+            include: imageInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      videos: {
+        include: {
+          video: {
+            include: videoInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      owner: true,
+    },
+    where: {
+      id,
+      OR: [
+        {
+          ownerId: {
+            in: userIds,
+          },
+        },
+        {
+          isPublic: true,
+        },
+      ],
+    },
+  })
+
+  if (!moment) {
+    throw new TRPCError({
+      code: 'NOT_FOUND',
+      message: '动态不存在或无权访问',
+    })
+  }
+
+  return {
+    ...moment,
+    images: moment.images.map(({ image }) => transformImageToResponse(image)),
+    videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
   }
 }

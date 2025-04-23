@@ -12,6 +12,9 @@ export function loadInternalRouter() {
       where: {
         isAdmin: true,
       },
+      orderBy: {
+        createdAt: 'asc',
+      },
     })
     const allItems = await handleSyncTelegram(category, force, channel_name, admin.id)
 

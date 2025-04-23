@@ -15,6 +15,9 @@ export const keepRouter = createTRPCRouter({
           id: true,
           updatedAt: true,
         },
+        orderBy: {
+          updatedAt: 'desc',
+        },
       })
     }),
 
@@ -28,12 +31,15 @@ export const keepRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const limit = input.limit ?? 6 // Default limit
       const { cursor } = input
+      const userIds = ctx.groupUserIds
       const items = await ctx.db.keep.findMany({
         take: limit + 1, // get an extra item at the end which we'll use as next cursor
         where: {
           OR: [
             {
-              ownerId: ctx.user?.id,
+              ownerId: {
+                in: userIds,
+              },
             },
             {
               isPublic: true,
@@ -99,12 +105,17 @@ export const keepRouter = createTRPCRouter({
       updateViews: z.boolean().default(false),
     }))
     .query(async ({ input, ctx }) => {
+      const userIds = ctx.groupUserIds
       const keep = await ctx.db.keep.findUnique({
         where: {
           id: input.id,
           OR: [
             // Allow owner to see their own private keeps
-            { ownerId: ctx.user?.id },
+            {
+              ownerId: {
+                in: userIds,
+              },
+            },
             // Allow anyone to see public keeps
             { isPublic: true },
           ],
