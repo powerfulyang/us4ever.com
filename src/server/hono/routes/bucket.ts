@@ -9,7 +9,10 @@ export function loadBucketRouter() {
     const user = ctx.get('user')
     const objects = await list_all_objects('powerfulyang')
     for (const object of objects) {
-      const blob = await fetch(`https://r2.powerfulyang.com/${object.Key}`).then(res => res.blob())
+      const res = await fetch(`https://r2.powerfulyang.com/${object.Key}`)
+      if (!res.ok)
+        continue
+      const blob = await res.blob()
       const hash = await sha256(await blob.arrayBuffer())
       if (!hash)
         continue
