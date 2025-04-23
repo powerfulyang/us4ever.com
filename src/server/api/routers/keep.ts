@@ -1,4 +1,6 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { db } from '@/server/db'
+import { map } from 'lodash-es'
 import { after } from 'next/server'
 import { z } from 'zod'
 
@@ -131,4 +133,44 @@ export const keepRouter = createTRPCRouter({
         },
       })
     }),
+
+  // 透传到 api.us4ever
+  search: publicProcedure
+    .input(z.object({
+      query: z.string(),
+    }))
+    .query(async ({ input, ctx }) => {
+      if (!input.query) {
+        return []
+      }
+      const result = await searchKeeps(input.query)
+      const ids = map(result, 'id')
+      return await db.keep.findMany({
+        where: {
+          id: {
+            in: ids,
+          },
+          OR: [
+            { ownerId: ctx.user?.id },
+            { isPublic: true },
+          ],
+        },
+      })
+    }),
 })
+
+export interface SearchResult {
+  id: string
+  score: number
+  title: string
+  summary: string
+  content: string
+}
+
+async function searchKeeps(searchTerm: string): Promise<SearchResult[]> {
+  const response = await fetch(`http://tools.us4ever.com:8080/internal/keeps/search?q=${encodeURIComponent(searchTerm)}`)
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+  return (await response.json() || [])
+}

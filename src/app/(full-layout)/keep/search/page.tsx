@@ -5,18 +5,10 @@ import { Empty } from '@/components/layout/Empty'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import { useMutation } from '@tanstack/react-query'
+import { api } from '@/trpc/react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import React, { Fragment, useEffect, useState } from 'react'
-
-interface SearchResult {
-  id: string
-  score: number
-  title: string
-  summary: string
-  content: string
-}
+import React, { Fragment, useState } from 'react'
 
 // Helper function to generate a content snippet around the first query match
 function generateContentSnippet(content: string | null | undefined, query: string, maxLength: number): string {
@@ -91,11 +83,11 @@ function HighlightedText({ text, query }: { text: string | null | undefined, que
       const matchedText = match[0]
 
       if (index > lastIndex) {
-        result.push(<Fragment>{text.substring(lastIndex, index)}</Fragment>)
+        result.push(<Fragment key={`${lastIndex}start`}>{text.substring(lastIndex, index)}</Fragment>)
       }
 
       result.push(
-        <span className="bg-purple-300 text-purple-900 rounded px-[2px] py-[1px]">
+        <span key={`${lastIndex}end`} className="bg-purple-300 text-purple-900 rounded px-[2px] py-[1px]">
           {matchedText}
         </span>,
       )
@@ -115,34 +107,15 @@ function HighlightedText({ text, query }: { text: string | null | undefined, que
   }
 }
 
-async function searchKeeps(searchTerm: string): Promise<SearchResult[]> {
-  const response = await fetch(`https://api.us4ever.com/keeps/search?q=${encodeURIComponent(searchTerm)}`)
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
-  }
-  return (await response.json() || [])
-}
-
 export default function KeepSearchPage() {
   const searchParams = useSearchParams()
   const initialUrlQuery = searchParams.get('q')
   const [query, setQuery] = useState(initialUrlQuery || '')
 
-  const { isPending, mutate, error, data = [], isIdle, isSuccess } = useMutation({
-    mutationFn: searchKeeps,
-  })
-
-  useEffect(() => {
-    if (initialUrlQuery) {
-      mutate(initialUrlQuery.trim())
-    }
-  }, [initialUrlQuery, mutate])
+  const { isFetching, data = [], error, isSuccess, refetch } = api.keep.search.useQuery({ query })
 
   const onSearch = () => {
-    const searchTerm = query.trim()
-    if (!searchTerm)
-      return
-    mutate(searchTerm)
+    refetch()
   }
 
   return (
@@ -155,7 +128,7 @@ export default function KeepSearchPage() {
           <input
             type="text"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => setQuery(e.target.value.trim())}
             placeholder="Enter search term..."
             className="flex-1 rounded-lg bg-white/10 backdrop-blur-lg px-4 py-2 text-white placeholder-gray-400 border border-white/20 focus:border-purple-500/50 focus:outline-none transition-colors resize-none"
             onKeyDown={(e) => {
@@ -165,8 +138,8 @@ export default function KeepSearchPage() {
           />
           <Button
             onClick={onSearch}
-            disabled={!query.trim() || isPending}
-            isLoading={isPending}
+            disabled={!query.trim()}
+            isLoading={isFetching}
             variant="default"
             size="sm"
           >
@@ -181,9 +154,9 @@ export default function KeepSearchPage() {
           </p>
         )}
 
-        {isPending && <LoadingSpinner text="Searching..." />}
+        {isFetching && <LoadingSpinner text="Searching..." />}
 
-        {!isPending && data.length > 0 && (
+        {!isFetching && data.length > 0 && (
           <div className="flex flex-col gap-4">
             {data.map((result) => {
               const contentSnippet = generateContentSnippet(result.content, query, 150)
@@ -193,10 +166,6 @@ export default function KeepSearchPage() {
                     <h3 className="text-lg font-medium text-purple-300">
                       <HighlightedText text={result.title} query={query} />
                     </h3>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Score:
-                      {result.score.toFixed(2)}
-                    </p>
                     <p className="text-xs text-gray-400 mt-2">
                       <HighlightedText text={result.summary} query={query} />
                     </p>
@@ -212,12 +181,8 @@ export default function KeepSearchPage() {
           </div>
         )}
 
-        {!isPending && isSuccess && data.length === 0 && (
+        {!isFetching && isSuccess && data.length === 0 && (
           <Empty title="No results found" description={`No keeps match your search for "${query}".`} />
-        )}
-
-        {!isPending && isIdle && (
-          <Empty title="Start searching" description="Enter a term above to find relevant keeps." />
         )}
       </div>
     </Container>
