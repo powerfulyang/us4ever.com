@@ -19,19 +19,12 @@ env:
 
 jobs:
   build-with-github-action:
-    if: false
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04-arm
 
     steps:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v4
-
-      # Set up QEMU for ARM support
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
 
       # Set up Docker Buildx with a unique builder name
       - name: Set up Docker Buildx
@@ -50,7 +43,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/arm64
           push: true
           tags: ${{ env.DOCKER_REPOSITORY }}:latest
           cache-from: type=gha
@@ -58,7 +50,6 @@ jobs:
 
   deploy:
     needs: [build-with-github-action]
-    if: false
     runs-on: self-hosted
     steps:
       - name: Update container
@@ -70,6 +61,7 @@ jobs:
           docker-compose up -d
 
   build-and-deploy-on-self-host:
+    if: false
     runs-on: self-hosted
     steps:
       # Checkout the repository
