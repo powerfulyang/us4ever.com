@@ -3,6 +3,7 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/
 import { db } from '@/server/db'
 import { imageInclude, transformImageToResponse } from '@/service/asset.service'
 import { createMoment, deleteMoment, updateMoment } from '@/service/moment.service'
+import { map } from 'lodash-es'
 import { z } from 'zod'
 
 export type Moment = Awaited<ReturnType<typeof listMoments>>[number]
@@ -105,4 +106,57 @@ export const momentRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       return deleteMoment(input.id, ctx.user.id)
     }),
+
+  search: publicProcedure
+    .input(z.object({
+      query: z.string(),
+    }))
+    .query(async ({ input, ctx }) => {
+      if (!input.query.trim()) {
+        return []
+      }
+      const result = await searchMoments(input.query)
+      const ids = map(result, 'id')
+      const list = await db.moment.findMany({
+        include: {
+          images: {
+            include: {
+              image: {
+                include: imageInclude,
+              },
+            },
+            orderBy: {
+              sort: 'asc',
+            },
+          },
+          owner: true,
+        },
+        where: {
+          id: {
+            in: ids,
+          },
+          OR: [
+            { ownerId: ctx.user?.id },
+            { isPublic: true },
+          ],
+        },
+      })
+
+      return list.map(moment => ({
+        ...moment,
+        images: moment.images.map(({ image }) => transformImageToResponse(image)),
+      }))
+    }),
 })
+
+interface SearchResult {
+  id: string
+}
+
+async function searchMoments(searchTerm: string): Promise<SearchResult[]> {
+  const response = await fetch(`http://tools.us4ever.com:8080/internal/moments/search?q=${encodeURIComponent(searchTerm)}`)
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+  return (await response.json() || [])
+}
