@@ -94,61 +94,63 @@ export function MomentItem({ moment }: MomentItemProps) {
               </MdRender>
             )}
 
-            <div className="flex flex-col gap-2" onClick={stopPropagation}>
-              {moment.images.length === 1 && (
-                <div onClick={() => handlePreview(0)}>
-                  <AssetImageWithData
-                    image={moment.images[0] as ImageResponse}
-                    className="object-contain"
-                    showCompressed
-                  />
-                </div>
-              )}
+            {!!(moment.images.length || moment.videos.length) && (
+              <div className="flex flex-col gap-2" onClick={stopPropagation}>
+                {moment.images.length === 1 && (
+                  <div onClick={() => handlePreview(0)}>
+                    <AssetImageWithData
+                      image={moment.images[0] as ImageResponse}
+                      className="object-contain"
+                      showCompressed
+                    />
+                  </div>
+                )}
 
-              {moment.images.length > 1 && (
-                <div className="grid grid-cols-3 gap-1">
-                  {moment.images.map((image, index) => (
-                    <div
-                      key={image.id}
-                      className="rounded aspect-square overflow-hidden bg-white/5"
-                      onClick={() => handlePreview(index)}
-                    >
-                      <AssetImageWithData
-                        image={image}
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+                {moment.images.length > 1 && (
+                  <div className="grid grid-cols-3 gap-1">
+                    {moment.images.map((image, index) => (
+                      <div
+                        key={image.id}
+                        className="rounded aspect-square overflow-hidden bg-white/5"
+                        onClick={() => handlePreview(index)}
+                      >
+                        <AssetImageWithData
+                          image={image}
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              {moment.videos.length === 1 && (
-                <div className="rounded aspect-[9/16] overflow-hidden bg-white/5">
-                  <video
-                    src={moment.videos[0]?.file_url}
-                    controls
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              )}
+                {moment.videos.length === 1 && (
+                  <div className="rounded aspect-[9/16] overflow-hidden bg-white/5">
+                    <video
+                      src={moment.videos[0]?.file_url}
+                      controls
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
 
-              {moment.videos.length > 1 && (
-                <div className="grid grid-cols-3 gap-1">
-                  {moment.videos.map(video => (
-                    <div
-                      key={video.id}
-                      className="rounded aspect-square overflow-hidden bg-white/5"
-                    >
-                      <video
-                        src={video.file_url}
-                        controls
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                {moment.videos.length > 1 && (
+                  <div className="grid grid-cols-3 gap-1">
+                    {moment.videos.map(video => (
+                      <div
+                        key={video.id}
+                        className="rounded aspect-square overflow-hidden bg-white/5"
+                      >
+                        <video
+                          src={video.file_url}
+                          controls
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-auto">
               <Divider className="mb-3 mt-1" />
