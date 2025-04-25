@@ -185,11 +185,17 @@ export const momentRouter = createTRPCRouter({
         },
       })
 
-      return list.map(moment => ({
+      // 转换为Map以便按原始搜索结果的顺序排序
+      const momentsMap = new Map(list.map(moment => [moment.id, {
         ...moment,
         images: moment.images.map(({ image }) => transformImageToResponse(image)),
         videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
-      }))
+      }]))
+
+      // 按照原始搜索结果的顺序返回
+      return ids
+        .map(id => momentsMap.get(id))
+        .filter(Boolean)
     }),
 
   getById: publicProcedure
@@ -212,8 +218,9 @@ export const momentRouter = createTRPCRouter({
     }),
 })
 
-interface SearchResult {
+export interface SearchResult {
   id: string
+  score: number
 }
 
 async function searchMoments(searchTerm: string): Promise<SearchResult[]> {

@@ -157,7 +157,7 @@ export const keepRouter = createTRPCRouter({
       const userIds = ctx.groupUserIds
       const result = await searchKeeps(input.query)
       const ids = map(result, 'id')
-      return await db.keep.findMany({
+      const list = await db.keep.findMany({
         where: {
           id: {
             in: ids,
@@ -172,15 +172,20 @@ export const keepRouter = createTRPCRouter({
           ],
         },
       })
+
+      // 创建映射以便按原始搜索结果顺序排序
+      const keepsMap = new Map(list.map(keep => [keep.id, keep]))
+
+      // 按照原始搜索结果的顺序返回
+      return ids
+        .map(id => keepsMap.get(id))
+        .filter(Boolean)
     }),
 })
 
 export interface SearchResult {
   id: string
   score: number
-  title: string
-  summary: string
-  content: string
 }
 
 async function searchKeeps(searchTerm: string): Promise<SearchResult[]> {
