@@ -144,7 +144,8 @@ export const momentRouter = createTRPCRouter({
         return []
       }
       const result = await searchMoments(input.query)
-      const ids = map(result, 'id')
+      const resultList = result.hits.hits
+      const ids = map(resultList, '_id')
       const userIds = ctx.groupUserIds
       const list = await db.moment.findMany({
         include: {
@@ -186,16 +187,24 @@ export const momentRouter = createTRPCRouter({
       })
 
       // 转换为Map以便按原始搜索结果的顺序排序
-      const momentsMap = new Map(list.map(moment => [moment.id, {
-        ...moment,
-        images: moment.images.map(({ image }) => transformImageToResponse(image)),
-        videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
-      }]))
+      const momentsMap = new Map<string, Moment>(
+        list.map(
+          moment => [
+            moment.id,
+            {
+              ...moment,
+              content: resultList.find(hit => hit._id === moment.id)?.highlight?.content?.[0] || moment.content,
+              images: moment.images.map(({ image }) => transformImageToResponse(image)),
+              videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
+            },
+          ],
+        ),
+      )
 
       // 按照原始搜索结果的顺序返回
       return ids
         .map(id => momentsMap.get(id))
-        .filter(Boolean)
+        .filter(Boolean) as Moment[]
     }),
 
   getById: publicProcedure
@@ -219,14 +228,39 @@ export const momentRouter = createTRPCRouter({
 })
 
 export interface SearchResult {
-  id: string
-  score: number
+  hits: Hits
 }
 
-async function searchMoments(searchTerm: string): Promise<SearchResult[]> {
+export interface Hits {
+  total: Total
+  hits: Hit[]
+}
+
+export interface Hit {
+  _index: string
+  _id: string
+  _score: number
+  _source: Source
+  highlight: Highlight
+}
+
+export interface Source {
+  content: string
+}
+
+export interface Highlight {
+  content?: string[]
+}
+
+export interface Total {
+  value: number
+  relation: string
+}
+
+async function searchMoments(searchTerm: string): Promise<SearchResult> {
   const response = await fetch(`http://tools.us4ever.com:8080/internal/moments/search?q=${encodeURIComponent(searchTerm)}`)
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`)
   }
-  return (await response.json() || [])
+  return await response.json()
 }

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
+import { SearchForm } from '@/components/search-form'
 import { api, HydrateClient } from '@/trpc/server'
 import { MomentCreate } from './components/create'
 import { MomentList } from './components/list'
-import { MomentSearch } from './components/search-input'
 
 export const metadata: Metadata = {
   title: '动态',
@@ -22,7 +22,10 @@ export default async function MomentPage() {
         description="分享生活点滴"
       >
         <div className="space-y-4 max-w-[500px] m-auto">
-          <MomentSearch />
+          <SearchForm
+            searchPath="/moment/search"
+            placeholder="支持搜索动态内容和图片文字"
+          />
           <MomentCreate />
           <MomentList />
         </div>

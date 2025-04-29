@@ -1,19 +1,18 @@
 'use client'
 
-import type { Moment } from '@/server/api/routers/moment'
 import { Container } from '@/components/layout/Container'
 import { Empty } from '@/components/layout/Empty'
 import { Button } from '@/components/ui/button'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
 import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useDebounceValue } from 'usehooks-ts'
 import { MomentItem } from '../components/item'
 
 export default function MomentSearchPage() {
   const searchParams = useSearchParams()
-  const initialUrlQuery = searchParams.get('q')
-  const [query, setQuery] = useState(initialUrlQuery || '')
+  const initialUrlQuery = searchParams.get('q') || ''
+  const [query, setQuery] = useDebounceValue(initialUrlQuery, 500)
 
   const { isFetching, data = [], error, isSuccess, refetch } = api.moment.search.useQuery({ query })
 
@@ -30,7 +29,7 @@ export default function MomentSearchPage() {
         <div className="flex gap-2">
           <input
             type="text"
-            value={query}
+            defaultValue={initialUrlQuery}
             onChange={e => setQuery(e.target.value)}
             placeholder="输入搜索关键词..."
             className="flex-1 rounded-lg bg-white/10 backdrop-blur-lg px-4 py-2 text-white placeholder-gray-400 border border-white/20 focus:border-purple-500/50 focus:outline-none transition-colors resize-none"
@@ -61,7 +60,7 @@ export default function MomentSearchPage() {
 
         {!isFetching && data.length > 0 && (
           <div className="flex flex-col gap-4">
-            {data.map((moment: Moment) => (
+            {data.map(moment => (
               <MomentItem key={moment.id} moment={moment} />
             ))}
           </div>

@@ -8,13 +8,17 @@ import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeKatex from 'rehype-katex'
 import rehypeRaw from 'rehype-raw'
-import rehypeSanitize from 'rehype-sanitize'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
+import rehypeSlug from 'rehype-slug'
 import rehypeStringify from 'rehype-stringify'
+import remarkDirective from 'remark-directive'
+import remarkFrontmatter from 'remark-frontmatter'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import styles from './index.module.scss'
+import { remarkDirectiveHandle } from './plugins/remarkDirectiveHandle'
 import 'katex/dist/katex.min.css'
 
 export function Pre({ node }: React.ClassAttributes<HTMLPreElement> & React.HTMLAttributes<HTMLPreElement> & ExtraProps) {
@@ -56,6 +60,11 @@ interface Props {
   enableMermaid?: boolean
 }
 
+const customSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), 'mark'], // 允许 <mark>
+}
+
 export function MdRender({ children, className, enableMermaid }: Props) {
   return (
     <div className={cn(styles.markdownBody, className)}>
@@ -63,14 +72,18 @@ export function MdRender({ children, className, enableMermaid }: Props) {
       <ReactMarkdown
         remarkPlugins={[
           remarkGfm,
+          remarkFrontmatter,
           remarkMath,
           remarkParse,
+          remarkDirective,
+          remarkDirectiveHandle,
           [remarkRehype, { allowDangerousHtml: true }],
         ]}
         rehypePlugins={[
-          rehypeRaw,
+          rehypeSlug,
           rehypeKatex,
-          rehypeSanitize, // 清理不合法的 HTML
+          rehypeRaw,
+          [rehypeSanitize, customSchema], // 使用自定义 schema
           [rehypeStringify, { allowDangerousHtml: true }], // 转换为字符串
         ]}
         components={{

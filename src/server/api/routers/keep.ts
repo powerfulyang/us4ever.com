@@ -156,8 +156,12 @@ export const keepRouter = createTRPCRouter({
       }
       const userIds = ctx.groupUserIds
       const result = await searchKeeps(input.query)
-      const ids = map(result, 'id')
+      const resultList = result.hits.hits
+      const ids = map(resultList, '_id')
       const list = await db.keep.findMany({
+        select: {
+          id: true,
+        },
         where: {
           id: {
             in: ids,
@@ -173,25 +177,50 @@ export const keepRouter = createTRPCRouter({
         },
       })
 
-      // 创建映射以便按原始搜索结果顺序排序
-      const keepsMap = new Map(list.map(keep => [keep.id, keep]))
-
       // 按照原始搜索结果的顺序返回
-      return ids
-        .map(id => keepsMap.get(id))
-        .filter(Boolean)
+      return resultList
+        .filter(hit => list.some(keep => keep.id === hit._id))
     }),
 })
 
 export interface SearchResult {
-  id: string
-  score: number
+  hits: Hits
 }
 
-async function searchKeeps(searchTerm: string): Promise<SearchResult[]> {
+export interface Hits {
+  total: Total
+  hits: Hit[]
+}
+
+export interface Hit {
+  _index: string
+  _id: string
+  _score: number
+  _source: Source
+  highlight: Highlight
+}
+
+export interface Source {
+  content: string
+  summary: string
+  title: string
+}
+
+export interface Highlight {
+  summary?: string[]
+  title?: string[]
+  content?: string[]
+}
+
+export interface Total {
+  value: number
+  relation: string
+}
+
+async function searchKeeps(searchTerm: string): Promise<SearchResult> {
   const response = await fetch(`http://tools.us4ever.com:8080/internal/keeps/search?q=${encodeURIComponent(searchTerm)}`)
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`)
   }
-  return (await response.json() || [])
+  return await response.json()
 }
