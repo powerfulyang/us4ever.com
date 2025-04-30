@@ -33,25 +33,6 @@
     -webkit-text-fill-color: currentColor;
   }
 
-  /* 紧挨着的 mark，去掉左边圆角 */
-  mark + mark {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-
-  /* 前一个 mark，如果后面是 mark，去掉右边圆角 */
-  mark + mark::before {
-    content: '';
-    display: inline-block;
-    width: 0;
-    height: 0;
-    border: none;
-  }
-
-  mark {
-    margin-right: -3px; /* 把 mark 之间的空隙压紧 */
-  }
-
   hr {
     @apply my-[1em] border-dashed;
     border-color: rgba(255, 255, 255, 0.2);

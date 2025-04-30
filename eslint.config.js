@@ -6,6 +6,7 @@ export default antfu(
       // eslint ignore globs here
       'prisma/**',
       'public/**',
+      'next.config.js',
     ],
     react: true,
     formatters: {

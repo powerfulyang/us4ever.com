@@ -131,6 +131,17 @@ const toyLinks: LinkProps[] = [
     ),
   },
   {
+    title: 'video list',
+    description: '上传的视频',
+    href: '/demo/video',
+    target: '_blank',
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+    ),
+  },
+  {
     title: '图片管理',
     description: '便捷的图片上传与管理工具',
     href: '/image',

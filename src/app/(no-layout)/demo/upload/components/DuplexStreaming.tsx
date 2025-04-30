@@ -1,5 +1,6 @@
 'use client'
 
+import GitHubCorner from '@/components/GitHubCorner'
 import { trackRequestProgress } from '@/lib/fetch'
 import React, { useRef, useState } from 'react'
 
@@ -55,6 +56,7 @@ export function DuplexStreaming() {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
+      <GitHubCorner repoUrl={__REPOSITORY_FILE_PATH__} />
       <h1 className="text-xl font-bold mb-6">File Upload Progress Demo - Using Fetch Duplex Streaming</h1>
 
       <div className="space-y-4">

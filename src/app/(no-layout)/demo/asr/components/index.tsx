@@ -1,4 +1,5 @@
 'use client'
+import GitHubCorner from '@/components/GitHubCorner'
 import { cn } from '@/utils'
 import { motion } from 'framer-motion'
 import { useRef, useState } from 'react'
@@ -110,6 +111,7 @@ export default function ASRDemo() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <GitHubCorner repoUrl={__REPOSITORY_FILE_PATH__} />
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <motion.h1
           className="text-3xl font-bold text-gray-900 mb-6"

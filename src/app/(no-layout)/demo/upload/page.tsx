@@ -11,5 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default function UploadDemo() {
-  return <DuplexStreaming />
+  return (
+    <DuplexStreaming />
+  )
 }

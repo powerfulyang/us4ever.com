@@ -6,6 +6,9 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "repository": {
+    "url": "https://github.com/powerfulyang/us4ever.com"
+  },
   "scripts": {
     "build": "cross-env SKIP_ENV_VALIDATION=true next build",
     "db:generate": "prisma migrate dev",
@@ -50,6 +53,7 @@
     "lint-staged": "^15.5.1",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.503.0",
+    "mathlive": "^0.105.2",
     "mermaid": "^11.6.0",
     "monaco-editor": "^0.52.2",
     "next": "15.3.1",
@@ -88,6 +92,7 @@
     "tencentcloud-sdk-nodejs": "^4.1.28",
     "tsx": "^4.19.4",
     "usehooks-ts": "^3.1.1",
+    "webpack": "^5.99.7",
     "xml2js": "^0.6.2",
     "zod": "^3.24.3",
     "zod-form-data": "^2.0.7",
