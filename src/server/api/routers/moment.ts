@@ -241,7 +241,7 @@ export interface Hit {
   _id: string
   _score: number
   _source: Source
-  highlight: Highlight
+  highlight?: Highlight
 }
 
 export interface Source {
