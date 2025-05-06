@@ -86,29 +86,31 @@ model File {
 }
 
 model Image {
-  id          String  @id @default(uuid()) // 主键，UUID 自��生成
+  id                 String  @id @default(uuid()) // 主键，UUID 自��生成
   // 原始文件名
-  name        String
+  name               String
   // 文件类型
-  type        String
+  type               String
   // 文件大小
-  size        BigInt
+  size               BigInt
   // 图片的宽度
-  width       Int
+  width              Int
   // 图片的高度
-  height      Int
+  height             Int
   // 图片的 exif 信息
-  exif        Json    @default("{}")
+  exif               Json    @default("{}")
   // sha256
-  hash        String
+  hash               String
   // exif address
-  address     String  @default("")
+  address            String  @default("")
   // 是否公开
-  isPublic    Boolean @default(false)
+  isPublic           Boolean @default(false)
   // 图片描述
-  description String  @default("")
+  description        String  @default("")
+  // 图片描述向量
+  description_vector Json?
   // 图片标签
-  tags        Json    @default("[]")
+  tags               Json    @default("[]")
 
   //
   extraData Json   @default("{}")
@@ -144,12 +146,15 @@ model Image {
 }
 
 model Keep {
-  id       String  @id @default(uuid()) // 主键，UUID 自动生成
-  title    String  @default("") // 笔记标题
-  content  String // 笔记内容
-  summary  String  @default("") // 笔记摘要
-  isPublic Boolean @default(false) // 是否公开
-  tags     Json    @default("[]") // 笔记标签
+  id             String  @id @default(uuid()) // 主键，UUID 自动生成
+  title          String  @default("") // 笔记标题
+  title_vector   Json? // 笔记标题向量
+  content        String // 笔记内容
+  content_vector Json?
+  summary        String  @default("") // 笔记摘要
+  summary_vector Json?
+  isPublic       Boolean @default(false) // 是否公开
+  tags           Json    @default("[]") // 笔记标签
 
   views Int @default(0) // 查看次数
   likes Int @default(0) // 点赞数
@@ -169,9 +174,9 @@ model Keep {
 }
 
 model Todo {
-  id      String  @id @default(uuid())
-  title   String
-  content String?
+  id       String    @id @default(uuid())
+  title    String
+  content  String?
   status   Boolean   @default(false)
   priority Int       @default(0)
   dueDate  DateTime?
@@ -204,8 +209,8 @@ model MindMap {
   likes Int @default(0)
 
   //
-  extraData Json @default("{}")
-  category String  @default("default")
+  extraData Json   @default("{}")
+  category  String @default("default")
 
   //
   ownerId   String
@@ -218,16 +223,17 @@ model MindMap {
 }
 
 model Moment {
-  id       String  @id @default(uuid())
-  content  String  @default("")
-  isPublic Boolean @default(false)
-  tags     Json    @default("[]")
-  views    Int     @default(0)
-  likes    Int     @default(0)
+  id             String  @id @default(uuid())
+  content        String  @default("")
+  content_vector Json?
+  isPublic       Boolean @default(false)
+  tags           Json    @default("[]")
+  views          Int     @default(0)
+  likes          Int     @default(0)
 
   //
-  extraData Json @default("{}")
-  category String  @default("default")
+  extraData Json   @default("{}")
+  category  String @default("default")
 
   //
   ownerId   String
@@ -338,8 +344,8 @@ model Video {
   isPublic Boolean @default(false)
 
   //
-  extraData Json @default("{}")
-  category String  @default("default")
+  extraData Json   @default("{}")
+  category  String @default("default")
 
   //
   posterId String?
