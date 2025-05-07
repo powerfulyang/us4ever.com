@@ -24,8 +24,8 @@ export default async function KeepPage() {
         description="记录灵感与思考的地方"
         rightContent={(
           <AuthenticatedOnly disableChildren>
-            <div className="flex items-center space-x-2">
-              <SearchForm searchPath="/keep/search" />
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <SearchForm className="flex-1" searchPath="/keep/search" />
               <Button>
                 <Link href="/keep/save">创建笔记</Link>
               </Button>
