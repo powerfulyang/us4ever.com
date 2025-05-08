@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    "Vue.volar",
+    "vitest.explorer",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "zhuangtongfa.material-theme",
+    "christian-kohler.npm-intellisense",
+    "eamodio.gitlens",
+    "steoates.autoimport",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.auto-complete-tag",
+    "formulahendry.auto-close-tag",
+    "antfu.unocss",
+    "vscode-icons-team.vscode-icons"
+  ]
+}
