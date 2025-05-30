@@ -1,8 +1,8 @@
 'use client'
 
+import React, { useRef, useState } from 'react'
 import GitHubCorner from '@/components/GitHubCorner'
 import { trackRequestProgress } from '@/lib/fetch'
-import React, { useRef, useState } from 'react'
 
 export function DuplexStreaming() {
   const [isUploading, setUploading] = useState(false)

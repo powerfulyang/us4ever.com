@@ -1,12 +1,12 @@
 /* eslint-disable react-dom/no-dangerously-set-innerhtml */
 'use client'
 
-import { useMindMapNoteStore } from '@/store/mind-map-note'
-import { cn } from '@/utils'
 import DOMPurify from 'dompurify'
 import { useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useClickAway } from 'react-use'
+import { useMindMapNoteStore } from '@/store/mind-map-note'
+import { cn } from '@/utils'
 import styles from './note.module.scss'
 
 export function CustomNoteContent() {

@@ -1,10 +1,10 @@
 'use client'
 
 import type { ChangeEvent, FormEvent } from 'react'
-import { cn } from '@/utils/cn'
 import { Search as SearchIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { cn } from '@/utils/cn'
 
 interface SearchFormProps {
   searchPath: string

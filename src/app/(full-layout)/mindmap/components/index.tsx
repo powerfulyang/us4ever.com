@@ -1,7 +1,5 @@
 'use client'
 
-import { CustomNoteContent } from '@/app/(full-layout)/mindmap/components/CustomNoteContent'
-import { useMindMapNoteStore } from '@/store/mind-map-note'
 import { useEffect, useRef } from 'react'
 import MindMap from 'simple-mind-map'
 import Themes from 'simple-mind-map-plugin-themes'
@@ -24,6 +22,8 @@ import SearchPlugin from 'simple-mind-map/src/plugins/Search.js'
 import Select from 'simple-mind-map/src/plugins/Select.js'
 import TouchEvent from 'simple-mind-map/src/plugins/TouchEvent.js'
 import Watermark from 'simple-mind-map/src/plugins/Watermark.js'
+import { CustomNoteContent } from '@/app/(full-layout)/mindmap/components/CustomNoteContent'
+import { useMindMapNoteStore } from '@/store/mind-map-note'
 
 // 注册插件
 // eslint-disable-next-line react-hooks/rules-of-hooks

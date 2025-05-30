@@ -1,7 +1,7 @@
 'use client'
 
-import { cn } from '@/utils'
 import * as React from 'react'
+import { cn } from '@/utils'
 
 interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   checkedLabel?: string

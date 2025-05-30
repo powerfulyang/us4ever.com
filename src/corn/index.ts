@@ -1,8 +1,8 @@
+import { concatMap, filter, interval, startWith } from 'rxjs'
 import { env } from '@/env'
 import { extractText } from '@/lib/extractText'
 import { extractTitle, summaryContent } from '@/lib/gemini'
 import { db } from '@/server/db'
-import { concatMap, filter, interval, startWith } from 'rxjs'
 
 async function keepCorn() {
   // 获取所有需要更新的记录

@@ -1,10 +1,10 @@
 'use client'
 
-import { cn } from '@/utils'
 import { AnimatePresence, motion } from 'framer-motion'
 import React, { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useMountedState } from 'react-use'
+import { cn } from '@/utils'
 
 interface DialogProps {
   isOpen: boolean

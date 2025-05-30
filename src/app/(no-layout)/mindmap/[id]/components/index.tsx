@@ -1,7 +1,7 @@
 'use client'
 
-import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import dynamic from 'next/dynamic'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 const MindMapView = dynamic(
   () => import('@/app/(full-layout)/mindmap/components'),

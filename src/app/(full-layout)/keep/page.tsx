@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { KeepList } from '@/app/(full-layout)/keep/components/list'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Container } from '@/components/layout/Container'
 import { SearchForm } from '@/components/search-form'
 import { Button } from '@/components/ui/button'
 import { api, HydrateClient } from '@/trpc/server'
-import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Keep',

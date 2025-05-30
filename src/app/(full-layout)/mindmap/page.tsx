@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
+import { MindMapList } from 'src/app/(full-layout)/mindmap/components/list'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
-import { MindMapList } from 'src/app/(full-layout)/mindmap/components/list'
 import { MindMapImport } from './components/create'
 
 export const metadata: Metadata = {

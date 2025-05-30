@@ -1,9 +1,9 @@
 import type { NextRequest } from 'next/server'
-import { env } from '@/env'
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch'
 
+import { env } from '@/env'
 import { appRouter } from '@/server/api/root'
 import { createTRPCContext } from '@/server/api/trpc'
-import { fetchRequestHandler } from '@trpc/server/adapters/fetch'
 
 // import '@/corn'
 

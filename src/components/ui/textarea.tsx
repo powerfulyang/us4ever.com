@@ -1,6 +1,6 @@
-import { cn } from '@/utils'
-
 import * as React from 'react'
+
+import { cn } from '@/utils'
 
 function Textarea({ ref, className, ...props }: React.ComponentProps<'textarea'> & { ref?: React.RefObject<HTMLTextAreaElement> }) {
   return (

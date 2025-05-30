@@ -1,8 +1,8 @@
+import React from 'react'
+import TodoList from 'src/app/(full-layout)/todo/components/TodoList'
 import { TodoForm } from '@/app/(full-layout)/todo/components/TodoForm'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
-import React from 'react'
-import TodoList from 'src/app/(full-layout)/todo/components/TodoList'
 
 export const metadata = {
   title: '待办事项',

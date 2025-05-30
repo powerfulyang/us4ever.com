@@ -7,18 +7,18 @@
  * need to use are documented accordingly near the end.
  */
 
-import type { User } from '@/store/user'
 import type { RequestCookies } from 'next/dist/server/web/spec-extension/cookies'
-import { env } from '@/env'
-import { db } from '@/server/db'
-import { COOKIE_NAME } from '@/server/hono'
-
-import { findUserWithGroupById } from '@/service/user.serivce'
+import type { User } from '@/store/user'
 import { initTRPC } from '@trpc/server'
 import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
+
 import superjson from 'superjson'
 import { ZodError } from 'zod'
+import { env } from '@/env'
+import { db } from '@/server/db'
+import { COOKIE_NAME } from '@/server/hono'
+import { findUserWithGroupById } from '@/service/user.serivce'
 
 /**
  * 1. CONTEXT

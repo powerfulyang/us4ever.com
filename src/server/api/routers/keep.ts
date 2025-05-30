@@ -1,13 +1,13 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
-import { db } from '@/server/db'
 import { map } from 'lodash-es'
 import { after } from 'next/server'
 import { z } from 'zod'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { db } from '@/server/db'
 
 export const keepRouter = createTRPCRouter({
   list_public: publicProcedure
     .query(async ({ ctx }) => {
-      return await ctx.db.keep.findMany({
+      return ctx.db.keep.findMany({
         where: {
           isPublic: true,
         },
@@ -69,7 +69,7 @@ export const keepRouter = createTRPCRouter({
       isPublic: z.boolean().default(false),
     }))
     .mutation(async ({ input, ctx }) => {
-      return await ctx.db.keep.create({
+      return ctx.db.keep.create({
         data: {
           ...input,
           ownerId: ctx.user.id,
@@ -84,7 +84,7 @@ export const keepRouter = createTRPCRouter({
       isPublic: z.boolean(),
     }))
     .mutation(async ({ input, ctx }) => {
-      return await ctx.db.keep.update({
+      return ctx.db.keep.update({
         where: {
           id: input.id,
           ownerId: ctx.user.id,
@@ -137,7 +137,7 @@ export const keepRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      return await ctx.db.keep.delete({
+      return ctx.db.keep.delete({
         where: {
           id: input.id,
           ownerId: ctx.user.id,

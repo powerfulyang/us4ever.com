@@ -1,8 +1,8 @@
 'use client'
 
 import type { Image } from '@/server/api/routers/asset'
-import { cn, formatFileSize } from '@/utils'
 import { useState } from 'react'
+import { cn, formatFileSize } from '@/utils'
 import { ImageInfoModal } from './image-info-modal'
 
 interface Thumbnail {

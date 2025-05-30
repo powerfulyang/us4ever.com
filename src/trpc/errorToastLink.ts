@@ -1,5 +1,5 @@
-import type { AppRouter } from '@/server/api/root'
 import type { TRPCLink } from '@trpc/client'
+import type { AppRouter } from '@/server/api/root'
 import { observable } from '@trpc/server/observable'
 import { toast } from 'react-toastify'
 
