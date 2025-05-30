@@ -1,6 +1,6 @@
-import { cn } from '@/utils/cn'
 import { useInView } from 'framer-motion'
 import React, { useEffect, useRef } from 'react'
+import { cn } from '@/utils/cn'
 
 /**
  * 无限滚动组件的属性接口

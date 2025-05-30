@@ -1,6 +1,6 @@
 import type { BaseListFilter } from '@/types/common'
-import { db } from '@/server/db'
 import { HTTPException } from 'hono/http-exception'
+import { db } from '@/server/db'
 
 interface CreateMindMapInput {
   title?: string

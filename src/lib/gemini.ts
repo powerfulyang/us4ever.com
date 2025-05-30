@@ -1,5 +1,5 @@
-import { env } from '@/env'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { env } from '@/env'
 
 // 初始化 Google AI 实例
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY!)

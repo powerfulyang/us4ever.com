@@ -1,8 +1,8 @@
 'use client'
-import GitHubCorner from '@/components/GitHubCorner'
-import { cn } from '@/utils'
 import { motion } from 'framer-motion'
 import { useRef, useState } from 'react'
+import GitHubCorner from '@/components/GitHubCorner'
+import { cn } from '@/utils'
 
 const ASR_WS_URL = 'wss://asr.us4ever.com'
 

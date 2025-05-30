@@ -1,9 +1,9 @@
 'use client'
 
-import { Dialog } from '@/components/ui/dialog'
-import { cn } from '@/utils/cn'
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Dialog } from '@/components/ui/dialog'
+import { cn } from '@/utils/cn'
 
 interface ImageType {
   src: string

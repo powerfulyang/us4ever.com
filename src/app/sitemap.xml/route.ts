@@ -1,6 +1,6 @@
-import { BASE_URL } from '@/lib/constants'
 import { NextResponse } from 'next/server'
 import { Builder } from 'xml2js'
+import { BASE_URL } from '@/lib/constants'
 
 interface SitemapData {
   sitemapindex: {

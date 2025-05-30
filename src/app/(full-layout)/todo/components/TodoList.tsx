@@ -1,10 +1,10 @@
 'use client'
 
+import { AnimatePresence } from 'framer-motion'
 import { Empty } from '@/components/layout/Empty'
 import { InfiniteScroll } from '@/components/ui/infinite-scroll'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
-import { AnimatePresence } from 'framer-motion'
 import { TodoItem } from './TodoItem'
 
 export default function TodoList() {

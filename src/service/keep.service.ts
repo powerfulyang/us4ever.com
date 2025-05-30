@@ -1,7 +1,7 @@
-import type { BaseListFilter, BaseUpdateInput } from '@/types/common'
 import type { Prisma } from '@prisma/client'
-import { db } from '@/server/db'
+import type { BaseListFilter, BaseUpdateInput } from '@/types/common'
 import { HTTPException } from 'hono/http-exception'
+import { db } from '@/server/db'
 
 /**
  * 笔记查询时包含的关联数据

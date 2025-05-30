@@ -1,7 +1,11 @@
-import type { AmapRegeoCode } from '@/types/amap'
 import type { Prisma } from '@prisma/client'
 import type { UploadFileInput } from './upload.service'
+import type { AmapRegeoCode } from '@/types/amap'
 import { Buffer } from 'node:buffer'
+import { wgs84togcj02 } from 'coordtransform'
+import exifr from 'exifr'
+import { pick } from 'lodash-es'
+import sharp from 'sharp'
 import { env } from '@/env'
 import { getVideoDuration } from '@/lib/ffmpeg'
 import { db } from '@/server/db'
@@ -9,10 +13,6 @@ import { imageInclude, transformImageToResponse } from '@/service/asset.service'
 import { imageminService } from '@/service/imagemin.service'
 import { delete_from_bucket, upload_to_bucket } from '@/service/s3.service'
 import { formatBearing } from '@/utils'
-import { wgs84togcj02 } from 'coordtransform'
-import exifr from 'exifr'
-import { pick } from 'lodash-es'
-import sharp from 'sharp'
 
 export type FileWithBucket = Prisma.FileGetPayload<{
   include: {

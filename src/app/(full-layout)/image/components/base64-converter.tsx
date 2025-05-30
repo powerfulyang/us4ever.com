@@ -1,10 +1,10 @@
 'use client'
 
+import { useCallback, useState } from 'react'
 import { UploadArea } from '@/app/(full-layout)/image/components/upload-area'
 import { Button } from '@/components/ui/button'
 import { Truncate } from '@/components/ui/truncate'
 import { formatFileSize, formatThousands } from '@/utils'
-import { useCallback, useState } from 'react'
 
 interface PreviewImage {
   url: string

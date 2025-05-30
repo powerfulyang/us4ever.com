@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
+import Link from 'next/link'
 import { logout } from '@/app/actions'
 import UserIcon from '@/components/user/icon'
-import Link from 'next/link'
 
 export default async function FullLayout({
   children,

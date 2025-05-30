@@ -1,7 +1,7 @@
 'use client'
 
-import { cn } from '@/utils'
 import React from 'react'
+import { cn } from '@/utils'
 
 export interface GitHubCornerProps {
   /** 仓库 URL，例如 https://github.com/owner/repo */

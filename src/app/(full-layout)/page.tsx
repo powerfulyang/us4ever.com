@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import React from 'react'
 import { LinkGrid } from '@/components/link-grid'
 import { MomentCategoryMap } from '@/constants/moment'
-import React from 'react'
 
 export const metadata: Metadata = {
   title: 'Resource Hub',

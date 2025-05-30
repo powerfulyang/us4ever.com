@@ -1,10 +1,9 @@
 'use client'
 
-import type { AppRouter } from '@/server/api/root'
 import type { QueryClient } from '@tanstack/react-query'
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
 import type { ReactNode } from 'react'
-import { errorToastLink } from '@/trpc/errorToastLink'
+import type { AppRouter } from '@/server/api/root'
 import { QueryClientProvider } from '@tanstack/react-query'
 import {
   httpBatchLink,
@@ -17,6 +16,7 @@ import { createTRPCReact } from '@trpc/react-query'
 import { defaultTransformer } from '@trpc/server/unstable-core-do-not-import'
 import { useState } from 'react'
 import SuperJSON from 'superjson'
+import { errorToastLink } from '@/trpc/errorToastLink'
 
 import { createQueryClient } from './query-client'
 

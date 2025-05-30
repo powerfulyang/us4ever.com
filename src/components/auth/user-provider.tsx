@@ -1,8 +1,8 @@
 'use client'
 
 import type { User } from '@/store/user'
-import { useUserStore } from '@/store/user'
 import { useIsomorphicLayoutEffect } from 'framer-motion'
+import { useUserStore } from '@/store/user'
 
 interface Props {
   user: User | null | undefined

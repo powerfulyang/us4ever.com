@@ -1,11 +1,11 @@
 import type { User } from '@/store/user'
-import { env } from '@/env'
-import { app, COOKIE_NAME, COOKIE_OPTIONS } from '@/server/hono'
-import { createOrSignIn } from '@/service/user.serivce'
 import { setCookie } from 'hono/cookie'
 import { HTTPException } from 'hono/http-exception'
 import { sign } from 'hono/jwt'
 import { pick } from 'lodash-es'
+import { env } from '@/env'
+import { app, COOKIE_NAME, COOKIE_OPTIONS } from '@/server/hono'
+import { createOrSignIn } from '@/service/user.serivce'
 
 export function loadLpRouter() {
   app.get('/lp', async (ctx) => {

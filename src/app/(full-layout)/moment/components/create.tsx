@@ -1,13 +1,13 @@
 'use client'
 
 import type { Image } from '@/server/api/routers/asset'
+import React, { useState } from 'react'
+import TextareaAutosize from 'react-textarea-autosize'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
-import React, { useState } from 'react'
-import TextareaAutosize from 'react-textarea-autosize'
 import { ImageUpload } from './image-upload'
 
 interface Props {

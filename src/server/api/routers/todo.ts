@@ -1,5 +1,5 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { z } from 'zod'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 
 export const todoRouter = createTRPCRouter({
   infinite_list: publicProcedure

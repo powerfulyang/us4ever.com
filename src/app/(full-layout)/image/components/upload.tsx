@@ -1,11 +1,11 @@
 'use client'
 
 import type { UploadAreaRef } from '@/app/(full-layout)/image/components/upload-area'
+import { useRef, useState } from 'react'
 import { UploadArea } from '@/app/(full-layout)/image/components/upload-area'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
-import { useRef, useState } from 'react'
 
 export function ImageUpload() {
   const utils = api.useUtils()

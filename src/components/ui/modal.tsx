@@ -1,9 +1,9 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { motion } from 'framer-motion'
 import { Dialog } from '@/components/ui/dialog'
 import { cn } from '@/utils'
-import { motion } from 'framer-motion'
 
 interface ModalProps {
   isOpen: boolean

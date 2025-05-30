@@ -1,14 +1,14 @@
 import type { MDXRemoteOptions } from 'next-mdx-remote-client/rsc'
-import styles from '@/components/md-render/index.module.scss'
-import { LazyMermaidRender } from '@/components/md-render/lazy'
-import { PrismCode } from '@/components/md-render/PrismCode'
-import { cn } from '@/utils'
 import { MDXRemote } from 'next-mdx-remote-client/rsc'
 import React from 'react'
 import rehypeKatex from 'rehype-katex'
 import remarkFlexibleToc from 'remark-flexible-toc'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
+import styles from '@/components/md-render/index.module.scss'
+import { LazyMermaidRender } from '@/components/md-render/lazy'
+import { PrismCode } from '@/components/md-render/PrismCode'
+import { cn } from '@/utils'
 import 'katex/dist/katex.min.css'
 
 function PreComponent({ children }: any) {

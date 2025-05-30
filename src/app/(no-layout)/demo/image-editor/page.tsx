@@ -1,9 +1,9 @@
 'use client'
 
+import React, { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/utils/cn'
-import React, { useEffect, useRef } from 'react'
 import { useImageEditor } from './hooks/useImageEditor'
 
 export default function ImageEditorPage() {

@@ -1,11 +1,11 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/utils'
 import Link from 'next/link'
 import { useState } from 'react'
 import ReactDiffViewer from 'react-diff-viewer-continued'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/utils'
 
 export default function DiffPage() {
   const [oldText, setOldText] = useState('')

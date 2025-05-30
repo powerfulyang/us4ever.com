@@ -1,11 +1,11 @@
 'use client'
 
 import type { FC } from 'react'
-import { cn } from '@/utils'
-
 import { Prism } from 'react-syntax-highlighter'
+
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { toast } from 'react-toastify'
+import { cn } from '@/utils'
 import styles from './prism.module.scss'
 
 interface Props {
