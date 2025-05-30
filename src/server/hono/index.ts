@@ -1,16 +1,16 @@
-import type { User } from '@/store/user'
 import type { CookieOptions } from 'hono/utils/cookie'
+import type { User } from '@/store/user'
+import { Hono } from 'hono'
+import { getCookie } from 'hono/cookie'
+import { createMiddleware } from 'hono/factory'
+import { HTTPException } from 'hono/http-exception'
+import { verify } from 'hono/jwt'
 import { env } from '@/env'
 import { loadBucketRouter } from '@/server/hono/routes/bucket'
 import { loadInternalRouter } from '@/server/hono/routes/internal'
 import { loadLpRouter } from '@/server/hono/routes/lp'
 import { loadSyncRouter } from '@/server/hono/routes/sync'
 import { loadSyncTelegramRouter } from '@/server/hono/routes/telegram'
-import { Hono } from 'hono'
-import { getCookie } from 'hono/cookie'
-import { createMiddleware } from 'hono/factory'
-import { HTTPException } from 'hono/http-exception'
-import { verify } from 'hono/jwt'
 
 export interface AppEnv {
   Variables: {
@@ -25,7 +25,7 @@ export const COOKIE_OPTIONS = {
   path: '/',
   httpOnly: true,
   secure: true,
-  sameSite: 'strict',
+  sameSite: 'lax', // 从 strict 改为 lax 以支持点击链接时 ssr 能够获取 cookie
   maxAge: 60 * 60 * 24 * 30, // 30 days
 } as CookieOptions
 
