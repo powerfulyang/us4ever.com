@@ -42,7 +42,7 @@ export function ContentCard({
 
   return (
     <Card hoverable className={cn('flex flex-col gap-2 h-full', className)}>
-      <span className="text-gray-100 font-semibold text-lg line-clamp-1">
+      <span className="text-gray-100 font-medium text-lg line-clamp-1">
         {title || '标题生成中...'}
       </span>
 

@@ -13,7 +13,7 @@ export default function NotFoundScreen() {
         <p className="mb-8 text-xl text-gray-600">页面未找到</p>
         <a
           href="/"
-          className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
+          className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition-colors hover:bg-blue-700"
         >
           返回首页
         </a>

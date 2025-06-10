@@ -1,11 +1,9 @@
-@use 'font.scss';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: 'LXGW WenKai GB', 'Fira Code', monospace;
+  font-family: 'Fira Code', 'LXGW', sans-serif;
 }
 
 html,
@@ -56,6 +54,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;

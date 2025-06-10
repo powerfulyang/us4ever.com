@@ -18,7 +18,7 @@ export function LinkGrid({ links, title }: LinkGridProps) {
               <div className="p-3 bg-white/5 rounded-xl text-purple-400 group-hover:text-white transition-colors">
                 {link.icon}
               </div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-medium text-white">
                 {link.title}
               </h3>
             </div>

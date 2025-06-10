@@ -18,7 +18,7 @@ export default function DiffPage() {
 
   return (
     <div className="container mx-auto p-4 space-y-4">
-      <Link href="/" className="text-xl font-semibold text-gray-900">Online Diff</Link>
+      <Link href="/" className="text-xl font-medium text-gray-900">Online Diff</Link>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1">

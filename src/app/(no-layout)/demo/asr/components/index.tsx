@@ -171,7 +171,7 @@ export default function ASRDemo() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">识别结果</h2>
+            <h2 className="text-lg font-medium text-gray-800 mb-4">识别结果</h2>
             <div className="min-h-[200px] bg-gray-50 rounded-lg p-4">
               {transcript
                 ? (
