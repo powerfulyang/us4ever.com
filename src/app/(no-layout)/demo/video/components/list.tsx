@@ -11,6 +11,7 @@ export function VideoList() {
     hasNextPage,
     isFetchingNextPage,
     isPending,
+    error,
   } = api.asset.infinite_video_list.useInfiniteQuery(
     {},
     {
@@ -33,6 +34,7 @@ export function VideoList() {
       onLoadMore={fetchNextPage}
       loading={isFetchingNextPage}
       hasMore={hasNextPage}
+      error={!!error}
     >
       <div
         className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border-y border-gray-200"

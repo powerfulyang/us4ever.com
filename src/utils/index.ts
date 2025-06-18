@@ -15,6 +15,12 @@ export function formatFileSize(size: number | bigint): string {
   return `${Number(sizeNum * 100n / (1024n * 1024n * 1024n)) / 100} GB`
 }
 
+/**
+ * 工具函数统一导出
+ * 提供类型安全的工具函数集合
+ */
+
+// 样式工具
 export * from './cn'
 
 // format: [116, 59, 60] => 116°59′60″

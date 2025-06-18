@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Dialog } from '@/components/ui/dialog'
 import { cn } from '@/utils'
 
-interface ModalProps {
+export interface ModalProps {
   isOpen: boolean
   onCloseAction: () => void
   children: ReactNode

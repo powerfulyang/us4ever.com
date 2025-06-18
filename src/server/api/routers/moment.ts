@@ -36,6 +36,7 @@ export const momentRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { limit, cursor, category } = input
+
       const userIds = ctx.groupUserIds
 
       const items = await db.moment.findMany({

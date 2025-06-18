@@ -67,6 +67,7 @@ export function KeepList() {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    error,
   } = api.keep.infinite_list.useInfiniteQuery(
     {},
     {
@@ -91,6 +92,7 @@ export function KeepList() {
       onLoadMore={fetchNextPage}
       loading={isFetchingNextPage}
       hasMore={hasNextPage}
+      error={!!error}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <AnimatePresence mode="popLayout">

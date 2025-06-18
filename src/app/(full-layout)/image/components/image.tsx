@@ -1,7 +1,7 @@
 'use client'
 
 import type { Image as ImageResponse } from '@/server/api/routers/asset'
-import { AnimatePresence, motion, useInView } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
@@ -21,14 +21,15 @@ interface ImageWithDataProps extends BaseImageProps {
 
 // 基础图片渲染组件
 function BaseAssetImage({ image, className, showCompressed }: ImageWithDataProps) {
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
+  const [isHighResLoaded, setIsHighResLoaded] = useState(false)
+  const [currentSrc, setCurrentSrc] = useState(image.thumbnail_10x_url)
 
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, {
     once: true,
   })
 
-  const imageUrl = useMemo(() => {
+  const highResUrl = useMemo(() => {
     if (showCompressed) {
       return image.compressed_url
     }
@@ -36,49 +37,32 @@ function BaseAssetImage({ image, className, showCompressed }: ImageWithDataProps
   }, [image.compressed_url, image.thumbnail_320x_url, showCompressed])
 
   useEffect(() => {
-    if (inView) {
-      if (imageUrl) {
-        const img = new Image()
-        img.src = imageUrl
-        img.onload = () => setIsImageLoaded(true)
-        return () => {
-          img.onload = null
-        }
+    if (inView && highResUrl) {
+      // 预加载高清图片
+      const img = new Image()
+      img.src = highResUrl
+      img.onload = () => {
+        setIsHighResLoaded(true)
+        setCurrentSrc(highResUrl)
+      }
+      return () => {
+        img.onload = null
       }
     }
-  }, [imageUrl, inView])
+  }, [highResUrl, inView])
 
   return (
     <div title={image.description} className={cn('relative w-full h-full overflow-hidden')} ref={ref}>
-      <AnimatePresence mode="wait">
-        {/* 模糊预览图 */}
-        {!isImageLoaded && (
-          <motion.img
-            loading="lazy"
-            key="blur"
-            className={cn('w-full h-full', className)}
-            src={image.thumbnail_10x_url}
-            alt={image.description}
-            initial={{ filter: 'blur(10px)' }}
-            exit={{ filter: 'blur(5px)' }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
-
-        {/* 高清图 */}
-        {isImageLoaded && (
-          <motion.img
-            loading="lazy"
-            key="full"
-            src={imageUrl}
-            alt={image.description}
-            className={cn('w-full h-full', className)}
-            initial={{ filter: 'blur(5px)' }}
-            animate={{ filter: 'blur(0px)' }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
-      </AnimatePresence>
+      <motion.img
+        loading="lazy"
+        src={currentSrc}
+        alt={image.description}
+        className={cn('w-full h-full', className)}
+        animate={{
+          filter: isHighResLoaded ? 'blur(0px)' : 'blur(10px)',
+        }}
+        transition={{ duration: 0.3 }}
+      />
     </div>
   )
 }

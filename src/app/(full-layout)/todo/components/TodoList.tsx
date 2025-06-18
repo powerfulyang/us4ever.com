@@ -14,6 +14,7 @@ export default function TodoList() {
     hasNextPage,
     isFetchingNextPage,
     isPending,
+    error,
   } = api.todo.infinite_list.useInfiniteQuery(
     {},
     {
@@ -38,6 +39,7 @@ export default function TodoList() {
       onLoadMore={fetchNextPage}
       hasMore={hasNextPage}
       loading={isFetchingNextPage}
+      error={!!error}
     >
       <div className="flex gap-4 flex-col">
         <AnimatePresence mode="popLayout">

@@ -7,6 +7,7 @@ export default antfu(
       'prisma/**',
       'public/**',
       'next.config.js',
+      'README.md',
     ],
     react: true,
     formatters: {

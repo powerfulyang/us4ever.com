@@ -7,13 +7,19 @@ import { api } from '@/trpc/react'
 import { ImageCard } from './image-card'
 
 export function ImageList() {
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage }
-    = api.asset.infinite_image_list.useInfiniteQuery(
-      {},
-      {
-        getNextPageParam: lastPage => lastPage.nextCursor,
-      },
-    )
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    error,
+  } = api.asset.infinite_image_list.useInfiniteQuery(
+    {},
+    {
+      getNextPageParam: lastPage => lastPage.nextCursor,
+    },
+  )
 
   if (isLoading) {
     return <LoadingSpinner text="正在加载图片..." />
@@ -30,6 +36,7 @@ export function ImageList() {
       onLoadMore={fetchNextPage}
       hasMore={hasNextPage}
       loading={isFetchingNextPage}
+      error={!!error}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {data.pages.map(page =>

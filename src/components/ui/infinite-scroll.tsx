@@ -10,6 +10,8 @@ export interface InfiniteScrollProps {
   loading?: boolean
   /** 是否还有更多数据 */
   hasMore?: boolean
+  /** 是否加载失败 */
+  error?: boolean
   /** 加载更多数据的回调函数 */
   onLoadMore: () => void
   /** 自定义类名 */
@@ -20,11 +22,12 @@ export interface InfiniteScrollProps {
   loadingComponent?: React.ReactNode
   /** 没有更多数据的提示组件 */
   noMoreComponent?: React.ReactNode
+  /** 加载失败的提示组件 */
+  errorComponent?: React.ReactNode
 }
 
 /**
  * 无限滚动组件
- * 使用 usehooks-ts 的 useIntersectionObserver 实现滚动加载
  */
 export function InfiniteScroll({
   loading = false,
@@ -34,6 +37,8 @@ export function InfiniteScroll({
   children,
   loadingComponent,
   noMoreComponent,
+  error = false,
+  errorComponent,
 }: InfiniteScrollProps) {
   const ref = useRef(null!)
   const isIntersecting = useInView(ref, {
@@ -41,17 +46,27 @@ export function InfiniteScroll({
   })
 
   useEffect(() => {
-    if (isIntersecting && hasMore && !loading) {
+    if (isIntersecting && hasMore && !loading && !error) {
       onLoadMore()
     }
-  }, [isIntersecting, hasMore, loading, onLoadMore])
+  }, [isIntersecting, hasMore, loading, onLoadMore, error])
 
   return (
     <div className={cn('relative', className)}>
       {children}
       <div ref={ref}>
         {loading && (loadingComponent || <div className="py-4 text-center text-gray-100 animate-pulse">加载中...</div>)}
-        {!hasMore && !loading && (noMoreComponent || <div className="py-4 text-center text-gray-100">没有更多数据了</div>)}
+        {error
+          && !loading
+          && (errorComponent || (
+            <div className="py-4 text-center text-gray-100">
+              加载失败，
+              <button type="button" onClick={() => onLoadMore()} className="text-blue-500 hover:underline">
+                点击重试
+              </button>
+            </div>
+          ))}
+        {!hasMore && !loading && !error && (noMoreComponent || <div className="py-4 text-center text-gray-100">没有更多数据了</div>)}
       </div>
     </div>
   )

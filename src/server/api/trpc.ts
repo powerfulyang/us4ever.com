@@ -10,12 +10,12 @@
 import type { RequestCookies } from 'next/dist/server/web/spec-extension/cookies'
 import type { User } from '@/store/user'
 import { initTRPC } from '@trpc/server'
-import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
 
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 import { env } from '@/env'
+import { createError, logError, sanitizeError, toTRPCError, transformError } from '@/lib/error-handler'
 import { db } from '@/server/db'
 import { COOKIE_NAME } from '@/server/hono'
 import { findUserWithGroupById } from '@/service/user.serivce'
@@ -51,23 +51,28 @@ export async function createTRPCContext(opts: {
  */
 const t = initTRPC.context<typeof createTRPCContext>().create({
   transformer: superjson,
-  errorFormatter({ shape, error }) {
-    if (error.cause instanceof HTTPException) {
-      return {
-        ...shape,
-        data: {
-          ...shape.data,
-          httpStatus: error.cause.status,
-        },
-      }
-    }
+  errorFormatter({ shape, error, path, type }) {
+    // 使用统一的错误处理系统
+    const appError = transformError(error.cause || error)
+
+    // 记录错误日志
+    logError(appError, {
+      trpcPath: path,
+      trpcType: type,
+    })
+
+    // 返回安全的错误信息
+    const sanitized = sanitizeError(appError, env.NODE_ENV === 'production')
+
     return {
       ...shape,
       data: {
         ...shape.data,
-        zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
+        code: sanitized.code,
+        httpStatus: sanitized.statusCode,
+        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
+      message: sanitized.message,
     }
   },
 })
@@ -165,9 +170,7 @@ export const protectedProcedure = t.procedure
   .use(userMiddleware)
   .use(async ({ ctx, next }) => {
     if (!ctx.user) {
-      throw new HTTPException(401, {
-        message: 'Unauthorized',
-      })
+      throw toTRPCError(createError.unauthorized())
     }
     return next({
       ctx: {

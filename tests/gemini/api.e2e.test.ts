@@ -1,6 +1,6 @@
+import { describe, expect } from 'vitest'
 import { enhancement } from '@/lib/deepseek'
 import { extractTitle, summaryContent } from '@/lib/gemini'
-import { describe, expect } from 'vitest'
 
 describe('ai', () => {
   it('ai function', async () => {
