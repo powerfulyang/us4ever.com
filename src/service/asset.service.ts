@@ -3,7 +3,7 @@ import type { BaseListFilter } from '@/types/common'
 import { Buffer } from 'node:buffer'
 import { TRPCError } from '@trpc/server'
 import { db } from '@/server/db'
-import { getFileUrl } from './file.service'
+import { getFileSize, getFileUrl } from './file.service'
 
 /**
  * 图片资源包含的关联数据
@@ -79,13 +79,13 @@ export function transformImageToResponse(image: ImageWithIncludes) {
     ...image,
     moments: image.moments?.map(({ moment }) => moment) ?? [],
     original_url: getFileUrl(image.original),
-    original_size: image.original.size,
+    original_size: getFileSize(image.original),
     compressed_url: getFileUrl(image.compressed),
-    compressed_size: image.compressed.size,
+    compressed_size: getFileSize(image.compressed),
     thumbnail_320x_url: getFileUrl(image.thumbnail_320x),
-    thumbnail_320x_size: image.thumbnail_320x.size,
+    thumbnail_320x_size: getFileSize(image.thumbnail_320x),
     thumbnail_768x_url: getFileUrl(image.thumbnail_768x),
-    thumbnail_768x_size: image.thumbnail_768x.size,
+    thumbnail_768x_size: getFileSize(image.thumbnail_768x),
     thumbnail_10x_url: `data:image/avif;base64,${base64_1x1}`,
     thumbnail_10x_size: image.thumbnail_10x.byteLength,
   }

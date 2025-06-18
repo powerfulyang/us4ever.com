@@ -10,7 +10,7 @@ import sharp from 'sharp'
 import { env } from '@/env'
 import { getVideoDuration } from '@/lib/ffmpeg'
 import { db } from '@/server/db'
-import { imageInclude, transformImageToResponse } from '@/service/asset.service'
+import { imageInclude, transformImageToResponse, transformVideoToResponse, videoInclude } from '@/service/asset.service'
 import { imageminService } from '@/service/imagemin.service'
 import { delete_from_bucket, upload_to_bucket } from '@/service/s3.service'
 import { formatBearing } from '@/utils'
@@ -21,9 +21,19 @@ export type FileWithBucket = Prisma.FileGetPayload<{
   }
 }>
 
-export function getFileUrl(file: FileWithBucket) {
+export function getFileUrl(file?: FileWithBucket | null) {
+  if (!file) {
+    return ''
+  }
   const publicUrl = file.bucket.publicUrl
   return `${publicUrl}/${file.path}`
+}
+
+export function getFileSize(file?: FileWithBucket | null) {
+  if (!file) {
+    return 0
+  }
+  return file.size
 }
 
 export async function regeo(location: string) {
@@ -123,9 +133,6 @@ export async function upload_image(
         thumbnail_320x: {
           connect: pick(thumbnail_320x_image, 'id'),
         },
-        thumbnail_768x: {}, // 后补
-        compressed: {}, // 后补
-        original: {}, // 后补
         uploadedByUser: {
           connect: { id: uploadedBy },
         },
@@ -135,15 +142,17 @@ export async function upload_image(
       include: imageInclude,
     })
 
-    // 异步处理其余图片任务
-    void handleImagePostProcess({
-      buffer,
-      name,
-      type,
-      uploadedBy,
-      isPublic,
-      category,
-      imageId: image.id,
+    process.nextTick(() => {
+      // 异步处理其余图片任务
+      void handleImagePostProcess({
+        buffer,
+        name,
+        type,
+        uploadedBy,
+        isPublic,
+        category,
+        imageId: image.id,
+      })
     })
 
     // 只返回主记录和 320x 缩略图
@@ -269,7 +278,7 @@ export async function upload_video(options: {
     category,
   })
 
-  return db.video.create({
+  const video = await db.video.create({
     data: {
       name: uploadedFile.name,
       type: uploadedFile.type,
@@ -285,7 +294,10 @@ export async function upload_video(options: {
       isPublic,
       category,
     },
+    include: videoInclude,
   })
+
+  return transformVideoToResponse(video)
 }
 
 export async function upload_file(input: UploadFileInput) {

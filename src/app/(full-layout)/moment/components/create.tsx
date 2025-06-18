@@ -1,6 +1,6 @@
 'use client'
 
-import type { Image } from '@/server/api/routers/asset'
+import type { Image, Video } from '@/server/api/routers/asset'
 import React, { useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
@@ -8,7 +8,15 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
-import { ImageUpload } from './image-upload'
+import { MediaUpload } from './image-upload'
+
+// 媒体类型联合类型
+type Media = Image | Video
+
+// 判断是否为视频
+function isVideo(media: Media): media is Video {
+  return 'duration' in media
+}
 
 interface Props {
   category?: string
@@ -17,35 +25,40 @@ interface Props {
 export function MomentCreate({ category = 'default' }: Props) {
   const [isPublic, setIsPublic] = useState(false)
   const [content, setContent] = useState('')
-  const [selectedImages, setSelectedImages] = useState<Image[]>([])
+  const [selectedMedias, setSelectedMedias] = useState<Media[]>([])
   const utils = api.useUtils()
 
   const { mutate: createMoment, isPending } = api.moment.create.useMutation({
     onSuccess: () => {
       setContent('')
-      setSelectedImages([])
+      setSelectedMedias([])
       return utils.moment.infinite_list.invalidate()
     },
   })
 
   const handleSubmit = () => {
-    if (!content.trim() && selectedImages.length === 0)
+    if (!content.trim() && selectedMedias.length === 0)
       return
+
+    // 分离图片和视频 ID
+    const imageIds = selectedMedias.filter(media => !isVideo(media)).map(media => media.id)
+    const videoIds = selectedMedias.filter(isVideo).map(media => media.id)
 
     createMoment({
       content: content.trim(),
-      imageIds: selectedImages.map(image => image.id),
+      imageIds,
+      videoIds,
       isPublic,
       category,
     })
   }
 
-  const handleImageSelect = (image: Image) => {
-    setSelectedImages(prev => [...prev, image])
+  const handleMediaSelect = (media: Media) => {
+    setSelectedMedias(prev => [...prev, media])
   }
 
-  const handleImageRemove = (image: Image) => {
-    setSelectedImages(prev => prev.filter(item => item.id !== image.id))
+  const handleMediaRemove = (media: Media) => {
+    setSelectedMedias(prev => prev.filter(item => item.id !== media.id))
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -65,11 +78,11 @@ export function MomentCreate({ category = 'default' }: Props) {
         minRows={3}
       />
 
-      <ImageUpload
+      <MediaUpload
         category={category}
-        images={selectedImages}
-        onImageSelectAction={handleImageSelect}
-        onImageRemoveAction={handleImageRemove}
+        medias={selectedMedias}
+        onMediaSelectAction={handleMediaSelect}
+        onMediaRemoveAction={handleMediaRemove}
       />
 
       <div className="flex items-center justify-end gap-4">
@@ -83,7 +96,7 @@ export function MomentCreate({ category = 'default' }: Props) {
             className="gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M6 20q-.825 0-1.412-.587T4 18v-2q0-.425.288-.712T5 15t.713.288T6 16v2h12v-2q0-.425.288-.712T19 15t.713.288T20 16v2q0 .825-.587 1.413T18 20zm5-12.15L9.125 9.725q-.3.3-.712.288T7.7 9.7q-.275-.3-.288-.7t.288-.7l3.6-3.6q.15-.15.325-.212T12 4.425t.375.063t.325.212l3.6 3.6q.3.3.288.7t-.288.7q-.3.3-.712.313t-.713-.288L13 7.85V15q0 .425-.288.713T12 16t-.712-.288T11 15z" /></svg>
-            上传
+            上传媒体
           </Button>
         </AuthenticatedOnly>
         <Switch
@@ -94,7 +107,7 @@ export function MomentCreate({ category = 'default' }: Props) {
         <AuthenticatedOnly disableChildren>
           <Button
             onClick={handleSubmit}
-            disabled={(!content.trim() && selectedImages.length === 0) || isPending}
+            disabled={(!content.trim() && selectedMedias.length === 0) || isPending}
             isLoading={isPending}
           >
             发布

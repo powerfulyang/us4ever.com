@@ -10,6 +10,7 @@ import { getImageById, listImages, listVideos } from '@/service/asset.service'
 import { upload_image, upload_video } from '@/service/file.service'
 
 export type Image = RouterOutputs['asset']['infinite_image_list']['items'][number]
+export type Video = RouterOutputs['asset']['infinite_video_list']['items'][number]
 
 export const assetRouter = createTRPCRouter({
   upload_image: protectedProcedure

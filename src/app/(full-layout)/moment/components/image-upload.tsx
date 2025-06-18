@@ -1,57 +1,87 @@
 'use client'
 
 import type { ChangeEvent } from 'react'
-import type { Image } from '@/server/api/routers/asset'
+import type { Image, Video } from '@/server/api/routers/asset'
 import { useRef, useState } from 'react'
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
 
-interface ImageUploadProps {
-  images: Image[]
-  onImageSelectAction: (image: Image) => void
-  onImageRemoveAction: (image: Image) => void
-  maxImages?: number
+// 媒体类型联合类型
+type Media = Image | Video
+
+// 判断是否为视频
+function isVideo(media: Media): media is Video {
+  return 'duration' in media
+}
+
+interface MediaUploadProps {
+  medias: Media[]
+  onMediaSelectAction: (media: Media) => void
+  onMediaRemoveAction: (media: Media) => void
+  maxMedias?: number
   className?: string
   category: string
 }
 
-interface UploadingImage {
+interface UploadingMedia {
   id: string
   preview: string
+  type: 'image' | 'video'
   error?: string
 }
 
-export function ImageUpload({
-  images,
-  onImageSelectAction,
-  onImageRemoveAction,
-  maxImages = 9,
+export function MediaUpload({
+  medias,
+  onMediaSelectAction,
+  onMediaRemoveAction,
+  maxMedias = 9,
   className,
   category,
-}: ImageUploadProps) {
+}: MediaUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [uploadingImages, setUploadingImages] = useState<UploadingImage[]>([])
+  const [uploadingMedias, setUploadingMedias] = useState<UploadingMedia[]>([])
   const [error, setError] = useState<string>('')
 
   const { mutate: uploadImage } = api.asset.upload_image.useMutation({
     onSuccess: (data, variables) => {
-      // 从 FormData 中提取 tempId
       const tempId = (variables as FormData).get('tempId') as string
       if (tempId) {
-        setUploadingImages(prev => prev.filter(img => img.id !== tempId))
+        setUploadingMedias(prev => prev.filter(media => media.id !== tempId))
       }
-      onImageSelectAction(data)
+      onMediaSelectAction(data)
     },
     onError: (error, variables) => {
       const tempId = (variables as FormData).get('tempId') as string
       if (tempId) {
-        setUploadingImages(prev =>
-          prev.map(img =>
-            img.id === tempId
-              ? { ...img, error: error.message || '上传失败' }
-              : img,
+        setUploadingMedias(prev =>
+          prev.map(media =>
+            media.id === tempId
+              ? { ...media, error: error.message || '上传失败' }
+              : media,
+          ),
+        )
+      }
+    },
+  })
+
+  const { mutate: uploadVideo } = api.asset.upload_video.useMutation({
+    onSuccess: (data, variables) => {
+      const tempId = (variables as FormData).get('tempId') as string
+      if (tempId) {
+        setUploadingMedias(prev => prev.filter(media => media.id !== tempId))
+      }
+      onMediaSelectAction(data)
+    },
+    onError: (error, variables) => {
+      const tempId = (variables as FormData).get('tempId') as string
+      if (tempId) {
+        setUploadingMedias(prev =>
+          prev.map(media =>
+            media.id === tempId
+              ? { ...media, error: error.message || '上传失败' }
+              : media,
           ),
         )
       }
@@ -80,18 +110,29 @@ export function ImageUpload({
       // 创建临时预览
       const tempId = crypto.randomUUID()
       const preview = URL.createObjectURL(file)
-      setUploadingImages(prev => [...prev, { id: tempId, preview }])
+      const mediaType = file.type.startsWith('image/') ? 'image' : 'video'
+      setUploadingMedias(prev => [...prev, { id: tempId, preview, type: mediaType }])
 
       // 上传文件
       const formData = new FormData()
       formData.append('file', file)
       formData.append('category', category)
-      formData.append('tempId', tempId) // 将 tempId 添加到 FormData
-      uploadImage(formData, {
-        onSuccess() {
-          URL.revokeObjectURL(preview) // 清理预览URL
-        },
-      })
+      formData.append('tempId', tempId)
+
+      if (mediaType === 'image') {
+        uploadImage(formData, {
+          onSuccess() {
+            URL.revokeObjectURL(preview)
+          },
+        })
+      }
+      else {
+        uploadVideo(formData, {
+          onSuccess() {
+            URL.revokeObjectURL(preview)
+          },
+        })
+      }
     }
 
     files.forEach(file => upload(file))
@@ -100,8 +141,8 @@ export function ImageUpload({
     e.target.value = ''
   }
 
-  const handleRemoveUploadingImage = (id: string) => {
-    setUploadingImages(prev => prev.filter(img => img.id !== id))
+  const handleRemoveUploadingMedia = (id: string) => {
+    setUploadingMedias(prev => prev.filter(media => media.id !== id))
   }
 
   return (
@@ -111,15 +152,26 @@ export function ImageUpload({
       )}
 
       <div className={cn('grid grid-cols-3 gap-1', className)}>
-        {/* 已上传的图片 */}
-        {images.map(image => (
-          <div key={image.id} className="relative aspect-square group rounded-lg overflow-hidden">
-            <AssetImageWithData
-              image={image}
-              className="object-cover"
-            />
+        {/* 已上传的媒体 */}
+        {medias.map(media => (
+          <div key={media.id} className="relative aspect-square group rounded-lg overflow-hidden">
+            {isVideo(media)
+              ? (
+                  <video
+                    src={media.file_url}
+                    className="object-cover w-full h-full"
+                    muted
+                    preload="metadata"
+                  />
+                )
+              : (
+                  <AssetImageWithData
+                    image={media}
+                    className="object-cover"
+                  />
+                )}
             <button
-              onClick={() => onImageRemoveAction(image)}
+              onClick={() => onMediaRemoveAction(media)}
               className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
               type="button"
             >
@@ -127,24 +179,40 @@ export function ImageUpload({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
+            {isVideo(media) && (
+              <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/60 text-white text-xs rounded">
+                视频
+              </div>
+            )}
           </div>
         ))}
 
-        {/* 正在上传的图片 */}
-        {uploadingImages.map(img => (
-          <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden">
-            <img
-              src={img.preview}
-              alt="正在上传"
-              className="object-cover w-full h-full opacity-50"
-            />
-            {img.error
+        {/* 正在上传的媒体 */}
+        {uploadingMedias.map(media => (
+          <div key={media.id} className="relative aspect-square rounded-lg overflow-hidden">
+            {media.type === 'video'
               ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 cursor-pointer" onClick={() => handleRemoveUploadingImage(img.id)}>
+                  <video
+                    src={media.preview}
+                    className="object-cover w-full h-full opacity-50"
+                    muted
+                    preload="metadata"
+                  />
+                )
+              : (
+                  <img
+                    src={media.preview}
+                    alt="正在上传"
+                    className="object-cover w-full h-full opacity-50"
+                  />
+                )}
+            {media.error
+              ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 cursor-pointer" onClick={() => handleRemoveUploadingMedia(media.id)}>
                     <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                    <span className="text-xs text-white px-2 text-center">{img.error}</span>
+                    <span className="text-xs text-white px-2 text-center">{media.error}</span>
                   </div>
                 )
               : (
@@ -152,16 +220,20 @@ export function ImageUpload({
                     <div className="w-6 h-6 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
                   </div>
                 )}
+            {media.type === 'video' && !media.error && (
+              <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/60 text-white text-xs rounded">
+                上传中
+              </div>
+            )}
           </div>
         ))}
 
         {/* 上传按钮 */}
-        {(images.length + uploadingImages.length) < maxImages && Boolean(images.length || uploadingImages.length) && (
+        {(medias.length + uploadingMedias.length) < maxMedias && Boolean(medias.length || uploadingMedias.length) && (
           <div className="relative aspect-square">
             <AuthenticatedOnly disableChildren>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingImages.length > 0}
                 className={cn(
                   'w-full h-full border-2 border-dashed border-gray-500 rounded-lg',
                   'hover:border-white/50 transition-colors flex items-center justify-center',
@@ -181,7 +253,7 @@ export function ImageUpload({
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*"
+          accept="image/*,video/*"
           onChange={handleFileChange}
           className="hidden"
         />

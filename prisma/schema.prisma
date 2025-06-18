@@ -120,16 +120,16 @@ model Image {
   thumbnail_10x     Bytes
   // 320x 缩略图
   thumbnail_320x_id String
-  thumbnail_320x    File   @relation(name: "thumbnail_320x", fields: [thumbnail_320x_id], references: [id])
+  thumbnail_320x    File    @relation(name: "thumbnail_320x", fields: [thumbnail_320x_id], references: [id])
   // 768x 缩略图
-  thumbnail_768x_id String
-  thumbnail_768x    File   @relation(name: "thumbnail_768x", fields: [thumbnail_768x_id], references: [id])
+  thumbnail_768x_id String?
+  thumbnail_768x    File?   @relation(name: "thumbnail_768x", fields: [thumbnail_768x_id], references: [id])
   // 原大小压缩图
-  compressed_id     String
-  compressed        File   @relation(name: "compressed", fields: [compressed_id], references: [id])
+  compressed_id     String?
+  compressed        File?   @relation(name: "compressed", fields: [compressed_id], references: [id])
   // 原图
-  original_id       String
-  original          File   @relation(name: "original", fields: [original_id], references: [id])
+  original_id       String?
+  original          File?   @relation(name: "original", fields: [original_id], references: [id])
 
   // 上传用户
   uploadedBy     String // 上传用户的 ID
