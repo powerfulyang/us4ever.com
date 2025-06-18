@@ -4,6 +4,7 @@ import type { AmapRegeoCode } from '@/types/amap'
 import { Buffer } from 'node:buffer'
 import { wgs84togcj02 } from 'coordtransform'
 import exifr from 'exifr'
+import { sha256 } from 'hono/utils/crypto'
 import { pick } from 'lodash-es'
 import sharp from 'sharp'
 import { env } from '@/env'
@@ -68,38 +69,20 @@ export async function upload_image(
   const buffer = await file.arrayBuffer()
   const name = file.name
   const type = file.type
-  const metadata = await sharp(buffer).metadata()
-  const { width, height } = metadata
-  let address = ''
-  let exif = null
+  let width = 0
+  let height = 0
   try {
-    exif = await exifr.parse(buffer)
-    address = await getAddressFromExif(exif)
+    const metadata = await sharp(buffer).metadata()
+    width = metadata.width || 0
+    height = metadata.height || 0
   }
   catch (e) {
-    console.error('getAddressFromExif error')
-    console.error(e)
-    // ignore error
+    console.error('sharp metadata error', e)
   }
 
-  let original_image: FileWithBucket | null = null
   let thumbnail_320x_image: FileWithBucket | null = null
-  let thumbnail_768x_image: FileWithBucket | null = null
-  let compressed_image: FileWithBucket | null = null
 
   try {
-    // 上传原图
-    original_image = await upload_to_bucket({
-      buffer,
-      name,
-      type,
-      uploadedBy,
-      bucketName: 'uploads',
-      isPublic,
-      path_prefix: `images/${category}/original`,
-      category,
-    })
-
     const thumbnail_mime_type = 'image/avif'
 
     // 生成 10x 的模糊预览图
@@ -122,10 +105,81 @@ export async function upload_image(
       category,
     })
 
-    // 生成 768x 的缩略图
-    const thumbnail_768x_buffer = await imageminService(buffer, {
-      width: 768,
+    const hash = (await sha256(buffer))!
+    const size = file.size
+
+    // 创建图片记录（部分字段为 null，异步后补）
+    const image = await db.image.create({
+      data: {
+        name,
+        type,
+        size,
+        width,
+        height,
+        hash,
+        address: '', // 后补
+        exif: {}, // 后补
+        thumbnail_10x: Buffer.from(thumbnail_10x_buffer), // 后补
+        thumbnail_320x: {
+          connect: pick(thumbnail_320x_image, 'id'),
+        },
+        thumbnail_768x: {}, // 后补
+        compressed: {}, // 后补
+        original: {}, // 后补
+        uploadedByUser: {
+          connect: { id: uploadedBy },
+        },
+        isPublic,
+        category,
+      },
+      include: imageInclude,
     })
+
+    // 异步处理其余图片任务
+    void handleImagePostProcess({
+      buffer,
+      name,
+      type,
+      uploadedBy,
+      isPublic,
+      category,
+      imageId: image.id,
+    })
+
+    // 只返回主记录和 320x 缩略图
+    return transformImageToResponse(image)
+  }
+  catch (e) {
+    console.error(e)
+    // 失败回滚，删除已上传的文件
+    const images = [thumbnail_320x_image]
+    for (const image of images) {
+      if (image) {
+        await delete_from_bucket(image)
+      }
+    }
+    throw e
+  }
+}
+
+// 新增：异步处理其余图片任务
+async function handleImagePostProcess(options: {
+  buffer: ArrayBuffer
+  name: string
+  type: string
+  uploadedBy: string
+  isPublic: boolean
+  category: string
+  imageId: string
+}) {
+  const { buffer, name, type, uploadedBy, isPublic, category, imageId } = options
+  let thumbnail_768x_image: FileWithBucket | null = null
+  let compressed_image: FileWithBucket | null = null
+  let original_image: FileWithBucket | null = null
+  try {
+    // 生成 768x 缩略图
+    const thumbnail_768x_buffer = await imageminService(buffer, { width: 768 })
+    const thumbnail_mime_type = 'image/avif'
     thumbnail_768x_image = await upload_to_bucket({
       buffer: thumbnail_768x_buffer,
       name,
@@ -136,7 +190,6 @@ export async function upload_image(
       isPublic,
       category,
     })
-
     // 生成压缩图
     const compressed_buffer = await imageminService(buffer)
     compressed_image = await upload_to_bucket({
@@ -149,57 +202,48 @@ export async function upload_image(
       isPublic,
       category,
     })
-
-    // 创建图片记录
-    const image = await db.image.create({
-      data: {
-        name: original_image.name,
-        type: original_image.type,
-        size: original_image.size,
-        width: width || 0,
-        height: height || 0,
-        hash: original_image.hash,
-        address,
-        exif,
-        // 10x 模糊预览图
-        thumbnail_10x: Buffer.from(thumbnail_10x_buffer),
-        // 320x 缩略图
-        thumbnail_320x: {
-          connect: pick(thumbnail_320x_image, 'id'),
-        },
-        // 768x 缩略图
-        thumbnail_768x: {
-          connect: pick(thumbnail_768x_image, 'id'),
-        },
-        // 压缩图
-        compressed: {
-          connect: pick(compressed_image, 'id'),
-        },
-        // 原图
-        original: {
-          connect: pick(original_image, 'id'),
-        },
-        uploadedByUser: {
-          connect: { id: uploadedBy },
-        },
-        isPublic,
-        category,
-      },
-      include: imageInclude,
+    // 上传原图
+    original_image = await upload_to_bucket({
+      buffer,
+      name,
+      type,
+      uploadedBy,
+      bucketName: 'uploads',
+      isPublic,
+      path_prefix: `images/${category}/original`,
+      category,
     })
-
-    return transformImageToResponse(image)
+    // 解析 exif 和 address
+    let exif = null
+    let address = ''
+    try {
+      exif = await exifr.parse(buffer)
+      address = await getAddressFromExif(exif)
+    }
+    catch (e) {
+      console.error('getAddressFromExif error (async)', e)
+    }
+    // 更新数据库
+    await db.image.update({
+      where: { id: imageId },
+      data: {
+        thumbnail_768x: { connect: pick(thumbnail_768x_image, 'id') },
+        compressed: { connect: pick(compressed_image, 'id') },
+        original: { connect: pick(original_image, 'id') },
+        exif,
+        address,
+      },
+    })
   }
   catch (e) {
-    console.error(e)
+    console.error('handleImagePostProcess error', e)
     // 失败回滚，删除已上传的文件
-    const images = [original_image, thumbnail_320x_image, thumbnail_768x_image, compressed_image]
+    const images = [thumbnail_768x_image, compressed_image, original_image]
     for (const image of images) {
       if (image) {
         await delete_from_bucket(image)
       }
     }
-    throw e
   }
 }
 
@@ -225,7 +269,7 @@ export async function upload_video(options: {
     category,
   })
 
-  return await db.video.create({
+  return db.video.create({
     data: {
       name: uploadedFile.name,
       type: uploadedFile.type,
