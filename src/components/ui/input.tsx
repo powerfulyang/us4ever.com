@@ -58,7 +58,7 @@ export function Input({ ref, className, variant = 'default', inputSize = 'md', e
     <div className="w-full">
       <div className="relative">
         {leftIcon && (
-          <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+          <div className="pointer-events-none absolute z-[1] inset-y-0 left-3 flex items-center text-gray-400">
             {leftIcon}
           </div>
         )}

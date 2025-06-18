@@ -2,7 +2,7 @@
 
 import type { ChangeEvent } from 'react'
 import type { Image, Video } from '@/server/api/routers/asset'
-import { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { api } from '@/trpc/react'
@@ -23,6 +23,7 @@ interface MediaUploadProps {
   maxMedias?: number
   className?: string
   category: string
+  onUploadingChange?: (isUploading: boolean) => void
 }
 
 interface UploadingMedia {
@@ -39,6 +40,7 @@ export function MediaUpload({
   maxMedias = 9,
   className,
   category,
+  onUploadingChange,
 }: MediaUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingMedias, setUploadingMedias] = useState<UploadingMedia[]>([])
@@ -144,6 +146,11 @@ export function MediaUpload({
   const handleRemoveUploadingMedia = (id: string) => {
     setUploadingMedias(prev => prev.filter(media => media.id !== id))
   }
+
+  // 监听 uploadingMedias 变化，通知父组件
+  useEffect(() => {
+    onUploadingChange?.(uploadingMedias.length > 0)
+  }, [uploadingMedias, onUploadingChange])
 
   return (
     <div className="space-y-2">

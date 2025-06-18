@@ -61,7 +61,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
       if (editorRef.current) {
         const editor = editorRef.current
         const selection = editor.getSelection()
-        const markdownImage = `![${data.name || ''}](${data.compressed_url})`
+        const markdownImage = `![${data.id || ''}](${data.thumbnail_320x_url})`
         editor.executeEdits('paste-image', [{
           range: selection,
           text: markdownImage,

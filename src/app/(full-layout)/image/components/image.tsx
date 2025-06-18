@@ -54,7 +54,6 @@ function BaseAssetImage({ image, className, showCompressed }: ImageWithDataProps
   return (
     <div title={image.description} className={cn('relative w-full h-full overflow-hidden')} ref={ref}>
       <motion.img
-        loading="lazy"
         src={currentSrc}
         alt={image.description}
         className={cn('w-full h-full', className)}
@@ -68,7 +67,7 @@ function BaseAssetImage({ image, className, showCompressed }: ImageWithDataProps
 }
 
 // 通过 ID 加载图片的组件
-export function AssetImage({ id, className }: ImageWithIdProps) {
+export function AssetImageWithId({ id, className }: ImageWithIdProps) {
   const { data: image, isPending } = api.asset.getImageById.useQuery({ id })
 
   if (isPending) {

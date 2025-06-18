@@ -26,6 +26,7 @@ export function MomentCreate({ category = 'default' }: Props) {
   const [isPublic, setIsPublic] = useState(false)
   const [content, setContent] = useState('')
   const [selectedMedias, setSelectedMedias] = useState<Media[]>([])
+  const [isUploading, setIsUploading] = useState(false)
   const utils = api.useUtils()
 
   const { mutate: createMoment, isPending } = api.moment.create.useMutation({
@@ -37,7 +38,7 @@ export function MomentCreate({ category = 'default' }: Props) {
   })
 
   const handleSubmit = () => {
-    if (!content.trim() && selectedMedias.length === 0)
+    if ((!content.trim() && selectedMedias.length === 0) || isUploading)
       return
 
     // 分离图片和视频 ID
@@ -83,6 +84,7 @@ export function MomentCreate({ category = 'default' }: Props) {
         medias={selectedMedias}
         onMediaSelectAction={handleMediaSelect}
         onMediaRemoveAction={handleMediaRemove}
+        onUploadingChange={setIsUploading}
       />
 
       <div className="flex items-center justify-end gap-4">
@@ -96,7 +98,7 @@ export function MomentCreate({ category = 'default' }: Props) {
             className="gap-2"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M6 20q-.825 0-1.412-.587T4 18v-2q0-.425.288-.712T5 15t.713.288T6 16v2h12v-2q0-.425.288-.712T19 15t.713.288T20 16v2q0 .825-.587 1.413T18 20zm5-12.15L9.125 9.725q-.3.3-.712.288T7.7 9.7q-.275-.3-.288-.7t.288-.7l3.6-3.6q.15-.15.325-.212T12 4.425t.375.063t.325.212l3.6 3.6q.3.3.288.7t-.288.7q-.3.3-.712.313t-.713-.288L13 7.85V15q0 .425-.288.713T12 16t-.712-.288T11 15z" /></svg>
-            上传媒体
+            上传
           </Button>
         </AuthenticatedOnly>
         <Switch
@@ -107,7 +109,7 @@ export function MomentCreate({ category = 'default' }: Props) {
         <AuthenticatedOnly disableChildren>
           <Button
             onClick={handleSubmit}
-            disabled={(!content.trim() && selectedMedias.length === 0) || isPending}
+            disabled={(!content.trim() && selectedMedias.length === 0) || isPending || isUploading}
             isLoading={isPending}
           >
             发布
