@@ -45,7 +45,7 @@ export default async function RootLayout({
         </Script>
         <link rel="stylesheet" href="https://help.littleeleven.com/font.css" />
       </head>
-      <body>
+      <body className="dark">
         <TRPCReactProvider>
           <UserProvider user={user} />
           {children}
