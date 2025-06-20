@@ -3,7 +3,8 @@ import type { MomentImage, MomentVideo } from '@/service/moment.service'
 import * as path from 'node:path'
 import { env } from '@/env'
 import { db } from '@/server/db'
-import { upload_image, upload_video } from '@/service/file.service'
+import { assetService } from '@/service/asset.service'
+import { uploadVideo } from '@/service/file.service'
 import { addMomentAttachment } from '@/service/moment.service'
 
 export interface TelegramMessage {
@@ -95,7 +96,7 @@ export async function handleFile(
   const fileType = file.type
   if (fileType.startsWith('image/')) {
     // 上传图片
-    const image = await upload_image({
+    const image = await assetService.uploadImage({
       file,
       uploadedBy: item.ownerId,
       category,
@@ -108,7 +109,7 @@ export async function handleFile(
   }
   else if (fileType.startsWith('video/')) {
     // 上传视频
-    const video = await upload_video({
+    const video = await uploadVideo({
       file,
       uploadedBy: item.ownerId,
       category,

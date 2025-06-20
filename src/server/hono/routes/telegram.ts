@@ -58,20 +58,22 @@ const syncProcessor$ = telegramSync$.pipe(
     const { imageList, videoList, needCreateMoment } = await handleFile(value)
 
     if (needCreateMoment) {
-      await createMoment({
-        content,
-        isPublic: true,
-        ownerId: item.ownerId,
-        category,
-        extraData: {
-          id: item.id,
-          groupedId: item.groupedId,
+      await createMoment(
+        {
+          content,
+          isPublic: true,
+          category,
+          extraData: {
+            id: item.id,
+            groupedId: item.groupedId,
+          },
+          images: imageList,
+          videos: videoList,
+          createdAt: new Date(item.createdAt * 1000),
+          updatedAt,
         },
-        images: imageList,
-        videos: videoList,
-        createdAt: new Date(item.createdAt * 1000),
-        updatedAt,
-      })
+        item.ownerId,
+      )
       return 'Create new moment'
     }
     else {

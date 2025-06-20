@@ -41,9 +41,12 @@ async function trackRequestProgress(
   // 检查浏览器支持
   const supportsStreaming = (() => {
     let isDuplex = false
+
     const test = new Request(request.url, {
       body: new ReadableStream(),
       method: 'POST',
+      // eslint-disable-next-line ts/ban-ts-comment
+      // @ts-expect-error
       get duplex() {
         isDuplex = true
         return 'half' as const
@@ -77,6 +80,8 @@ async function trackRequestProgress(
     method: 'POST',
     headers: request.headers,
     body: stream2.pipeThrough(progress),
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-expect-error
     duplex: 'half',
   })
 }

@@ -16,7 +16,7 @@ function MindMapCard({ mindmap }: { mindmap: any }) {
   const { mutate, isPending } = api.mindMap.delete.useMutation({
     onSuccess() {
       setShowConfirm(false)
-      return utils.mindMap.infinite_list.invalidate()
+      return utils.mindMap.fetchByCursor.invalidate()
     },
   })
 
@@ -68,7 +68,7 @@ export function MindMapList() {
     fetchNextPage,
     isFetchingNextPage,
     error,
-  } = api.mindMap.infinite_list.useInfiniteQuery(
+  } = api.mindMap.fetchByCursor.useInfiniteQuery(
     {},
     {
       getNextPageParam: lastPage => lastPage.nextCursor,

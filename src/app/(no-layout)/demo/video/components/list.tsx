@@ -12,7 +12,7 @@ export function VideoList() {
     isFetchingNextPage,
     isPending,
     error,
-  } = api.asset.infinite_video_list.useInfiniteQuery(
+  } = api.asset.fetchVideosByCursor.useInfiniteQuery(
     {},
     {
       getNextPageParam: lastPage => lastPage.nextCursor,

@@ -1,56 +1,20 @@
 import { z } from 'zod'
+import { BaseQuerySchema } from '@/dto/base.dto'
+import { PerformanceMonitor } from '@/lib/monitoring'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { todoService } from '@/service/todo.service'
 
 export const todoRouter = createTRPCRouter({
-  infinite_list: publicProcedure
-    .input(
-      z.object({
-        limit: z.number().min(1).max(100).nullish(),
-        cursor: z.string().nullish(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const limit = input.limit ?? 10 // 默认每页 10 条
-      const { cursor } = input
-      const userIds = ctx.groupUserIds
-      const items = await ctx.db.todo.findMany({
-        take: limit + 1, // 获取多一条用于判断是否有下一页
-        where: {
-          OR: [
-            {
-              ownerId: {
-                in: userIds,
-              },
-            },
-            {
-              isPublic: true,
-            },
-          ],
-        },
-        cursor: cursor ? { id: cursor } : undefined,
-        orderBy: [
-          {
-            pinned: 'desc',
-          },
-          {
-            status: 'asc',
-          },
-          {
-            createdAt: 'desc',
-          },
-        ],
+  fetchByCursor: publicProcedure.input(BaseQuerySchema).query(
+    async ({ ctx, input }) => {
+      return PerformanceMonitor.measureAsync('todo.fetchByCursor', async () => {
+        const limit = input.limit
+        const cursor = input.cursor
+        const userIds = ctx.groupUserIds
+        return todoService.findTodosByCursor({ userIds, limit, cursor })
       })
-
-      let nextCursor: typeof cursor | undefined
-      if (items.length > limit) {
-        const nextItem = items.pop()
-        nextCursor = nextItem!.id
-      }
-      return {
-        items,
-        nextCursor,
-      }
-    }),
+    },
+  ),
 
   create: protectedProcedure
     .input(
@@ -63,11 +27,11 @@ export const todoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.todo.create({
-        data: {
+      return PerformanceMonitor.measureAsync('todo.create', async () => {
+        return todoService.createTodo({
           ...input,
           ownerId: ctx.user.id,
-        },
+        })
       })
     }),
 
@@ -83,29 +47,26 @@ export const todoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...data } = input
-      return ctx.db.todo.update({
-        where: {
+      return PerformanceMonitor.measureAsync('todo.update', async () => {
+        const { id, ...data } = input
+        return todoService.updateTodo({
           id,
+          ...data,
           ownerId: ctx.user.id,
-        },
-        data,
+        })
       })
     }),
 
   delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.todo.delete({
-        where: {
-          id: input.id,
-          ownerId: ctx.user.id,
-        },
+      return PerformanceMonitor.measureAsync('todo.delete', async () => {
+        await todoService.deleteTodo(input.id, ctx.user.id)
+        return { id: input.id }
       })
-      return { id: input.id }
     }),
 
-  toggle_status: protectedProcedure
+  toggleStatus: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -113,18 +74,12 @@ export const todoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.todo.update({
-        where: {
-          id: input.id,
-          ownerId: ctx.user.id,
-        },
-        data: {
-          status: input.status,
-        },
+      return PerformanceMonitor.measureAsync('todo.toggleStatus', async () => {
+        return todoService.toggleTodoStatus(input.id, ctx.user.id, input.status)
       })
     }),
 
-  toggle_public: protectedProcedure
+  togglePublic: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -132,18 +87,12 @@ export const todoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.todo.update({
-        where: {
-          id: input.id,
-          ownerId: ctx.user.id,
-        },
-        data: {
-          isPublic: input.isPublic,
-        },
+      return PerformanceMonitor.measureAsync('todo.togglePublic', async () => {
+        return todoService.toggleTodoPublic(input.id, ctx.user.id, input.isPublic)
       })
     }),
 
-  toggle_pin: protectedProcedure
+  togglePin: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -151,14 +100,8 @@ export const todoRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.todo.update({
-        where: {
-          id: input.id,
-          ownerId: ctx.user.id,
-        },
-        data: {
-          pinned: input.pinned,
-        },
+      return PerformanceMonitor.measureAsync('todo.togglePin', async () => {
+        return todoService.toggleTodoPin(input.id, ctx.user.id, input.pinned)
       })
     }),
 })

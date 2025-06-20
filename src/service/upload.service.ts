@@ -1,17 +1,17 @@
-import { upload_file, upload_image, upload_video } from '@/service/file.service'
+import { assetService } from '@/service/asset.service'
+import { uploadFile as uploadFileService, uploadVideo } from '@/service/file.service'
 
 export interface UploadFileInput {
   file: File
   uploadedBy: string
   isPublic?: boolean
   category: string
-  fileCategory?: string
 }
 export async function uploadFile(input: UploadFileInput) {
-  const { file, uploadedBy, isPublic = false, category, fileCategory } = input
+  const { file, uploadedBy, isPublic = false, category } = input
   const mimeType = file.type
   if (mimeType.startsWith('video')) {
-    return await upload_video({
+    return await uploadVideo({
       file,
       uploadedBy,
       isPublic,
@@ -19,7 +19,7 @@ export async function uploadFile(input: UploadFileInput) {
     })
   }
   else if (mimeType.startsWith('image')) {
-    return await upload_image({
+    return await assetService.uploadImage({
       file,
       uploadedBy,
       isPublic,
@@ -27,12 +27,11 @@ export async function uploadFile(input: UploadFileInput) {
     })
   }
   else {
-    return await upload_file({
+    return await uploadFileService({
       file,
       uploadedBy,
       isPublic,
       category,
-      fileCategory,
     })
   }
 }

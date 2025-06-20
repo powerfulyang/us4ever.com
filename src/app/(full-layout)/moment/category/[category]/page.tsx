@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function MomentPage({ params }: PageProps) {
   const category = (await params).category
   const decoded = decodeURIComponent(category) as keyof typeof MomentCategoryMap
-  await api.moment.infinite_list.prefetch({ category: decoded })
+  await api.moment.fetchByCursor.prefetch({ category: decoded })
   return (
     <HydrateClient>
       <Container

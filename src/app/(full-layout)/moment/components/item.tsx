@@ -29,7 +29,7 @@ export function MomentItem({ moment }: MomentItemProps) {
   const { mutate: deleteMoment, isPending } = api.moment.delete.useMutation({
     onSuccess: () => {
       setShowConfirm(false)
-      return utils.moment.infinite_list.invalidate()
+      return utils.moment.fetchByCursor.invalidate()
     },
   })
 

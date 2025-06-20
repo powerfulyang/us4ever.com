@@ -15,7 +15,7 @@ export default function TodoList() {
     isFetchingNextPage,
     isPending,
     error,
-  } = api.todo.infinite_list.useInfiniteQuery(
+  } = api.todo.fetchByCursor.useInfiniteQuery(
     {},
     {
       getNextPageParam: lastPage => lastPage.nextCursor,

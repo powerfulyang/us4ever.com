@@ -46,7 +46,7 @@ export function MediaUpload({
   const [uploadingMedias, setUploadingMedias] = useState<UploadingMedia[]>([])
   const [error, setError] = useState<string>('')
 
-  const { mutate: uploadImage } = api.asset.upload_image.useMutation({
+  const { mutate: uploadImage } = api.asset.uploadImage.useMutation({
     onSuccess: (data, variables) => {
       const tempId = (variables as FormData).get('tempId') as string
       if (tempId) {
@@ -68,7 +68,7 @@ export function MediaUpload({
     },
   })
 
-  const { mutate: uploadVideo } = api.asset.upload_video.useMutation({
+  const { mutate: uploadVideo } = api.asset.uploadVideo.useMutation({
     onSuccess: (data, variables) => {
       const tempId = (variables as FormData).get('tempId') as string
       if (tempId) {

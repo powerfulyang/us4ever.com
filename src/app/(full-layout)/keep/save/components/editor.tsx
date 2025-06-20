@@ -56,7 +56,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
     },
   })
 
-  const { mutate: uploadImage, isPending: isUploading } = api.asset.upload_image.useMutation({
+  const { mutate: uploadImage, isPending: isUploading } = api.asset.uploadImage.useMutation({
     onSuccess: (data) => {
       if (editorRef.current) {
         const editor = editorRef.current

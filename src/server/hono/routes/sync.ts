@@ -2,7 +2,8 @@ import { HTTPException } from 'hono/http-exception'
 import { getExtension } from 'hono/utils/mime'
 import { db } from '@/server/db'
 import { protectedRoutes } from '@/server/hono'
-import { upload_image, upload_video } from '@/service/file.service'
+import { assetService } from '@/service/asset.service'
+import { uploadVideo } from '@/service/file.service'
 import { createMoment, findMoment } from '@/service/moment.service'
 
 interface Attachment {
@@ -68,7 +69,7 @@ export function loadSyncRouter() {
           const file = new File([blob], `${attachment.id}.${extension}`, {
             type: mimeType,
           })
-          const json = await upload_image({
+          const json = await assetService.uploadImage({
             file,
             uploadedBy: user.id,
             category,
@@ -82,7 +83,7 @@ export function loadSyncRouter() {
           const file = new File([blob], `${attachment.id}.${extension}`, {
             type: mimeType,
           })
-          const json = await upload_video({
+          const json = await uploadVideo({
             file,
             uploadedBy: user.id,
             category,
@@ -94,14 +95,16 @@ export function loadSyncRouter() {
         }
       }
 
-      await createMoment({
-        ownerId: user.id,
-        content,
-        images,
-        videos,
-        category,
-        createdAt: item.createdAt,
-      })
+      await createMoment(
+        {
+          content,
+          images,
+          videos,
+          category,
+          createdAt: item.createdAt,
+        },
+        user.id,
+      )
     }
     return ctx.json({ success: true })
   })

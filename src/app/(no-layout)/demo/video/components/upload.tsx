@@ -4,9 +4,9 @@ import { api } from '@/trpc/react'
 
 export function VideoUpload() {
   const utils = api.useUtils()
-  const { mutate, isPending } = api.asset.upload_video.useMutation({
-    onSuccess() {
-      return utils.asset.infinite_video_list.invalidate()
+  const { mutate, isPending } = api.asset.uploadVideo.useMutation({
+    onSuccess: () => {
+      return utils.asset.fetchVideosByCursor.invalidate()
     },
   })
 

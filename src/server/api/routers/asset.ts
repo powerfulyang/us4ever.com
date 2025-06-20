@@ -1,106 +1,127 @@
 import type { RouterOutputs } from '@/trpc/react'
-import { z } from 'zod'
 import { zfd } from 'zod-form-data'
+import { BasePrimaryKeySchema, BaseQuerySchema } from '@/dto/base.dto'
+import { PerformanceMonitor } from '@/lib/monitoring'
 import {
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc'
-import { getImageById, listImages, listVideos } from '@/service/asset.service'
-import { upload_image, upload_video } from '@/service/file.service'
+import { assetService } from '@/service/asset.service'
+import { uploadVideo } from '@/service/file.service'
 
-export type Image = RouterOutputs['asset']['infinite_image_list']['items'][number]
-export type Video = RouterOutputs['asset']['infinite_video_list']['items'][number]
+export type Image = RouterOutputs['asset']['fetchImagesByCursor']['items'][number]
+export type Video = RouterOutputs['asset']['fetchVideosByCursor']['items'][number]
 
 export const assetRouter = createTRPCRouter({
-  upload_image: protectedProcedure
+  uploadImage: protectedProcedure
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),
       category: zfd.text().default('default'),
     }))
     .mutation(async ({ input, ctx }) => {
-      const isPublic = input.isPublic === 'true'
-      return upload_image({
-        file: input.file,
-        uploadedBy: ctx.user.id,
-        isPublic,
-        category: input.category,
+      return PerformanceMonitor.measureAsync('asset.uploadImage', async () => {
+        const isPublic = input.isPublic === 'true'
+        return assetService.uploadImage({
+          file: input.file,
+          uploadedBy: ctx.user.id,
+          isPublic,
+          category: input.category,
+        })
       })
     }),
 
-  upload_video: protectedProcedure
+  uploadVideo: protectedProcedure
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),
-      category: zfd.text(),
+      category: zfd.text().default('default'),
     }))
     .mutation(async ({ input, ctx }) => {
-      const isPublic = input.isPublic === 'true'
-      return upload_video({
-        file: input.file,
-        uploadedBy: ctx.user.id,
-        isPublic,
-        category: input.category,
+      return PerformanceMonitor.measureAsync('asset.uploadVideo', async () => {
+        const isPublic = input.isPublic === 'true'
+        return uploadVideo({
+          file: input.file,
+          uploadedBy: ctx.user.id,
+          isPublic,
+          category: input.category,
+        })
       })
     }),
 
-  infinite_image_list: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(6),
-      cursor: z.string().optional(),
-    }))
-    .query(async ({ ctx, input }) => {
-      const { limit, cursor } = input
-      const items = await listImages({
-        userIds: ctx.groupUserIds,
-        take: limit + 1,
-        cursor,
+  fetchImagesByCursor: publicProcedure.input(BaseQuerySchema).query(
+    async ({ ctx, input }) => {
+      return PerformanceMonitor.measureAsync('asset.fetchImagesByCursor', async () => {
+        const { limit, cursor, category } = input
+        const items = await assetService.findImagesByCursor({
+          userIds: ctx.groupUserIds,
+          take: limit + 1,
+          cursor,
+          category,
+        })
+
+        let nextCursor: typeof cursor | undefined
+        if (items.length > limit) {
+          const nextItem = items.pop()
+          nextCursor = nextItem!.id
+        }
+
+        return {
+          items,
+          nextCursor,
+        }
       })
+    },
+  ),
 
-      let nextCursor: typeof cursor | undefined
-      if (items.length > limit) {
-        const nextItem = items.pop()
-        nextCursor = nextItem!.id
-      }
+  fetchVideosByCursor: publicProcedure.input(BaseQuerySchema).query(
+    async ({ ctx, input }) => {
+      return PerformanceMonitor.measureAsync('asset.fetchVideosByCursor', async () => {
+        const { limit, cursor, category } = input
+        const items = await assetService.findVideosByCursor({
+          userIds: ctx.groupUserIds,
+          take: limit + 1,
+          cursor,
+          category,
+        })
 
-      return {
-        items,
-        nextCursor,
-      }
-    }),
+        let nextCursor: typeof cursor | undefined
+        if (items.length > limit) {
+          const nextItem = items.pop()
+          nextCursor = nextItem!.id
+        }
 
-  infinite_video_list: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(6),
-      cursor: z.string().optional(),
-    }))
-    .query(async ({ ctx, input }) => {
-      const { limit, cursor } = input
-      const items = await listVideos({
-        userIds: ctx.groupUserIds,
-        take: limit + 1,
-        cursor,
+        return {
+          items,
+          nextCursor,
+        }
       })
+    },
+  ),
 
-      let nextCursor: typeof cursor | undefined
-      if (items.length > limit) {
-        const nextItem = items.pop()
-        nextCursor = nextItem!.id
-      }
+  getImageById: publicProcedure.input(BasePrimaryKeySchema).query(
+    async ({ ctx, input }) => {
+      return PerformanceMonitor.measureAsync('asset.getImageById', async () => {
+        const userIds = ctx.groupUserIds
+        return assetService.getImageById(input.id, userIds)
+      })
+    },
+  ),
 
-      return {
-        items,
-        nextCursor,
-      }
-    }),
+  deleteImage: protectedProcedure.input(BasePrimaryKeySchema).mutation(
+    async ({ ctx, input }) => {
+      return PerformanceMonitor.measureAsync('asset.deleteImage', async () => {
+        return assetService.deleteImage(input.id, ctx.user.id)
+      })
+    },
+  ),
 
-  getImageById: publicProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
-    .query(async ({ ctx, input }) => {
-      const userIds = ctx.groupUserIds
-      return getImageById(input.id, userIds)
-    }),
+  deleteVideo: protectedProcedure.input(BasePrimaryKeySchema).mutation(
+    async ({ ctx, input }) => {
+      return PerformanceMonitor.measureAsync('asset.deleteVideo', async () => {
+        return assetService.deleteVideo(input.id, ctx.user.id)
+      })
+    },
+  ),
 })

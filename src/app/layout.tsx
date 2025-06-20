@@ -7,6 +7,7 @@ import { BASE_URL } from '@/lib/constants'
 import { TRPCReactProvider } from '@/trpc/react'
 
 import { api } from '@/trpc/server'
+
 import '@/styles/globals.scss'
 import 'react-toastify/dist/ReactToastify.css'
 

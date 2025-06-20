@@ -33,7 +33,7 @@ export function MomentCreate({ category = 'default' }: Props) {
     onSuccess: () => {
       setContent('')
       setSelectedMedias([])
-      return utils.moment.infinite_list.invalidate()
+      return utils.moment.fetchByCursor.invalidate()
     },
   })
 

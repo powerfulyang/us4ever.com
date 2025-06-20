@@ -5,6 +5,7 @@ export interface BaseFilter {
 
 export interface BaseListFilter extends BaseFilter {
   isPublic?: boolean
+  category?: string
 }
 
 export interface BaseUpdateInput {

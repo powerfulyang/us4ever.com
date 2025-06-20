@@ -19,7 +19,7 @@ export function MomentList({ category }: Props) {
     fetchNextPage,
     isFetchingNextPage,
     error,
-  } = api.moment.infinite_list.useInfiniteQuery(
+  } = api.moment.fetchByCursor.useInfiniteQuery(
     {
       category,
     },

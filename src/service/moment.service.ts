@@ -2,9 +2,13 @@ import type { Prisma } from '@prisma/client'
 import type { BaseListFilter } from '@/types/common'
 import * as process from 'node:process'
 import { TRPCError } from '@trpc/server'
+import { map } from 'lodash-es'
+import { after } from 'next/server'
 import { imageInclude, transformImageToResponse, transformVideoToResponse, videoInclude } from 'src/service/asset.service'
 import { enhancement } from '@/lib/deepseek'
+import { PerformanceMonitor } from '@/lib/monitoring'
 import { db } from '@/server/db'
+import { getCursor } from '@/service'
 import { createKeep } from '@/service/keep.service'
 
 /**
@@ -24,10 +28,9 @@ export interface MomentVideo extends MomentImage { }
 /**
  * 创建动态的输入参数接口
  */
-interface CreateMomentInput extends Prisma.MomentCreateManyInput {
+interface CreateMomentInput extends Omit<Prisma.MomentCreateManyInput, 'ownerId'> {
   images?: MomentImage[]
   videos?: MomentVideo[]
-  ownerId: string
 }
 
 /**
@@ -44,6 +47,16 @@ interface ListMomentInput extends BaseListFilter {
   category?: string
   take?: number
   cursor?: string
+}
+
+/**
+ * 查询动态列表的输入参数接口(带游标)
+ */
+interface FindMomentsByCursorInput {
+  userIds: string[]
+  limit: number
+  cursor?: string
+  category?: string
 }
 
 /**
@@ -95,7 +108,7 @@ export async function listMoments({ userIds, category, take, cursor }: ListMomen
       createdAt: 'desc',
     },
     take,
-    cursor: cursor ? { id: cursor } : undefined,
+    cursor: getCursor(cursor),
   })
 
   return list.map(moment => ({
@@ -106,61 +119,138 @@ export async function listMoments({ userIds, category, take, cursor }: ListMomen
 }
 
 /**
+ * 使用游标分页查询动态列表
+ * @param params 查询参数
+ * @param params.userIds 用户ID列表
+ * @param params.limit 每页数量
+ * @param params.cursor 游标ID
+ * @param params.category 动态分类
+ * @returns 动态列表和下一页游标
+ */
+export async function findMomentsByCursor({ userIds, limit, cursor, category }: FindMomentsByCursorInput) {
+  const items = await db.moment.findMany({
+    include: {
+      images: {
+        include: {
+          image: {
+            include: imageInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      videos: {
+        include: {
+          video: {
+            include: videoInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      owner: true,
+    },
+    where: {
+      category,
+      OR: [
+        {
+          ownerId: {
+            in: userIds,
+          },
+        },
+        { isPublic: true },
+      ],
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: limit + 1,
+    cursor: getCursor(cursor),
+  })
+
+  let nextCursor: typeof cursor | undefined
+  if (items.length > limit) {
+    const nextItem = items.pop()
+    nextCursor = nextItem!.id
+  }
+
+  return {
+    items: items.map(moment => ({
+      ...moment,
+      images: moment.images.map(({ image }) => transformImageToResponse(image)),
+      videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
+    })),
+    nextCursor,
+  }
+}
+
+/**
  * 创建新的动态
- * @param input 创建动态的参数
  * @returns 创建的动态
  */
-export async function createMoment(input: CreateMomentInput) {
+export async function createMoment(input: CreateMomentInput, ownerId: string) {
   const {
     category = 'default',
     images = [],
     videos = [],
     isPublic = false,
-    ...rest
+    content,
+    tags = [],
+    extraData = {},
   } = input
-  const { content, ownerId } = rest
-  const result = await db.moment.create({
-    data: {
-      category,
-      isPublic,
-      ...rest,
-      images: {
-        create: images.map((image) => {
-          return {
-            image: {
-              connect: {
-                id: image.id,
+
+  // 使用事务确保原子性操作
+  const result = await db.$transaction(async (tx) => {
+    return tx.moment.create({
+      data: {
+        category,
+        isPublic,
+        ownerId,
+        content,
+        tags,
+        extraData,
+        images: {
+          create: images.map((image) => {
+            return {
+              image: {
+                connect: {
+                  id: image.id,
+                },
               },
-            },
-            sort: image.sort,
-          }
-        }),
-      },
-      videos: {
-        create: videos.map((video) => {
-          return {
-            video: {
-              connect: {
-                id: video.id,
+              sort: image.sort,
+            }
+          }),
+        },
+        videos: {
+          create: videos.map((video) => {
+            return {
+              video: {
+                connect: {
+                  id: video.id,
+                },
               },
-            },
-            sort: video.sort,
-          }
-        }),
+              sort: video.sort,
+            }
+          }),
+        },
       },
-    },
+    })
   })
 
   // 如果是关键词转博客类型，异步生成博客内容
   if (result.category === 'keyword2blog' && content) {
     process.nextTick(async () => {
       const blog = await enhancement(content)
-      const keep = await createKeep({
-        content: blog,
-        isPublic,
+      const keep = await createKeep(
+        {
+          content: blog,
+          isPublic,
+          category: 'keyword2blog',
+        },
         ownerId,
-        category: 'keyword2blog',
-      })
+      )
       await db.moment.update({
         where: {
           id: result.id,
@@ -180,45 +270,67 @@ export async function createMoment(input: CreateMomentInput) {
  * @param input 更新动态的参数
  * @returns 更新后的动态
  */
-export async function updateMoment(input: UpdateMomentInput) {
-  const { id, content, category, images = [], ownerId } = input
+export async function updateMoment(input: UpdateMomentInput, ownerId: string) {
+  const { id, content, category, images = [], videos = [] } = input
 
-  // 删除旧的图片关联
-  await db.momentImages.deleteMany({
-    where: {
-      momentId: id,
-    },
-  })
-
-  // 更新动态和创建新的图片关联
-  return db.moment.update({
-    where: {
-      id,
-      ownerId,
-    },
-    data: {
-      content,
-      category,
-      images: {
-        create: images.map((image) => {
-          return {
-            image: {
-              connect: {
-                id: image.id,
-              },
-            },
-            sort: image.sort,
-          }
-        }),
+  // 使用事务确保原子性操作
+  return db.$transaction(async (tx) => {
+    // 删除旧的图片关联
+    await tx.momentImages.deleteMany({
+      where: {
+        momentId: id,
       },
-    },
-    include: {
-      images: {
-        include: {
-          image: true,
+    })
+
+    // 删除旧的视频关联
+    await tx.momentVideos.deleteMany({
+      where: {
+        momentId: id,
+      },
+    })
+
+    // 更新动态和创建新的图片关联
+    return tx.moment.update({
+      where: {
+        id,
+        ownerId,
+      },
+      data: {
+        content,
+        category,
+        images: {
+          create: images.map((image) => {
+            return {
+              image: {
+                connect: {
+                  id: image.id,
+                },
+              },
+              sort: image.sort,
+            }
+          }),
+        },
+        videos: {
+          create: videos.map((video) => {
+            return {
+              video: {
+                connect: {
+                  id: video.id,
+                },
+              },
+              sort: video.sort,
+            }
+          }),
         },
       },
-    },
+      include: {
+        images: {
+          include: {
+            image: true,
+          },
+        },
+      },
+    })
   })
 }
 
@@ -229,19 +341,29 @@ export async function updateMoment(input: UpdateMomentInput) {
  * @returns 删除的动态
  */
 export async function deleteMoment(id: string, ownerId: string) {
-  // 删除关联的图片关系
-  await db.momentImages.deleteMany({
-    where: {
-      momentId: id,
-    },
-  })
+  // 使用事务确保原子性操作
+  return db.$transaction(async (tx) => {
+    // 删除关联的图片关系
+    await tx.momentImages.deleteMany({
+      where: {
+        momentId: id,
+      },
+    })
 
-  // 删除动态
-  return db.moment.delete({
-    where: {
-      id,
-      ownerId,
-    },
+    // 删除关联的视频关系
+    await tx.momentVideos.deleteMany({
+      where: {
+        momentId: id,
+      },
+    })
+
+    // 删除动态
+    return tx.moment.delete({
+      where: {
+        id,
+        ownerId,
+      },
+    })
   })
 }
 
@@ -298,37 +420,67 @@ export async function addMomentAttachment(
 
   const { images = [], videos = [] } = attachments
 
-  // 添加图片附件
-  for (const image of images) {
-    const exist = moment.images.some(item => item.image.name === image.name)
-    if (exist) {
-      continue
+  // 使用事务确保原子性操作
+  return db.$transaction(async (tx) => {
+    // 添加图片附件
+    for (const image of images) {
+      const exist = moment.images.some(item => item.image.name === image.name)
+      if (exist) {
+        continue
+      }
+      const result = await tx.momentImages.create({
+        data: {
+          momentId,
+          imageId: image.id,
+          sort: image.sort,
+        },
+      })
+      console.log(`addMomentAttachment[images]: ${momentId}`, result.imageId)
     }
-    const result = await db.momentImages.create({
-      data: {
-        momentId,
-        imageId: image.id,
-        sort: image.sort,
-      },
-    })
-    console.log(`addMomentAttachment[images]: ${momentId}`, result.imageId)
-  }
 
-  // 添加视频附件
-  for (const video of videos) {
-    const exist = moment.videos.some(item => item.video.name === video.name)
-    if (exist) {
-      continue
+    // 添加视频附件
+    for (const video of videos) {
+      const exist = moment.videos.some(item => item.video.name === video.name)
+      if (exist) {
+        continue
+      }
+      const result = await tx.momentVideos.create({
+        data: {
+          momentId,
+          videoId: video.id,
+          sort: video.sort,
+        },
+      })
+      console.log(`addMomentAttachment[videos]: ${momentId}`, result.videoId)
     }
-    const result = await db.momentVideos.create({
-      data: {
-        momentId,
-        videoId: video.id,
-        sort: video.sort,
+
+    // 返回更新后的动态
+    return tx.moment.findUnique({
+      where: { id: momentId },
+      include: {
+        images: {
+          include: {
+            image: {
+              include: imageInclude,
+            },
+          },
+          orderBy: {
+            sort: 'asc',
+          },
+        },
+        videos: {
+          include: {
+            video: {
+              include: videoInclude,
+            },
+          },
+          orderBy: {
+            sort: 'asc',
+          },
+        },
       },
     })
-    console.log(`addMomentAttachment[videos]: ${momentId}`, result.videoId)
-  }
+  })
 }
 
 /**
@@ -384,9 +536,183 @@ export async function getMomentById(id: string, userIds: string[]) {
     })
   }
 
+  // Only increment views if not the owner
+  if (moment && !userIds.includes(moment.ownerId)) {
+    // Update view count asynchronously (fire-and-forget) for better performance
+    after(incrementMomentViews(id))
+  }
+
   return {
     ...moment,
     images: moment.images.map(({ image }) => transformImageToResponse(image)),
     videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
   }
+}
+
+export interface SearchResult {
+  hits: Hits
+}
+
+export interface Hits {
+  total: Total
+  hits: Hit[]
+}
+
+export interface Hit {
+  _index: string
+  _id: string
+  _score: number
+  _source: Source
+  highlight?: Highlight
+}
+
+export interface Source {
+  content: string
+}
+
+export interface Highlight {
+  content?: string[]
+}
+
+export interface Total {
+  value: number
+  relation: string
+}
+
+/**
+ * 搜索动态
+ * @param searchTerm 搜索关键词
+ * @returns 搜索结果
+ */
+export async function searchMoments(searchTerm: string): Promise<SearchResult> {
+  return PerformanceMonitor.measureAsync('moment.searchMoments', async () => {
+    const response = await fetch(`http://tools.us4ever.com:8080/internal/moments/search?q=${encodeURIComponent(searchTerm)}`)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    return await response.json()
+  })
+}
+
+/**
+ * 搜索动态并返回结果
+ * @param query 搜索关键词
+ * @param userIds 用户ID列表
+ * @returns 搜索结果列表
+ */
+export async function searchAndFetchMoments(query: string, userIds: string[]) {
+  return PerformanceMonitor.measureAsync('moment.searchAndFetchMoments', async () => {
+    if (!query.trim()) {
+      return []
+    }
+
+    const result = await searchMoments(query)
+    const resultList = result.hits.hits
+    const ids = map(resultList, '_id')
+
+    const list = await db.moment.findMany({
+      include: {
+        images: {
+          include: {
+            image: {
+              include: imageInclude,
+            },
+          },
+          orderBy: {
+            sort: 'asc',
+          },
+        },
+        videos: {
+          include: {
+            video: {
+              include: videoInclude,
+            },
+          },
+          orderBy: {
+            sort: 'asc',
+          },
+        },
+        owner: true,
+      },
+      where: {
+        id: {
+          in: ids,
+        },
+        OR: [
+          {
+            ownerId: {
+              in: userIds,
+            },
+          },
+          { isPublic: true },
+        ],
+      },
+    })
+
+    // 转换为Map以便按原始搜索结果的顺序排序
+    const momentsMap = new Map(
+      list.map(
+        moment => [
+          moment.id,
+          {
+            ...moment,
+            content: resultList.find(hit => hit._id === moment.id)?.highlight?.content?.[0] || moment.content,
+            images: moment.images.map(({ image }) => transformImageToResponse(image)),
+            videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
+          },
+        ],
+      ),
+    )
+
+    // 按照原始搜索结果的顺序返回
+    return ids.filter(id => momentsMap.has(id)).map(id => momentsMap.get(id)!)
+  })
+}
+
+/**
+ * 获取公开的动态列表
+ * @returns 公开的动态列表
+ */
+export async function fetchPublicItems() {
+  return PerformanceMonitor.measureAsync('moment.fetchPublicItems', async () => {
+    return db.moment.findMany({
+      where: {
+        isPublic: true,
+      },
+      select: {
+        id: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    })
+  })
+}
+
+/**
+ * 更新动态的浏览次数
+ * @param id 动态ID
+ * @returns 更新结果
+ */
+export async function incrementMomentViews(id: string) {
+  return db.moment.update({
+    where: { id },
+    data: { views: { increment: 1 } },
+  })
+}
+
+export const momentService = {
+  listMoments,
+  findMomentsByCursor,
+  createMoment,
+  updateMoment,
+  deleteMoment,
+  findMoment,
+  addMomentAttachment,
+  getMomentById,
+  searchMoments,
+  searchAndFetchMoments,
+  fetchPublicItems,
+  incrementMomentViews,
 }

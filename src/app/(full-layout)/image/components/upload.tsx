@@ -13,10 +13,10 @@ export function ImageUpload() {
   const [selectedFile, setSelectedFile] = useState<File>()
   const uploadRef = useRef<UploadAreaRef>(null)
 
-  const uploadMutation = api.asset.upload_image.useMutation({
+  const uploadMutation = api.asset.uploadImage.useMutation({
     onSuccess: () => {
       uploadRef.current?.reset()
-      return utils.asset.infinite_image_list.invalidate()
+      return utils.asset.fetchImagesByCursor.invalidate()
     },
   })
 

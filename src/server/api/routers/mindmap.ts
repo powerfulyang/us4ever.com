@@ -1,90 +1,31 @@
-import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
+import { BasePrimaryKeySchema, BaseQuerySchema, UpdateViewsSchema } from '@/dto/base.dto'
+import { PerformanceMonitor } from '@/lib/monitoring'
+import { mindMapService } from '@/service/mindmap.service'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc'
 
 export const mindMapRouter = createTRPCRouter({
-  infinite_list: publicProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(6),
-      cursor: z.string().nullish(),
-    }))
-    .query(async ({ ctx, input }) => {
-      const { limit, cursor } = input
-      const userIds = ctx.groupUserIds
-      const items = await ctx.db.mindMap.findMany({
-        where: {
-          OR: [
-            {
-              ownerId: {
-                in: userIds,
-              },
-            },
-            {
-              isPublic: true,
-            },
-          ],
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-        take: limit + 1,
-        cursor: cursor ? { id: cursor } : undefined,
+  fetchByCursor: publicProcedure.input(BaseQuerySchema).query(
+    async ({ ctx, input }) => {
+      return PerformanceMonitor.measureAsync('mindMap.fetchByCursor', async () => {
+        const { limit, cursor } = input
+        const userIds = ctx.groupUserIds
+        return mindMapService.findMindMapsByCursor({
+          userIds,
+          take: limit + 1,
+          cursor,
+        })
       })
-
-      let nextCursor: typeof cursor | undefined
-      if (items.length > limit) {
-        const nextItem = items.pop()
-        nextCursor = nextItem!.id
-      }
-
-      return {
-        items,
-        nextCursor,
-      }
-    }),
+    },
+  ),
 
   getById: publicProcedure
-    .input(z.object({
-      id: z.string(),
-      updateViews: z.boolean().default(false),
-    }))
+    .input(UpdateViewsSchema.merge(BasePrimaryKeySchema))
     .query(async ({ ctx, input }) => {
-      const userIds = ctx.groupUserIds
-      const mindMap = await ctx.db.mindMap.findUnique({
-        where: {
-          id: input.id,
-          OR: [
-            {
-              ownerId: {
-                in: userIds,
-              },
-            },
-            {
-              isPublic: true,
-            },
-          ],
-        },
+      return PerformanceMonitor.measureAsync('mindMap.getById', async () => {
+        const userIds = ctx.groupUserIds
+        return mindMapService.findMindMapById(input.id, userIds, input.updateViews)
       })
-
-      if (!mindMap) {
-        throw new HTTPException(404, {
-          message: 'mind map not found',
-        })
-      }
-
-      if (input.updateViews) {
-        // 更新浏览次数
-        await ctx.db.mindMap.update({
-          where: { id: input.id },
-          data: { views: { increment: 1 } },
-        })
-      }
-      const editable = mindMap.ownerId === ctx.user?.id
-
-      return {
-        ...mindMap,
-        editable,
-      }
     }),
 
   createByXMind: protectedProcedure
@@ -94,11 +35,11 @@ export const mindMapRouter = createTRPCRouter({
       isPublic: z.boolean().default(false),
     }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.mindMap.create({
-        data: {
+      return PerformanceMonitor.measureAsync('mindMap.createByXMind', async () => {
+        return mindMapService.createMindMap({
           ...input,
           ownerId: ctx.user.id,
-        },
+        })
       })
     }),
 
@@ -110,27 +51,19 @@ export const mindMapRouter = createTRPCRouter({
       content: z.record(z.any()),
     }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.mindMap.update({
-        where: { id: input.id, ownerId: ctx.user.id },
-        data: { ...input },
+      return PerformanceMonitor.measureAsync('mindMap.update', async () => {
+        return mindMapService.updateMindMap({
+          ...input,
+          ownerId: ctx.user.id,
+        })
       })
     }),
 
   delete: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(BasePrimaryKeySchema)
     .mutation(async ({ ctx, input }) => {
-      const mindMap = await ctx.db.mindMap.findUnique({
-        where: { id: input.id, ownerId: ctx.user.id },
-      })
-
-      if (!mindMap) {
-        throw new HTTPException(404, {
-          message: 'mind map not found',
-        })
-      }
-
-      return ctx.db.mindMap.delete({
-        where: { id: input.id },
+      return PerformanceMonitor.measureAsync('mindMap.delete', async () => {
+        return mindMapService.deleteMindMap(input.id, ctx.user.id)
       })
     }),
 })

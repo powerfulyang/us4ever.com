@@ -14,7 +14,7 @@ export function ImageList() {
     fetchNextPage,
     isFetchingNextPage,
     error,
-  } = api.asset.infinite_image_list.useInfiniteQuery(
+  } = api.asset.fetchImagesByCursor.useInfiniteQuery(
     {},
     {
       getNextPageParam: lastPage => lastPage.nextCursor,

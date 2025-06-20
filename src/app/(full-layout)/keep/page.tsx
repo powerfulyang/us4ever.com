@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 }
 
 export default async function KeepPage() {
-  await api.keep.infinite_list.prefetch({})
+  await api.keep.fetchByCursor.prefetch({})
   return (
     <HydrateClient>
       <Container

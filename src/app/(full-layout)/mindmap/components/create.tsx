@@ -16,7 +16,7 @@ export function MindMapImport() {
   const { mutateAsync } = api.mindMap.createByXMind.useMutation({
     onSuccess() {
       setFile(null)
-      return utils.mindMap.infinite_list.invalidate()
+      return utils.mindMap.fetchByCursor.invalidate()
     },
   })
 

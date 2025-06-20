@@ -32,3 +32,8 @@ export async function findUserWithGroupById(id: string) {
     },
   })
 }
+
+export const userService = {
+  createOrSignIn,
+  findUserWithGroupById,
+}

@@ -1,16 +1,14 @@
 import type { Prisma } from '@prisma/client'
 import type { UploadFileInput } from './upload.service'
 import type { AmapRegeoCode } from '@/types/amap'
-import { Buffer } from 'node:buffer'
 import { wgs84togcj02 } from 'coordtransform'
 import exifr from 'exifr'
 import { sha256 } from 'hono/utils/crypto'
 import { pick } from 'lodash-es'
-import sharp from 'sharp'
 import { env } from '@/env'
 import { getVideoDuration } from '@/lib/ffmpeg'
 import { db } from '@/server/db'
-import { imageInclude, transformImageToResponse, transformVideoToResponse, videoInclude } from '@/service/asset.service'
+import { transformVideoToResponse, videoInclude } from '@/service/asset.service'
 import { imageminService } from '@/service/imagemin.service'
 import { delete_from_bucket, upload_to_bucket } from '@/service/s3.service'
 import { formatBearing } from '@/utils'
@@ -67,112 +65,8 @@ export async function getAddressFromExif(exif?: any) {
   return address
 }
 
-export async function upload_image(
-  options: {
-    file: File
-    uploadedBy: string
-    isPublic?: boolean
-    category: string
-  },
-) {
-  const { file, isPublic = false, uploadedBy, category } = options
-  const buffer = await file.arrayBuffer()
-  const name = file.name
-  const type = file.type
-  let width = 0
-  let height = 0
-  try {
-    const metadata = await sharp(buffer).metadata()
-    width = metadata.width || 0
-    height = metadata.height || 0
-  }
-  catch (e) {
-    console.error('sharp metadata error', e)
-  }
-
-  let thumbnail_320x_image: FileWithBucket | null = null
-
-  try {
-    const thumbnail_mime_type = 'image/avif'
-
-    // 生成 10x 的模糊预览图
-    const thumbnail_10x_buffer = await imageminService(buffer, {
-      width: 10,
-    })
-
-    // 生成 320x 的缩略图
-    const thumbnail_320x_buffer = await imageminService(buffer, {
-      width: 320,
-    })
-    thumbnail_320x_image = await upload_to_bucket({
-      buffer: thumbnail_320x_buffer,
-      name,
-      type: thumbnail_mime_type,
-      uploadedBy,
-      bucketName: 'thumbnails',
-      path_prefix: `images/${category}/320x`,
-      isPublic,
-      category,
-    })
-
-    const hash = (await sha256(buffer))!
-    const size = file.size
-
-    // 创建图片记录（部分字段为 null，异步后补）
-    const image = await db.image.create({
-      data: {
-        name,
-        type,
-        size,
-        width,
-        height,
-        hash,
-        address: '', // 后补
-        exif: {}, // 后补
-        thumbnail_10x: Buffer.from(thumbnail_10x_buffer), // 后补
-        thumbnail_320x: {
-          connect: pick(thumbnail_320x_image, 'id'),
-        },
-        uploadedByUser: {
-          connect: { id: uploadedBy },
-        },
-        isPublic,
-        category,
-      },
-      include: imageInclude,
-    })
-
-    process.nextTick(() => {
-      // 异步处理其余图片任务
-      void handleImagePostProcess({
-        buffer,
-        name,
-        type,
-        uploadedBy,
-        isPublic,
-        category,
-        imageId: image.id,
-      })
-    })
-
-    // 只返回主记录和 320x 缩略图
-    return transformImageToResponse(image)
-  }
-  catch (e) {
-    console.error(e)
-    // 失败回滚，删除已上传的文件
-    const images = [thumbnail_320x_image]
-    for (const image of images) {
-      if (image) {
-        await delete_from_bucket(image)
-      }
-    }
-    throw e
-  }
-}
-
-// 新增：异步处理其余图片任务
-async function handleImagePostProcess(options: {
+// 异步处理其余图片任务
+export async function handleImagePostProcess(options: {
   buffer: ArrayBuffer
   name: string
   type: string
@@ -247,76 +141,122 @@ async function handleImagePostProcess(options: {
   catch (e) {
     console.error('handleImagePostProcess error', e)
     // 失败回滚，删除已上传的文件
-    const images = [thumbnail_768x_image, compressed_image, original_image]
-    for (const image of images) {
-      if (image) {
-        await delete_from_bucket(image)
+    const files = [thumbnail_768x_image, compressed_image, original_image]
+    for (const file of files) {
+      if (file) {
+        await delete_from_bucket(file)
       }
     }
   }
 }
 
-export async function upload_video(options: {
-  file: File
-  uploadedBy: string
-  isPublic?: boolean
-  category: string
-}) {
-  const { file, uploadedBy, isPublic = false, category } = options
+export async function uploadVideo(
+  options: {
+    file: File
+    uploadedBy: string
+    isPublic?: boolean
+    category: string
+  },
+) {
+  const { file, isPublic = false, uploadedBy, category } = options
   const buffer = await file.arrayBuffer()
-  const duration = await getVideoDuration(file)
   const name = file.name
   const type = file.type
-  const uploadedFile = await upload_to_bucket({
-    buffer,
-    name,
-    type,
-    uploadedBy,
-    bucketName: 'uploads',
-    path_prefix: `videos/${category}/original`,
-    isPublic,
-    category,
-  })
+  let duration = 0
 
-  const video = await db.video.create({
-    data: {
-      name: uploadedFile.name,
-      type: uploadedFile.type,
-      size: uploadedFile.size,
-      hash: uploadedFile.hash,
-      duration,
-      uploadedByUser: {
-        connect: { id: uploadedBy },
-      },
-      file: {
-        connect: { id: uploadedFile.id },
-      },
+  try {
+    // 获取视频信息
+    const videoInfo = await getVideoDuration(buffer)
+    duration = videoInfo.duration
+  }
+  catch (e) {
+    console.error('getVideoDuration error', e)
+  }
+
+  let video_file: FileWithBucket | null = null
+
+  try {
+    // 上传视频
+    video_file = await upload_to_bucket({
+      buffer,
+      name,
+      type,
+      uploadedBy,
+      bucketName: 'uploads',
+      path_prefix: `videos/${category}`,
       isPublic,
       category,
-    },
-    include: videoInclude,
-  })
+    })
 
-  return transformVideoToResponse(video)
+    const hash = (await sha256(buffer))!
+    const size = file.size
+
+    // 创建视频记录
+    const video = await db.video.create({
+      data: {
+        name,
+        type,
+        size,
+        duration,
+        hash,
+        file: {
+          connect: pick(video_file, 'id'),
+        },
+        uploadedByUser: {
+          connect: { id: uploadedBy },
+        },
+        isPublic,
+        category,
+      },
+      include: videoInclude,
+    })
+
+    return transformVideoToResponse(video)
+  }
+  catch (e) {
+    console.error(e)
+    // 失败回滚，删除已上传的文件
+    if (video_file) {
+      await delete_from_bucket(video_file)
+    }
+    throw e
+  }
 }
 
-export async function upload_file(input: UploadFileInput) {
-  const { file, uploadedBy, isPublic = false, category, fileCategory } = input
-  const mimeType = file.type
-  const c = fileCategory || mimeType.split('/')[0] || 'files'
-
+export async function uploadFile(input: UploadFileInput) {
+  const { file, uploadedBy, isPublic = false, category } = input
   const buffer = await file.arrayBuffer()
   const name = file.name
   const type = file.type
-  const uploadedFile = await upload_to_bucket({
+  const hash = (await sha256(buffer))!
+
+  // 上传文件
+  const fileObj = await upload_to_bucket({
     buffer,
     name,
     type,
     uploadedBy,
     bucketName: 'uploads',
-    path_prefix: `${c}/${category}/original`,
+    path_prefix: `files/${category}`,
     isPublic,
     category,
   })
-  return uploadedFile
+
+  // 创建文件记录
+  const fileRecord = await db.file.findFirst({
+    where: {
+      hash,
+    },
+  })
+
+  if (fileRecord) {
+    return {
+      id: fileRecord.id,
+      name: fileRecord.name,
+      type: fileRecord.type,
+      size: fileRecord.size,
+      hash: fileRecord.hash,
+      url: getFileUrl(fileObj),
+    }
+  }
 }

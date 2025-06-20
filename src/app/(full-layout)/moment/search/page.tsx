@@ -16,9 +16,12 @@ export default function MomentSearchPage() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') || ''
 
-  const { isFetching, data = [], error, isSuccess, refetch } = api.moment.search.useQuery({ query }, {
-    enabled: !!query,
-  })
+  const { isFetching, data = [], error, isSuccess, refetch } = api.moment.search.useQuery(
+    { query },
+    {
+      enabled: !!query,
+    },
+  )
 
   const onSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

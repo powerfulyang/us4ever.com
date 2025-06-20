@@ -18,7 +18,7 @@ export function TodoForm() {
   const createTodo = api.todo.create.useMutation({
     onSuccess: () => {
       setTitle('')
-      return utils.todo.infinite_list.invalidate()
+      return utils.todo.fetchByCursor.invalidate()
     },
   })
 
