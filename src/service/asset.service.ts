@@ -458,6 +458,16 @@ async function uploadImage(
   }
 }
 
+async function getImageCategories() {
+  const categories = await db.image.findMany({
+    select: {
+      category: true,
+    },
+    distinct: ['category'],
+  })
+  return categories.map(({ category }) => category)
+}
+
 export const assetService = {
   findImagesByCursor: listImages,
   findVideosByCursor: listVideos,
@@ -471,4 +481,5 @@ export const assetService = {
   transformImageToResponse,
   transformVideoToResponse,
   uploadImage,
+  getImageCategories,
 }

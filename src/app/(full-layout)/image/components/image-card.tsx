@@ -123,7 +123,7 @@ export function ImageCard({ image, onDelete }: ImageCardProps) {
           {thumbnails.map(thumb => (
             <button
               type="button"
-              key={thumb.url}
+              key={thumb.label}
               onClick={() => setSelectedUrl(thumb.url)}
               className={cn(
                 'relative group/thumb border-2 border-transparent rounded',

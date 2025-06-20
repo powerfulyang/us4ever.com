@@ -6,6 +6,7 @@ import { TodoStatsServer } from '@/app/(full-layout)/todo/components/todo-stats-
 import { Container } from '@/components/layout/Container'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { db } from '@/server/db'
 
 export const metadata: Metadata = {
   title: '仪表板',
@@ -98,15 +99,32 @@ function SystemStatusSkeleton() {
   )
 }
 
+async function getHealthData() {
+  const memUsage = process.memoryUsage()
+
+  let status = 'healthy'
+
+  // check database
+  const database = await db.$queryRaw`SELECT 1`
+  if (!database) {
+    status = 'unhealthy'
+  }
+
+  return {
+    memUsage,
+    status,
+  }
+}
+
+function formatBytes(bytes: number) {
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`
+}
+
 // 系统状态 Server Component
 async function SystemStatusServer() {
-  // 从 health API 获取系统状态
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/health`, {
-    cache: 'no-store',
-    next: { tags: ['health'] },
-  })
-
-  const healthData = await response.json()
+  const healthData = await getHealthData()
 
   const formatUptime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600)
@@ -128,24 +146,22 @@ async function SystemStatusServer() {
       <Card className="rounded-lg p-4">
         <div className="text-sm text-gray-400 mb-1">内存使用</div>
         <div className="text-lg font-semibold text-blue-400">
-          {healthData.memUsage.heapUsed}
+          {formatBytes(healthData.memUsage.heapUsed)}
         </div>
         <div className="text-xs text-gray-500 mt-1">
           总计:
-          {' '}
-          {healthData.memUsage.heapTotal}
+          {formatBytes(healthData.memUsage.heapTotal)}
         </div>
       </Card>
 
       <Card className="rounded-lg p-4">
         <div className="text-sm text-gray-400 mb-1">外部内存</div>
         <div className="text-lg font-semibold text-purple-400">
-          {healthData.memUsage.external}
+          {formatBytes(healthData.memUsage.external)}
         </div>
         <div className="text-xs text-gray-500 mt-1">
           RSS:
-          {' '}
-          {healthData.memUsage.rss}
+          {formatBytes(healthData.memUsage.rss)}
         </div>
       </Card>
 
@@ -153,11 +169,6 @@ async function SystemStatusServer() {
         <div className="text-sm text-gray-400 mb-1">系统状态</div>
         <div className={`text-lg font-semibold ${healthData.status === 'healthy' ? 'text-green-400' : 'text-red-400'}`}>
           {healthData.status === 'healthy' ? '健康' : '异常'}
-        </div>
-        <div className="text-xs text-gray-500 mt-1">
-          数据库:
-          {' '}
-          {healthData.checks.database ? '正常' : '异常'}
         </div>
       </Card>
     </div>

@@ -7,7 +7,11 @@ import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Switch } from '@/components/ui/switch'
 import { api } from '@/trpc/react'
 
-export function ImageUpload() {
+interface ImageUploadProps {
+  category?: string
+}
+
+export function ImageUpload({ category }: ImageUploadProps) {
   const utils = api.useUtils()
   const [isPublic, setIsPublic] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File>()
@@ -26,6 +30,9 @@ export function ImageUpload() {
     const formData = new FormData()
     formData.append('file', selectedFile)
     formData.append('isPublic', isPublic.toString())
+    if (category) {
+      formData.append('category', category)
+    }
     uploadMutation.mutate(formData)
   }
 

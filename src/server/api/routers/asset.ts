@@ -109,4 +109,8 @@ export const assetRouter = createTRPCRouter({
       return assetService.deleteVideo(input.id, ctx.user.id)
     },
   ),
+
+  getImageCategories: publicProcedure.query(async () => {
+    return assetService.getImageCategories()
+  }),
 })
