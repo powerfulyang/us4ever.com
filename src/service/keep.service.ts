@@ -3,7 +3,7 @@ import type { CreateKeepDTO, QueryKeepDTO, UpdateKeepDTO } from '@/dto/keep.dto'
 import { HTTPException } from 'hono/http-exception'
 import { map } from 'lodash-es'
 import { after } from 'next/server'
-import { PerformanceMonitor } from '@/lib/monitoring'
+import { SEARCH_ENDPOINT } from '@/lib/constants'
 import { db } from '@/server/db'
 import { getCursor } from '@/service/index'
 
@@ -163,50 +163,48 @@ async function findPublicList() {
 
 // 查找用户可访问的列表
 async function findAccessibleList(query: QueryKeepDTO, userIds: string[]) {
-  return PerformanceMonitor.measureAsync('keep.findAccessibleList', async () => {
-    const { limit = 10, cursor, category } = query
+  const { limit = 10, cursor, category } = query
 
-    const items = await db.keep.findMany({
-      take: limit + 1,
-      where: {
-        category,
-        OR: [
-          {
-            ownerId: {
-              in: userIds,
-            },
-          },
-          {
-            isPublic: true,
-          },
-        ],
-      },
-      cursor: getCursor(cursor),
-      orderBy: {
-        createdAt: 'desc',
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            nickname: true,
-            avatar: true,
+  const items = await db.keep.findMany({
+    take: limit + 1,
+    where: {
+      category,
+      OR: [
+        {
+          ownerId: {
+            in: userIds,
           },
         },
+        {
+          isPublic: true,
+        },
+      ],
+    },
+    cursor: getCursor(cursor),
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          nickname: true,
+          avatar: true,
+        },
       },
-    })
-
-    let nextCursor: string | undefined
-    if (items.length > limit) {
-      const nextItem = items.pop()
-      nextCursor = nextItem!.id
-    }
-
-    return {
-      items,
-      nextCursor,
-    }
+    },
   })
+
+  let nextCursor: string | undefined
+  if (items.length > limit) {
+    const nextItem = items.pop()
+    nextCursor = nextItem!.id
+  }
+
+  return {
+    items,
+    nextCursor,
+  }
 }
 
 // 搜索结果接口定义
@@ -250,7 +248,7 @@ export interface Total {
  * @returns 搜索结果
  */
 async function searchKeeps(searchTerm: string): Promise<SearchResult> {
-  const response = await fetch(`http://tools.us4ever.com:8080/internal/search/keeps?q=${encodeURIComponent(searchTerm)}`)
+  const response = await fetch(`${SEARCH_ENDPOINT}/keeps?q=${encodeURIComponent(searchTerm)}`)
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`)
   }
@@ -264,34 +262,31 @@ async function searchKeeps(searchTerm: string): Promise<SearchResult> {
  * @returns 过滤后的搜索结果
  */
 async function searchKeepsWithAccess(query: string, userIds: string[]) {
-  return PerformanceMonitor.measureAsync('keep.search', async () => {
-    const result = await searchKeeps(query)
-    const resultList = result.hits.hits
-    const ids = map(resultList, '_id')
+  const result = await searchKeeps(query)
+  const resultList = result.hits.hits
+  const ids = map(resultList, '_id')
 
-    const list = await db.keep.findMany({
-      select: {
-        id: true,
+  const list = await db.keep.findMany({
+    select: {
+      id: true,
+    },
+    where: {
+      id: {
+        in: ids,
       },
-      where: {
-        id: {
-          in: ids,
-        },
-        OR: [
-          {
-            ownerId: {
-              in: userIds,
-            },
+      OR: [
+        {
+          ownerId: {
+            in: userIds,
           },
-          { isPublic: true },
-        ],
-      },
-    })
-
-    // 按照原始搜索结果的顺序返回
-    return resultList
-      .filter(hit => list.some(keep => keep.id === hit._id))
+        },
+        { isPublic: true },
+      ],
+    },
   })
+
+  // 按照原始搜索结果的顺序返回
+  return resultList.filter(hit => list.some(keep => keep.id === hit._id))
 }
 
 export const keepService = {

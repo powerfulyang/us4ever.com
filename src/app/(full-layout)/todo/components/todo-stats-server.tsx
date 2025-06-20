@@ -1,16 +1,17 @@
 import { Card } from '@/components/ui/card'
-import { PerformanceMonitor } from '@/lib/monitoring'
 import { api } from '@/trpc/server'
 
 interface TodoStatsProps {
   showDetails?: boolean
 }
 
+async function getTodos() {
+  const result = await api.todo.fetchByCursor({})
+  return result.items
+}
+
 export async function TodoStatsServer({ showDetails = false }: TodoStatsProps) {
-  const todos = await PerformanceMonitor.measureAsync('todo-stats-server', async () => {
-    const result = await api.todo.fetchByCursor({})
-    return result.items
-  })
+  const todos = await getTodos()
 
   const stats = {
     total: todos.length,

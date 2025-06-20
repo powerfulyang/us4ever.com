@@ -1,15 +1,12 @@
 import type { Prisma } from '@prisma/client'
 import type { BaseListFilter } from '@/types/common'
-import * as process from 'node:process'
 import { TRPCError } from '@trpc/server'
 import { map } from 'lodash-es'
 import { after } from 'next/server'
 import { imageInclude, transformImageToResponse, transformVideoToResponse, videoInclude } from 'src/service/asset.service'
-import { enhancement } from '@/lib/deepseek'
-import { PerformanceMonitor } from '@/lib/monitoring'
+import { SEARCH_ENDPOINT } from '@/lib/constants'
 import { db } from '@/server/db'
 import { getCursor } from '@/service'
-import { createKeep } from '@/service/keep.service'
 
 /**
  * 动态图片关联接口
@@ -239,35 +236,11 @@ export async function createMoment(input: CreateMomentInput, ownerId: string) {
     })
   })
 
-  // 如果是关键词转博客类型，异步生成博客内容
-  if (result.category === 'keyword2blog' && content) {
-    process.nextTick(async () => {
-      const blog = await enhancement(content)
-      const keep = await createKeep(
-        {
-          content: blog,
-          isPublic,
-          category: 'keyword2blog',
-        },
-        ownerId,
-      )
-      await db.moment.update({
-        where: {
-          id: result.id,
-        },
-        data: {
-          content: `[生成结果](/keep/${keep.id})\n\n${content}`,
-        },
-      })
-    })
-  }
-
   return result
 }
 
 /**
  * 更新动态内容
- * @param input 更新动态的参数
  * @returns 更新后的动态
  */
 export async function updateMoment(input: UpdateMomentInput, ownerId: string) {
@@ -585,13 +558,11 @@ export interface Total {
  * @returns 搜索结果
  */
 export async function searchMoments(searchTerm: string): Promise<SearchResult> {
-  return PerformanceMonitor.measureAsync('moment.searchMoments', async () => {
-    const response = await fetch(`http://tools.us4ever.com:8080/internal/moments/search?q=${encodeURIComponent(searchTerm)}`)
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    return await response.json()
-  })
+  const response = await fetch(`${SEARCH_ENDPOINT}/moments?q=${encodeURIComponent(searchTerm)}`)
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+  return await response.json()
 }
 
 /**
@@ -601,72 +572,70 @@ export async function searchMoments(searchTerm: string): Promise<SearchResult> {
  * @returns 搜索结果列表
  */
 export async function searchAndFetchMoments(query: string, userIds: string[]) {
-  return PerformanceMonitor.measureAsync('moment.searchAndFetchMoments', async () => {
-    if (!query.trim()) {
-      return []
-    }
+  if (!query.trim()) {
+    return []
+  }
 
-    const result = await searchMoments(query)
-    const resultList = result.hits.hits
-    const ids = map(resultList, '_id')
+  const result = await searchMoments(query)
+  const resultList = result.hits.hits
+  const ids = map(resultList, '_id')
 
-    const list = await db.moment.findMany({
-      include: {
-        images: {
-          include: {
-            image: {
-              include: imageInclude,
-            },
-          },
-          orderBy: {
-            sort: 'asc',
+  const list = await db.moment.findMany({
+    include: {
+      images: {
+        include: {
+          image: {
+            include: imageInclude,
           },
         },
-        videos: {
-          include: {
-            video: {
-              include: videoInclude,
-            },
-          },
-          orderBy: {
-            sort: 'asc',
-          },
+        orderBy: {
+          sort: 'asc',
         },
-        owner: true,
       },
-      where: {
-        id: {
-          in: ids,
+      videos: {
+        include: {
+          video: {
+            include: videoInclude,
+          },
         },
-        OR: [
-          {
-            ownerId: {
-              in: userIds,
-            },
-          },
-          { isPublic: true },
-        ],
+        orderBy: {
+          sort: 'asc',
+        },
       },
-    })
-
-    // 转换为Map以便按原始搜索结果的顺序排序
-    const momentsMap = new Map(
-      list.map(
-        moment => [
-          moment.id,
-          {
-            ...moment,
-            content: resultList.find(hit => hit._id === moment.id)?.highlight?.content?.[0] || moment.content,
-            images: moment.images.map(({ image }) => transformImageToResponse(image)),
-            videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
+      owner: true,
+    },
+    where: {
+      id: {
+        in: ids,
+      },
+      OR: [
+        {
+          ownerId: {
+            in: userIds,
           },
-        ],
-      ),
-    )
-
-    // 按照原始搜索结果的顺序返回
-    return ids.filter(id => momentsMap.has(id)).map(id => momentsMap.get(id)!)
+        },
+        { isPublic: true },
+      ],
+    },
   })
+
+  // 转换为Map以便按原始搜索结果的顺序排序
+  const momentsMap = new Map(
+    list.map(
+      moment => [
+        moment.id,
+        {
+          ...moment,
+          content: resultList.find(hit => hit._id === moment.id)?.highlight?.content?.[0] || moment.content,
+          images: moment.images.map(({ image }) => transformImageToResponse(image)),
+          videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
+        },
+      ],
+    ),
+  )
+
+  // 按照原始搜索结果的顺序返回
+  return ids.filter(id => momentsMap.has(id)).map(id => momentsMap.get(id)!)
 }
 
 /**
@@ -674,19 +643,17 @@ export async function searchAndFetchMoments(query: string, userIds: string[]) {
  * @returns 公开的动态列表
  */
 export async function fetchPublicItems() {
-  return PerformanceMonitor.measureAsync('moment.fetchPublicItems', async () => {
-    return db.moment.findMany({
-      where: {
-        isPublic: true,
-      },
-      select: {
-        id: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      },
-    })
+  return db.moment.findMany({
+    where: {
+      isPublic: true,
+    },
+    select: {
+      id: true,
+      updatedAt: true,
+    },
+    orderBy: {
+      updatedAt: 'desc',
+    },
   })
 }
 

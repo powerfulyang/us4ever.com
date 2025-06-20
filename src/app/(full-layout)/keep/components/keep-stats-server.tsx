@@ -1,32 +1,33 @@
 import { Card } from '@/components/ui/card'
-import { PerformanceMonitor } from '@/lib/monitoring'
 import { api } from '@/trpc/server'
 
 interface KeepStatsProps {
   userId?: string
 }
 
+async function getStats(userId?: string) {
+  if (!userId) {
+    // 获取公开统计
+    const publicKeeps = await api.keep.fetchPublicItems()
+    return {
+      total: publicKeeps.length,
+      public: publicKeeps.length,
+      private: 0,
+    }
+  }
+
+  // 这里可以添加用户统计逻辑
+  return {
+    total: 0,
+    public: 0,
+    private: 0,
+  }
+}
+
 // Keep 统计信息 Server Component
 export async function KeepStatsServer({ userId }: KeepStatsProps) {
   // 在服务器端获取统计数据
-  const stats = await PerformanceMonitor.measureAsync('keep-stats-server', async () => {
-    if (!userId) {
-      // 获取公开统计
-      const publicKeeps = await api.keep.fetchPublicItems()
-      return {
-        total: publicKeeps.length,
-        public: publicKeeps.length,
-        private: 0,
-      }
-    }
-
-    // 这里可以添加用户统计逻辑
-    return {
-      total: 0,
-      public: 0,
-      private: 0,
-    }
-  })
+  const stats = await getStats(userId)
 
   return (
     <Card>

@@ -1,7 +1,6 @@
 import type { listMoments } from '@/service/moment.service'
 import { z } from 'zod'
 import { BasePrimaryKeySchema, BaseQuerySchema, QuerySearchSchema, UpdateViewsSchema } from '@/dto/base.dto'
-import { PerformanceMonitor } from '@/lib/monitoring'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { momentService } from '@/service/moment.service'
 
@@ -10,19 +9,15 @@ export type Moment = Awaited<ReturnType<typeof listMoments>>[number]
 export const momentRouter = createTRPCRouter({
   fetchPublicItems: publicProcedure.query(
     async () => {
-      return PerformanceMonitor.measureAsync('moment.fetchPublicItems', async () => {
-        return momentService.fetchPublicItems()
-      })
+      return momentService.fetchPublicItems()
     },
   ),
 
   fetchByCursor: publicProcedure.input(BaseQuerySchema).query(
     async ({ ctx, input }) => {
-      return PerformanceMonitor.measureAsync('moment.fetchByCursor', async () => {
-        const { limit, cursor, category } = input
-        const userIds = ctx.groupUserIds
-        return momentService.findMomentsByCursor({ userIds, limit, cursor, category })
-      })
+      const { limit, cursor, category } = input
+      const userIds = ctx.groupUserIds
+      return momentService.findMomentsByCursor({ userIds, limit, cursor, category })
     },
   ),
 
@@ -37,19 +32,17 @@ export const momentRouter = createTRPCRouter({
       extraData: z.record(z.any()).default({}),
     }))
     .mutation(async ({ input, ctx }) => {
-      return PerformanceMonitor.measureAsync('moment.create', async () => {
-        const { imageIds, videoIds, ...rest } = input
-        const images = imageIds.map((id, index) => ({ id, sort: index }))
-        const videos = videoIds.map((id, index) => ({ id, sort: index + imageIds.length }))
-        return momentService.createMoment(
-          {
-            ...rest,
-            images,
-            videos,
-          },
-          ctx.user.id,
-        )
-      })
+      const { imageIds, videoIds, ...rest } = input
+      const images = imageIds.map((id, index) => ({ id, sort: index }))
+      const videos = videoIds.map((id, index) => ({ id, sort: index + imageIds.length }))
+      return momentService.createMoment(
+        {
+          ...rest,
+          images,
+          videos,
+        },
+        ctx.user.id,
+      )
     }),
 
   update: protectedProcedure
@@ -63,35 +56,29 @@ export const momentRouter = createTRPCRouter({
       extraData: z.record(z.any()).default({}),
     }))
     .mutation(async ({ input, ctx }) => {
-      return PerformanceMonitor.measureAsync('moment.update', async () => {
-        const { imageIds, videoIds, ...rest } = input
-        const images = imageIds.map((id, index) => ({ id, sort: index }))
-        const videos = videoIds.map((id, index) => ({ id, sort: index }))
-        return momentService.updateMoment(
-          {
-            ...rest,
-            images,
-            videos,
-          },
-          ctx.user.id,
-        )
-      })
+      const { imageIds, videoIds, ...rest } = input
+      const images = imageIds.map((id, index) => ({ id, sort: index }))
+      const videos = videoIds.map((id, index) => ({ id, sort: index }))
+      return momentService.updateMoment(
+        {
+          ...rest,
+          images,
+          videos,
+        },
+        ctx.user.id,
+      )
     }),
 
   delete: protectedProcedure.input(BasePrimaryKeySchema).mutation(
     async ({ input, ctx }) => {
-      return PerformanceMonitor.measureAsync('moment.delete', async () => {
-        return momentService.deleteMoment(input.id, ctx.user.id)
-      })
+      return momentService.deleteMoment(input.id, ctx.user.id)
     },
   ),
 
   search: publicProcedure.input(QuerySearchSchema).query(
     async ({ input, ctx }) => {
-      return PerformanceMonitor.measureAsync('moment.search', async () => {
-        const userIds = ctx.groupUserIds
-        return momentService.searchAndFetchMoments(input.query, userIds)
-      })
+      const userIds = ctx.groupUserIds
+      return momentService.searchAndFetchMoments(input.query, userIds)
     },
   ),
 
@@ -99,11 +86,9 @@ export const momentRouter = createTRPCRouter({
     .input(UpdateViewsSchema.merge(BasePrimaryKeySchema))
     .query(
       async ({ input, ctx }) => {
-        return PerformanceMonitor.measureAsync('moment.getById', async () => {
-          const userIds = ctx.groupUserIds
-          const moment = await momentService.getMomentById(input.id, userIds)
-          return moment
-        })
+        const userIds = ctx.groupUserIds
+        const moment = await momentService.getMomentById(input.id, userIds)
+        return moment
       },
     ),
 })
