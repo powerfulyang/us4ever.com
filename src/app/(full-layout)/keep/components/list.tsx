@@ -60,7 +60,11 @@ function KeepCard({ keep }: { keep: any }) {
   )
 }
 
-export function KeepList() {
+interface KeepListProps {
+  category?: string
+}
+
+export function KeepList({ category }: KeepListProps) {
   const {
     data,
     fetchNextPage,
@@ -69,7 +73,7 @@ export function KeepList() {
     isLoading,
     error,
   } = api.keep.fetchByCursor.useInfiniteQuery(
-    {},
+    { category },
     {
       getNextPageParam: lastPage => lastPage.nextCursor,
     },

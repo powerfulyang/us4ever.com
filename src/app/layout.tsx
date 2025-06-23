@@ -33,7 +33,7 @@ export default async function RootLayout({
 }) {
   const user = await api.user.current()
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <head>
         <title>
           {metadata.title as string}

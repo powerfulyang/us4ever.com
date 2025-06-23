@@ -19,7 +19,7 @@ export function ImageList({ category }: ImageListProps) {
   const utils = api.useUtils()
   const deleteImageMutation = api.asset.deleteImage.useMutation({
     onSuccess: () => {
-      utils.asset.fetchImagesByCursor.invalidate()
+      void utils.asset.fetchImagesByCursor.invalidate()
       setIsConfirmOpen(false)
     },
   })

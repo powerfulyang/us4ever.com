@@ -155,10 +155,10 @@ export async function uploadVideo(
     file: File
     uploadedBy: string
     isPublic?: boolean
-    category: string
+    category?: string
   },
 ) {
-  const { file, isPublic = false, uploadedBy, category } = options
+  const { file, isPublic = false, uploadedBy, category = 'default' } = options
   const buffer = await file.arrayBuffer()
   const name = file.name
   const type = file.type

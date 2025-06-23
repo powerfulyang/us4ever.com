@@ -20,3 +20,37 @@ export const MomentCategoryMap = {
     description: 'Telegram EMT Channel',
   },
 } as const
+
+export function getTitle(category: keyof typeof MomentCategoryMap | string) {
+  switch (category) {
+    case 'default':
+      return MomentCategoryMap.default.title
+    case 'eleven':
+      return MomentCategoryMap.eleven.title
+    case 'prompt':
+      return MomentCategoryMap.prompt.title
+    case 'keyword2blog':
+      return MomentCategoryMap.keyword2blog.title
+    case 'telegram:emt_channel':
+      return MomentCategoryMap['telegram:emt_channel'].title
+    default:
+      return `动态 - ${category}`
+  }
+}
+
+export function getDescription(category: keyof typeof MomentCategoryMap | string) {
+  switch (category) {
+    case 'default':
+      return MomentCategoryMap.default.description
+    case 'eleven':
+      return MomentCategoryMap.eleven.description
+    case 'prompt':
+      return MomentCategoryMap.prompt.description
+    case 'keyword2blog':
+      return MomentCategoryMap.keyword2blog.description
+    case 'telegram:emt_channel':
+      return MomentCategoryMap['telegram:emt_channel'].description
+    default:
+      return `分享生活点滴 - ${category}`
+  }
+}

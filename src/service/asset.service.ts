@@ -355,10 +355,10 @@ async function uploadImage(
     file: File
     uploadedBy: string
     isPublic?: boolean
-    category: string
+    category?: string
   },
 ) {
-  const { file, isPublic = false, uploadedBy, category } = options
+  const { file, isPublic = false, uploadedBy, category = 'default' } = options
   const buffer = await file.arrayBuffer()
   const name = file.name
   const type = file.type
@@ -458,10 +458,16 @@ async function uploadImage(
   }
 }
 
-async function getImageCategories() {
+async function getImageCategories(userIds: string[]) {
   const categories = await db.image.findMany({
     select: {
       category: true,
+    },
+    where: {
+      OR: [
+        { uploadedBy: { in: userIds } },
+        { isPublic: true },
+      ],
     },
     distinct: ['category'],
   })

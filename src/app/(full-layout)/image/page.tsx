@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
-import { ImageCategory } from './components/category'
+import { ImageCategoryServer } from './components/category'
 import { ImageList } from './components/list'
 import { ImageUpload } from './components/upload'
 
@@ -22,7 +22,7 @@ export default async function ImagePage() {
         description="图片统一管理"
       >
         <ImageUpload />
-        <ImageCategory />
+        <ImageCategoryServer />
         <ImageList />
       </Container>
     </HydrateClient>

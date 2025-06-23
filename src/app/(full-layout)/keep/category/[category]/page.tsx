@@ -8,20 +8,33 @@ import { SearchForm } from '@/components/search-form'
 import { Button } from '@/components/ui/button'
 import { api, HydrateClient } from '@/trpc/server'
 
-export const metadata: Metadata = {
-  title: 'Keep',
-  description: 'A place to record inspiration and thinking',
-  alternates: {
-    canonical: `/keep`,
-  },
+interface KeepPageProps {
+  params: Promise<{ category: string }>
 }
 
-export default async function KeepPage() {
-  await api.keep.fetchByCursor.prefetch({})
+export async function generateMetadata({ params }: KeepPageProps): Promise<Metadata> {
+  const category = decodeURIComponent((await params).category)
+
+  return {
+    title: `笔记本 - ${category}`,
+    description: `记录灵感与思考的地方 - ${category}`,
+    alternates: {
+      canonical: `/keep/category/${category}`,
+    },
+  }
+}
+
+export default async function KeepCategoryPage({ params }: KeepPageProps) {
+  const category = decodeURIComponent((await params).category)
+
+  await api.keep.fetchByCursor.prefetch({
+    category,
+  })
+
   return (
     <HydrateClient>
       <Container
-        title="我的笔记本"
+        title={`${category} 分类笔记`}
         description="记录灵感与思考的地方"
         rightContent={(
           <AuthenticatedOnly disableChildren>
@@ -34,8 +47,8 @@ export default async function KeepPage() {
           </AuthenticatedOnly>
         )}
       >
-        <KeepCategoryServer />
-        <KeepList />
+        <KeepCategoryServer currentCategory={category} />
+        <KeepList category={category} />
       </Container>
     </HydrateClient>
   )

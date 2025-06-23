@@ -22,7 +22,7 @@ interface Props {
   category?: string
 }
 
-export function MomentCreate({ category = 'default' }: Props) {
+export function MomentCreate({ category }: Props) {
   const [isPublic, setIsPublic] = useState(false)
   const [content, setContent] = useState('')
   const [selectedMedias, setSelectedMedias] = useState<Media[]>([])

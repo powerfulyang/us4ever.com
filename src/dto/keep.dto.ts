@@ -1,12 +1,12 @@
 import { z } from 'zod'
-import { BaseQuerySchema } from '@/dto/base.dto'
+import { BaseCategoryField, BaseQuerySchema } from '@/dto/base.dto'
 
 // 创建 Keep 的 DTO
 export const createKeepSchema = z.object({
   content: z.string().min(1, '内容不能为空'),
   isPublic: z.boolean().default(false).optional(),
   tags: z.array(z.string()).default([]).optional(),
-  category: z.string().default('default').optional(),
+  category: BaseCategoryField,
 })
 
 export type CreateKeepDTO = z.infer<typeof createKeepSchema>
@@ -16,7 +16,7 @@ export const updateKeepSchema = z.object({
   content: z.string().min(1, '内容不能为空').optional(),
   isPublic: z.boolean().optional(),
   tags: z.array(z.string()).optional(),
-  category: z.string().optional(),
+  category: BaseCategoryField,
   title: z.string().optional(),
   summary: z.string().optional(),
 })

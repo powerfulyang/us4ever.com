@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { BaseCategoryField } from '@/dto/base.dto'
 
 // 创建 Todo 的 DTO
 export const createTodoSchema = z.object({
@@ -9,7 +10,7 @@ export const createTodoSchema = z.object({
   dueDate: z.string().datetime().optional().transform(val => val ? new Date(val) : undefined),
   isPublic: z.boolean().default(false),
   pinned: z.boolean().default(false),
-  category: z.string().default('default'),
+  category: BaseCategoryField,
 })
 
 export type CreateTodoDTO = z.infer<typeof createTodoSchema>
@@ -23,7 +24,7 @@ export const updateTodoSchema = z.object({
   dueDate: z.string().datetime().transform(val => val ? new Date(val) : null).optional(),
   isPublic: z.boolean().optional(),
   pinned: z.boolean().optional(),
-  category: z.string().optional(),
+  category: BaseCategoryField,
 })
 
 export type UpdateTodoDTO = z.infer<typeof updateTodoSchema>
@@ -33,7 +34,7 @@ export const queryTodoSchema = z.object({
   status: z.boolean().optional(),
   priority: z.number().int().min(0).max(3).optional(),
   pinned: z.boolean().optional(),
-  category: z.string().optional(),
+  category: BaseCategoryField,
   limit: z.number().min(1).max(100).default(20),
   offset: z.number().min(0).default(0),
 })

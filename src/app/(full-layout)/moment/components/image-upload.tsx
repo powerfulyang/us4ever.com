@@ -22,7 +22,7 @@ interface MediaUploadProps {
   onMediaRemoveAction: (media: Media) => void
   maxMedias?: number
   className?: string
-  category: string
+  category?: string
   onUploadingChange?: (isUploading: boolean) => void
 }
 
@@ -39,7 +39,7 @@ export function MediaUpload({
   onMediaRemoveAction,
   maxMedias = 9,
   className,
-  category,
+  category = 'default',
   onUploadingChange,
 }: MediaUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)

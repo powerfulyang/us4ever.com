@@ -1,49 +1,49 @@
 import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
-import { MomentCategoryMap } from '@/constants/moment'
+import { SearchForm } from '@/components/search-form'
+import { getDescription, getTitle } from '@/constants/moment'
 import { api, HydrateClient } from '@/trpc/server'
+import { MomentCategoryServer } from '../../components/category'
 import { MomentCreate } from '../../components/create'
 import { MomentList } from '../../components/list'
 
-interface PageProps {
-  params: Promise<{
-    category: string
-  }>
+interface MomentPageProps {
+  params: Promise<{ category: string }>
 }
 
-function getTitle(category: keyof typeof MomentCategoryMap) {
-  return MomentCategoryMap[category]?.title || category
-}
+export async function generateMetadata({ params }: MomentPageProps): Promise<Metadata> {
+  const category = decodeURIComponent((await params).category)
 
-function getDescription(category: keyof typeof MomentCategoryMap) {
-  return MomentCategoryMap[category]?.description || category
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const category = (await params).category
-  const decoded = decodeURIComponent(category) as keyof typeof MomentCategoryMap
   return {
-    title: getTitle(decoded),
-    description: getDescription(decoded),
+    title: getTitle(category),
+    description: getDescription(category),
     alternates: {
-      canonical: `/moment/category/${decoded}`,
+      canonical: `/moment/category/${category}`,
     },
   }
 }
 
-export default async function MomentPage({ params }: PageProps) {
-  const category = (await params).category
-  const decoded = decodeURIComponent(category) as keyof typeof MomentCategoryMap
-  await api.moment.fetchByCursor.prefetch({ category: decoded })
+export default async function MomentCategoryPage({ params }: MomentPageProps) {
+  const category = decodeURIComponent((await params).category)
+
+  await api.moment.fetchByCursor.prefetch({
+    category,
+  })
+
   return (
     <HydrateClient>
       <Container
-        title={getTitle(decoded)}
-        description={getDescription(decoded)}
+        title={getTitle(category)}
+        description={getDescription(category)}
       >
         <div className="space-y-4 max-w-[500px] m-auto">
-          <MomentCreate category={decoded} />
-          <MomentList category={decoded} />
+          <SearchForm
+            searchPath="/moment/search"
+            placeholder="支持搜索动态内容和图片文字"
+          />
+          <MomentCreate category={category} />
+          <MomentCategoryServer currentCategory={category} />
+          <MomentList category={category} />
         </div>
       </Container>
     </HydrateClient>

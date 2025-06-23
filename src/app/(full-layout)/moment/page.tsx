@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
 import { SearchForm } from '@/components/search-form'
 import { api, HydrateClient } from '@/trpc/server'
+import { MomentCategoryServer } from './components/category'
 import { MomentCreate } from './components/create'
 import { MomentList } from './components/list'
 
@@ -27,6 +28,7 @@ export default async function MomentPage() {
             placeholder="支持搜索动态内容和图片文字"
           />
           <MomentCreate />
+          <MomentCategoryServer />
           <MomentList />
         </div>
       </Container>

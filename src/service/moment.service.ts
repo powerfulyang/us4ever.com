@@ -199,7 +199,7 @@ export async function createMoment(input: CreateMomentInput, ownerId: string) {
   } = input
 
   // 使用事务确保原子性操作
-  const result = await db.$transaction(async (tx) => {
+  return await db.$transaction(async (tx) => {
     return tx.moment.create({
       data: {
         category,
@@ -235,8 +235,6 @@ export async function createMoment(input: CreateMomentInput, ownerId: string) {
       },
     })
   })
-
-  return result
 }
 
 /**
@@ -669,6 +667,27 @@ export async function incrementMomentViews(id: string) {
   })
 }
 
+/**
+ * 获取动态分类列表
+ * @param userIds 用户ID列表
+ * @returns 分类列表
+ */
+export async function getCategories(userIds: string[]) {
+  const categories = await db.moment.findMany({
+    select: {
+      category: true,
+    },
+    where: {
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+    distinct: ['category'],
+  })
+  return categories.map(category => category.category)
+}
+
 export const momentService = {
   listMoments,
   findMomentsByCursor,
@@ -682,4 +701,5 @@ export const momentService = {
   searchAndFetchMoments,
   fetchPublicItems,
   incrementMomentViews,
+  getCategories,
 }

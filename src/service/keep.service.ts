@@ -289,6 +289,22 @@ async function searchKeepsWithAccess(query: string, userIds: string[]) {
   return resultList.filter(hit => list.some(keep => keep.id === hit._id))
 }
 
+async function getCategories(userIds: string[]) {
+  const categories = await db.keep.findMany({
+    select: {
+      category: true,
+    },
+    where: {
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+    distinct: ['category'],
+  })
+  return categories.map(category => category.category)
+}
+
 export const keepService = {
   findAccessibleList,
   findPublicList,
@@ -298,4 +314,5 @@ export const keepService = {
   deleteKeep,
   incrementKeepViews,
   searchKeepsWithAccess,
+  getCategories,
 }

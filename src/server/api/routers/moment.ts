@@ -1,6 +1,12 @@
 import type { listMoments } from '@/service/moment.service'
 import { z } from 'zod'
-import { BasePrimaryKeySchema, BaseQuerySchema, QuerySearchSchema, UpdateViewsSchema } from '@/dto/base.dto'
+import {
+  BaseCategoryField,
+  BasePrimaryKeySchema,
+  BaseQuerySchema,
+  QuerySearchSchema,
+  UpdateViewsSchema,
+} from '@/dto/base.dto'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { momentService } from '@/service/moment.service'
 
@@ -24,7 +30,7 @@ export const momentRouter = createTRPCRouter({
   create: protectedProcedure
     .input(z.object({
       content: z.string(),
-      category: z.string().default('default'),
+      category: BaseCategoryField,
       imageIds: z.array(z.string()).default([]),
       videoIds: z.array(z.string()).default([]),
       isPublic: z.boolean().default(false),
@@ -87,38 +93,12 @@ export const momentRouter = createTRPCRouter({
     .query(
       async ({ input, ctx }) => {
         const userIds = ctx.groupUserIds
-        const moment = await momentService.getMomentById(input.id, userIds)
-        return moment
+        return await momentService.getMomentById(input.id, userIds)
       },
     ),
+
+  getCategories: publicProcedure
+    .query(async ({ ctx }) => {
+      return momentService.getCategories(ctx.groupUserIds)
+    }),
 })
-
-export interface SearchResult {
-  hits: Hits
-}
-
-export interface Hits {
-  total: Total
-  hits: Hit[]
-}
-
-export interface Hit {
-  _index: string
-  _id: string
-  _score: number
-  _source: Source
-  highlight?: Highlight
-}
-
-export interface Source {
-  content: string
-}
-
-export interface Highlight {
-  content?: string[]
-}
-
-export interface Total {
-  value: number
-  relation: string
-}

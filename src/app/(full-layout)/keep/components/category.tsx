@@ -1,19 +1,19 @@
 import { CategoryList } from '@/components/ui/category-list'
 import { api as serverApi } from '@/trpc/server'
 
-interface ImageCategoryProps {
+interface KeepCategoryProps {
   currentCategory?: string
 }
 
 // 服务端版本，用于预渲染
-export async function ImageCategoryServer({ currentCategory }: ImageCategoryProps) {
-  const categories = await serverApi.asset.getImageCategories()
+export async function KeepCategoryServer({ currentCategory }: KeepCategoryProps) {
+  const categories = await serverApi.keep.getCategories()
 
   return (
     <CategoryList
-      title="图片分类"
+      title="笔记分类"
       categories={categories}
-      basePath="/image"
+      basePath="/keep"
       currentCategory={currentCategory}
     />
   )

@@ -1,19 +1,19 @@
 import { CategoryList } from '@/components/ui/category-list'
 import { api as serverApi } from '@/trpc/server'
 
-interface ImageCategoryProps {
+interface MomentCategoryProps {
   currentCategory?: string
 }
 
 // 服务端版本，用于预渲染
-export async function ImageCategoryServer({ currentCategory }: ImageCategoryProps) {
-  const categories = await serverApi.asset.getImageCategories()
+export async function MomentCategoryServer({ currentCategory }: MomentCategoryProps) {
+  const categories = await serverApi.moment.getCategories()
 
   return (
     <CategoryList
-      title="图片分类"
+      title="动态分类"
       categories={categories}
-      basePath="/image"
+      basePath="/moment"
       currentCategory={currentCategory}
     />
   )

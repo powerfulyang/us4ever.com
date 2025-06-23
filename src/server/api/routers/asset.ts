@@ -1,6 +1,6 @@
 import type { RouterOutputs } from '@/trpc/react'
 import { zfd } from 'zod-form-data'
-import { BasePrimaryKeySchema, BaseQuerySchema } from '@/dto/base.dto'
+import { BaseFormDataCategoryField, BasePrimaryKeySchema, BaseQuerySchema } from '@/dto/base.dto'
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -17,7 +17,7 @@ export const assetRouter = createTRPCRouter({
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),
-      category: zfd.text().default('default'),
+      category: BaseFormDataCategoryField,
     }))
     .mutation(async ({ input, ctx }) => {
       const isPublic = input.isPublic === 'true'
@@ -33,7 +33,7 @@ export const assetRouter = createTRPCRouter({
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),
-      category: zfd.text().default('default'),
+      category: BaseFormDataCategoryField,
     }))
     .mutation(async ({ input, ctx }) => {
       const isPublic = input.isPublic === 'true'
@@ -110,7 +110,9 @@ export const assetRouter = createTRPCRouter({
     },
   ),
 
-  getImageCategories: publicProcedure.query(async () => {
-    return assetService.getImageCategories()
-  }),
+  getImageCategories: publicProcedure.query(
+    async ({ ctx }) => {
+      return assetService.getImageCategories(ctx.groupUserIds)
+    },
+  ),
 })

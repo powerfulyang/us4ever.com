@@ -52,4 +52,9 @@ export const keepRouter = createTRPCRouter({
       const userIds = ctx.groupUserIds
       return keepService.searchKeepsWithAccess(input.query, userIds)
     }),
+
+  getCategories: publicProcedure
+    .query(async ({ ctx }) => {
+      return keepService.getCategories(ctx.groupUserIds)
+    }),
 })

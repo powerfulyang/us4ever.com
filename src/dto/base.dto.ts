@@ -1,9 +1,22 @@
 import { z } from 'zod'
+import { zfd } from 'zod-form-data'
+
+export const BaseCategoryField = z
+  .string()
+  .transform(val => !val ? undefined : decodeURIComponent(val))
+  .default('default')
+  .optional()
+
+export const BaseFormDataCategoryField = zfd
+  .text()
+  .transform(val => !val ? undefined : decodeURIComponent(val))
+  .default('default')
+  .optional()
 
 export const BaseQuerySchema = z.object({
   limit: z.number().int().min(1).max(100).default(10),
   cursor: z.string().optional().transform(val => !val ? undefined : val),
-  category: z.string().optional(),
+  category: BaseCategoryField,
 })
 
 export const BasePrimaryKeySchema = z.object({
