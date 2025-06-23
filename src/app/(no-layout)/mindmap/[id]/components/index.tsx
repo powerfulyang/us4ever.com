@@ -14,8 +14,10 @@ const MindMapView = dynamic(
 interface Props {
   data: any
   editable?: boolean
+  id: string
+  isPublic?: boolean
 }
 
-export function MindMapDetailPage({ data, editable }: Props) {
-  return <MindMapView editable={editable} data={data} />
+export function MindMapDetailPage({ data, editable, id, isPublic }: Props) {
+  return <MindMapView editable={editable} data={data} id={id} isPublic={isPublic} />
 }
