@@ -56,11 +56,11 @@ export default function ImageEditorPage() {
       <div className="mb-4 flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-2">
           <label htmlFor="bg-upload" className="text-sm font-medium">背景图片</label>
-          <Input id="bg-upload" type="file" accept="image/*" onChange={handleBackgroundUpload} />
+          <Input className="border-blue-400 text-blue-400" id="bg-upload" type="file" accept="image/*" onChange={handleBackgroundUpload} />
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="char-upload" className="text-sm font-medium">人物图片</label>
-          <Input id="char-upload" type="file" accept="image/*" onChange={handleCharacterUpload} />
+          <Input className="border-blue-400 text-blue-400" id="char-upload" type="file" accept="image/*" onChange={handleCharacterUpload} />
         </div>
         <Button
           variant="outline"
@@ -85,7 +85,7 @@ export default function ImageEditorPage() {
           清空画布
         </Button>
       </div>
-      <div className="relative w-full flex-1 border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
+      <div className="relative w-full flex-1 border border-gray-200 border-dashed rounded-lg overflow-hidden">
         <canvas
           className="w-full h-full"
           ref={canvasRef}

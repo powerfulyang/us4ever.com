@@ -26,7 +26,7 @@ export function useImageEditor(canvasRef: RefObject<HTMLCanvasElement | null>) {
     const newCanvas = new Canvas(canvasRef.current, {
       width: canvasRef.current.offsetWidth,
       height: canvasRef.current.offsetHeight,
-      backgroundColor: '#f0f0f0',
+      // backgroundColor: '#f0f0f0',
     })
     setCanvas(newCanvas)
 

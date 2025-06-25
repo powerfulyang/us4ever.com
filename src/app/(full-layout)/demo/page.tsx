@@ -24,6 +24,28 @@ const demoLinks: LinkProps[] = [
       </svg>
     ),
   },
+  {
+    title: 'Excel/CSV 数据解析器',
+    description: '上传 Excel 或 CSV 文件，自动解析为 JSON',
+    href: '/demo/data-parser',
+    target: '_blank',
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Image Editor',
+    description: '图片编辑器',
+    href: '/demo/image-editor',
+    target: '_blank',
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
 ]
 
 export default function Demo() {
