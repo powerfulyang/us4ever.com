@@ -183,10 +183,11 @@
 
   strong {
     @apply font-medium;
-    background: linear-gradient(to right, #f472b6, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #f472b6;
+    //background: linear-gradient(to right, #f472b6, #c084fc);
+    //-webkit-background-clip: text;
+    //-webkit-text-fill-color: transparent;
+    //background-clip: text;
   }
 
   blockquote {

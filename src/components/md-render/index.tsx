@@ -67,7 +67,7 @@ const customSchema = {
 
 export function MdRender({ children, className, enableMermaid }: Props) {
   return (
-    <div className={cn(styles.markdownBody, className)}>
+    <div className={cn(styles.markdownBody, className, 'relative')}>
       {enableMermaid && <LazyMermaidRender source={children} />}
       <ReactMarkdown
         remarkPlugins={[
@@ -81,9 +81,9 @@ export function MdRender({ children, className, enableMermaid }: Props) {
         ]}
         rehypePlugins={[
           rehypeSlug,
-          rehypeKatex,
           rehypeRaw,
           [rehypeSanitize, customSchema], // 使用自定义 schema
+          rehypeKatex, // should put after rehypeSanitize
           [rehypeStringify, { allowDangerousHtml: true }], // 转换为字符串
         ]}
         components={{

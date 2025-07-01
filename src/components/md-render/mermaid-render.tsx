@@ -9,7 +9,7 @@ export default function MermaidRender({ source }: { source: string }) {
     mermaid.initialize({
       startOnLoad: false,
       theme: 'forest',
-      fontFamily: 'inherit',
+      fontFamily: 'Fira Code, LXGW, sans-serif',
     })
   })
 

@@ -69,7 +69,7 @@ export default function RemoteMdx({
   }
 
   return (
-    <div className={cn(styles.markdownBody, className)}>
+    <div className={cn(styles.markdownBody, className, 'relative')}>
       {enableMermaid && <LazyMermaidRender source={source} />}
       <MDXRemote
         source={source}

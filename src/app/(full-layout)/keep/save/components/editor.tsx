@@ -270,8 +270,8 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
             )}
           </div>
 
-          <div className="rounded-lg overflow-hidden shadow-inner bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-            <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-700/50 backdrop-blur-sm px-4 py-2 border-b border-gray-200 dark:border-gray-600">
+          <div className="rounded-lg overflow-hidden shadow-inner bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex flex-col">
+            <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-700/50 backdrop-blur-sm px-4 py-2">
               <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -280,7 +280,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
                 预览
               </h3>
             </div>
-            <div className="p-4 overflow-y-auto max-w-none h-full">
+            <div className="p-4 overflow-y-auto max-w-none flex-1">
               <MdRender enableMermaid>
                 {content || '*开始输入内容，这里会实时显示预览...*'}
               </MdRender>
