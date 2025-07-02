@@ -1,5 +1,6 @@
 'use client'
 
+import { Code } from 'lucide-react'
 import React from 'react'
 import { PrismCode } from '@/components/md-render/PrismCode'
 
@@ -12,9 +13,7 @@ export function TypeDisplay({ types }: TypeDisplayProps) {
     <div className="space-y-4">
       <div className="flex items-center">
         <h3 className="text-lg font-semibold flex items-center">
-          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-          </svg>
+          <Code className="w-5 h-5 mr-2 text-blue-600" />
           TypeScript 类型定义
         </h3>
       </div>

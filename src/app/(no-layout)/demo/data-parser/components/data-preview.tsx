@@ -1,5 +1,6 @@
 'use client'
 
+import { BarChart3, Check, Copy } from 'lucide-react'
 import React, { useMemo, useState } from 'react'
 import { cn } from '@/utils/cn'
 
@@ -111,7 +112,6 @@ export function DataPreview({ data, fileName, fileType, isMultiSheet = false, sh
             <p className="text-sm text-blue-600 mt-2">
               当前显示：
               <strong>{selectedSheet}</strong>
-              {' '}
               工作表
             </p>
           )}
@@ -121,11 +121,8 @@ export function DataPreview({ data, fileName, fileType, isMultiSheet = false, sh
       {/* 文件信息和统计 */}
       <div className="bg-gray-50 rounded-lg p-4">
         <h3 className="text-lg font-semibold mb-3 flex items-center">
-          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
+          <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
           数据概览
-          {' '}
           {isMultiSheet && selectedSheet && `- ${selectedSheet}`}
         </h3>
 
@@ -160,7 +157,6 @@ export function DataPreview({ data, fileName, fileType, isMultiSheet = false, sh
         <div className="mt-4">
           <div className="text-sm text-gray-600">
             <strong>文件名：</strong>
-            {' '}
             {fileName}
           </div>
         </div>
@@ -277,16 +273,8 @@ export function DataPreview({ data, fileName, fileType, isMultiSheet = false, sh
                           title="复制单元格内容"
                         >
                           {copiedCell === `${index}-${col}`
-                            ? (
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                              )
-                            : (
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                </svg>
-                              )}
+                            ? <Check className="w-4 h-4" />
+                            : <Copy className="w-4 h-4" />}
                         </button>
                       </div>
                     </td>
@@ -330,13 +318,9 @@ export function DataPreview({ data, fileName, fileType, isMultiSheet = false, sh
 
                 <span className="text-sm text-gray-700">
                   第
-                  {' '}
                   {currentPage}
-                  {' '}
                   页，共
-                  {' '}
                   {totalPages}
-                  {' '}
                   页
                 </span>
 

@@ -19,7 +19,7 @@ export function CategoryList({ title = '分类', categories, basePath, currentCa
         <Link
           href={basePath}
           className={cn(
-            'flex items-center justify-center px-4 py-3 rounded-lg text-white',
+            'flex items-center justify-center px-3 py-1.5 rounded-lg text-white text-xs',
             'border transition-all duration-300 shadow-sm hover:shadow-md',
             !activeCategory
               ? 'bg-purple-500/40 border-purple-500/70 hover:bg-purple-500/50'
@@ -33,7 +33,7 @@ export function CategoryList({ title = '分类', categories, basePath, currentCa
             key={category}
             href={`${basePath}/category/${category}`}
             className={cn(
-              'flex items-center justify-center px-4 py-3 rounded-lg text-white',
+              'flex items-center justify-center px-3 py-1.5 rounded-lg text-white text-xs',
               'border transition-all duration-300 shadow-sm hover:shadow-md',
               activeCategory === category
                 ? 'bg-purple-500/40 border-purple-500/70 hover:bg-purple-500/50'

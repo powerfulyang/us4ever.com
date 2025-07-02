@@ -4,10 +4,10 @@ import type { Monaco } from '@monaco-editor/react'
 import type { Keep } from '@prisma/client'
 import type { editor } from 'monaco-editor'
 import { loader } from '@monaco-editor/react'
+import { ArrowLeft, Eye, Image } from 'lucide-react'
 import dynamic from 'next/dynamic'
-
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Back } from '@/app/(full-layout)/keep/components/back'
 import { MdRender } from '@/components/md-render'
 import { Button } from '@/components/ui/button'
@@ -184,9 +184,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
         fallback="/keep"
         className="inline-flex animate-bounce items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors mb-3 ml-2"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
+        <ArrowLeft className="w-4 h-4" />
         <span>返回笔记列表</span>
       </Back>
 
@@ -262,9 +260,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
                 isUploading && 'opacity-0',
               )}
               >
-                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+                <Image className="w-4 h-4 text-purple-400" />
                 <span>Ctrl+V 粘贴图片</span>
               </div>
             )}
@@ -273,10 +269,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
           <div className="rounded-lg overflow-hidden shadow-inner bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex flex-col">
             <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-700/50 backdrop-blur-sm px-4 py-2">
               <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
+                <Eye className="w-4 h-4" />
                 预览
               </h3>
             </div>

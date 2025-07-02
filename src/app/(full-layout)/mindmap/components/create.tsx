@@ -1,5 +1,6 @@
 'use client'
 
+import { Upload } from 'lucide-react'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
@@ -61,19 +62,7 @@ export function MindMapImport() {
         htmlFor="xmind-upload"
         className="flex items-center gap-1 cursor-pointer px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white text-sm"
       >
-        <svg
-          className="w-4 h-4 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-          />
-        </svg>
+        <Upload className="w-4 h-4 mr-2" />
         {file ? file.name : '选择 XMind 文件'}
         <input
           type="file"

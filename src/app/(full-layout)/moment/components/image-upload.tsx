@@ -2,6 +2,7 @@
 
 import type { ChangeEvent } from 'react'
 import type { Image, Video } from '@/server/api/routers/asset'
+import { AlertTriangle, Plus, X } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
@@ -182,9 +183,7 @@ export function MediaUpload({
               className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
               type="button"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-4 h-4" />
             </button>
             {isVideo(media) && (
               <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/60 text-white text-xs rounded">
@@ -216,9 +215,7 @@ export function MediaUpload({
             {media.error
               ? (
                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 cursor-pointer" onClick={() => handleRemoveUploadingMedia(media.id)}>
-                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <AlertTriangle className="w-8 h-8 text-red-500" />
                     <span className="text-xs text-white px-2 text-center">{media.error}</span>
                   </div>
                 )
@@ -248,9 +245,7 @@ export function MediaUpload({
                 )}
                 type="button"
               >
-                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+                <Plus className="w-6 h-6 text-gray-500" />
               </button>
             </AuthenticatedOnly>
           </div>
