@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es2022",
+    "target": "ESNext",
     "jsx": "preserve",
     /* Bundled projects */
     "lib": [
       "dom",
       "dom.iterable",
-      "ES2022"
+      "ESNext",
+      "WebWorker"
     ],
     "moduleDetection": "force",
     /* Path Aliases */
@@ -48,7 +49,8 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     ".next/types/**/*.ts",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "public/sw.js"
   ],
   "exclude": [
     "node_modules"

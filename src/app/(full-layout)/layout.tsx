@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { logout } from '@/app/actions'
 import UserIcon from '@/components/user/icon'
 
-export default async function FullLayout({
-  children,
-}: Readonly<{ children: ReactNode }>) {
+export default async function FullLayout(
+  { children }: Readonly<{ children: ReactNode }>,
+) {
   return (
     <div className="min-h-[100dvh] bg-gradient-to-br from-purple-900 via-indigo-900 to-black">
       <div className="relative min-h-[100dvh] flex flex-col">

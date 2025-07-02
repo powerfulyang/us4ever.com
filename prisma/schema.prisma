@@ -87,7 +87,7 @@ model File {
 }
 
 model Image {
-  id                 String  @id @default(uuid()) // 主键，UUID 自��生成
+  id                 String  @id @default(uuid()) // 主键，UUID 自动生成
   // 原始文件名
   name               String
   // 文件类型
@@ -365,4 +365,16 @@ model Video {
   moments   MomentVideos[]
 
   @@map("videos")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
