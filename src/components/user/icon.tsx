@@ -1,6 +1,7 @@
 'use client'
 
 import { useMutation } from '@tanstack/react-query'
+import Link from 'next/link'
 import { useState } from 'react'
 import { Confirm } from '@/components/ui/confirm'
 import LoginButton from '@/components/user/login-button'
@@ -52,11 +53,24 @@ export default function UserIcon({ onLogoutAction }: Props) {
       </div>
 
       <div className="absolute right-0 top-full mt-2 w-48 py-2 bg-black/40 backdrop-blur-lg rounded-xl border border-white/20 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+        <Link
+          href="/profile"
+          className="flex items-center w-full h-10 px-4 text-left text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+        >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          个人中心
+        </Link>
+        <div className="border-t border-white/20 my-2" />
         <button
           type="button"
           onClick={() => setShowLogoutConfirm(true)}
-          className="w-full h-10 px-4 text-left text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+          className="flex items-center w-full h-10 px-4 text-left text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
         >
+          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
           退出登录
         </button>
       </div>

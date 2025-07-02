@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 export function formatFileSize(size: number | bigint): string {
   const sizeNum = BigInt(size)
 
@@ -44,4 +46,8 @@ export function formatThousands(num: number, decimals: number = 2): string {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(num)
+}
+
+export function formatDateTime(date: Date): string {
+  return dayjs(date).format('YYYY-MM-DD HH:mm:ss')
 }

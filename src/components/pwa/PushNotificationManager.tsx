@@ -3,7 +3,12 @@ import { useEffect, useState } from 'react'
 import { subscribeUser, unsubscribeUser } from '@/app/actions/web-push'
 import { cn } from '@/utils/cn'
 
-export default function PushNotificationManager() {
+interface PushNotificationManagerProps {
+  onSubscribe: () => void
+  onUnsubscribe: () => void
+}
+
+export default function PushNotificationManager({ onSubscribe, onUnsubscribe }: PushNotificationManagerProps) {
   const [isSubscribed, setIsSubscribed] = useState(false)
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -39,6 +44,7 @@ export default function PushNotificationManager() {
       }
 
       await subscribeUser(webPushSubscription)
+      onSubscribe()
       setIsSubscribed(true)
       setError(null)
     }
@@ -57,6 +63,7 @@ export default function PushNotificationManager() {
       if (subscription) {
         await subscription.unsubscribe()
         await unsubscribeUser(subscription.endpoint)
+        onUnsubscribe()
         setIsSubscribed(false)
         setError(null)
       }
@@ -68,13 +75,17 @@ export default function PushNotificationManager() {
   }
 
   if (!registration || !('Notification' in window)) {
-    return null
+    return (
+      <div className="text-gray-400 text-sm">
+        您的浏览器不支持推送通知功能
+      </div>
+    )
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="space-y-4">
       {error && (
-        <div className="mb-2 rounded-lg bg-red-100 p-4 text-red-700">
+        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-red-400">
           {error}
         </div>
       )}
@@ -82,10 +93,10 @@ export default function PushNotificationManager() {
         type="button"
         onClick={isSubscribed ? unsubscribe : subscribe}
         className={cn(
-          'rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors',
+          'w-full rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors',
           isSubscribed
-            ? 'bg-gray-600 hover:bg-gray-700'
-            : 'bg-blue-600 hover:bg-blue-700',
+            ? 'bg-red-600 hover:bg-red-700'
+            : 'bg-green-600 hover:bg-green-700',
         )}
       >
         {isSubscribed ? '取消推送通知' : '开启推送通知'}

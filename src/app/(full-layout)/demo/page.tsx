@@ -14,9 +14,9 @@ const demoLinks: LinkProps[] = [
     ),
   },
   {
-    title: '语音识别',
-    description: '实时语音转文字',
-    href: '/demo/asr',
+    title: '字幕工具',
+    description: 'AI 生成视频字幕，使用 faster-whisper',
+    href: 'https://subtitle.us4ever.com',
     target: '_blank',
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
