@@ -18,7 +18,7 @@ export function Switch({
   ...props
 }: SwitchProps) {
   return (
-    <label className="relative inline-flex items-center cursor-pointer">
+    <label className={cn('relative inline-flex items-center cursor-pointer', className)}>
       <input
         type="checkbox"
         className="sr-only peer"
@@ -34,7 +34,6 @@ export function Switch({
           'after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full',
           'after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r',
           'peer-checked:from-pink-500 peer-checked:via-purple-500 peer-checked:to-indigo-500',
-          className,
         )}
       />
       <span className="ms-3 text-sm font-medium text-gray-300">

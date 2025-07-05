@@ -49,22 +49,17 @@ export function MindMapImport() {
   }
 
   return (
-    <div className="flex items-center gap-4 flex-wrap">
-      <input
-        type="file"
-        accept=".xmind"
-        onChange={handleFileChange}
-        disabled={isPending}
-        className="hidden"
-        id="xmind-upload"
-      />
+    <div className="flex items-center justify-end gap-4 flex-wrap w-full">
       <label
         htmlFor="xmind-upload"
-        className="flex items-center gap-1 cursor-pointer px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white text-sm"
+        className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white text-xs"
       >
-        <Upload className="w-4 h-4 mr-2" />
-        {file ? file.name : '选择 XMind 文件'}
+        <Upload className="w-4 h-4" />
+        <span className="truncate flex-1">
+          {file ? file.name : '选择 XMind 文件'}
+        </span>
         <input
+          id="xmind-upload"
           type="file"
           accept=".xmind"
           onChange={handleFileChange}
@@ -81,7 +76,6 @@ export function MindMapImport() {
         <Button
           onClick={handleParse}
           disabled={!file || isPending}
-          className="ml-auto"
         >
           {isPending ? '解析中...' : '开始解析'}
         </Button>

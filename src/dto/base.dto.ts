@@ -14,7 +14,7 @@ export const BaseFormDataCategoryField = zfd
   .optional()
 
 export const BaseQuerySchema = z.object({
-  limit: z.number().int().min(1).max(100).default(10),
+  limit: z.number().int().min(1).max(100).default(9),
   cursor: z.string().optional().transform(val => !val ? undefined : val),
   category: BaseCategoryField,
 })

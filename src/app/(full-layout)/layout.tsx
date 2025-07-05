@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Home } from 'lucide-react'
 import Link from 'next/link'
 import { logout } from '@/app/actions'
+import { SearchForm } from '@/components/search-form'
 import UserIcon from '@/components/user/icon'
 
 export default async function FullLayout(
@@ -25,12 +26,20 @@ export default async function FullLayout(
                   <span className="font-medium text-gray-300 group-hover:text-white transition-colors">首页</span>
                 </Link>
               </nav>
-              <UserIcon onLogoutAction={logout} />
+
+              <div className="flex items-center gap-4">
+                <SearchForm
+                  searchPath="/search"
+                  placeholder="搜索笔记和动态..."
+                  className="hidden sm:block"
+                />
+                <UserIcon onLogoutAction={logout} />
+              </div>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 max-w-7xl w-full mx-auto p-8">
+        <main className="flex-1 max-w-7xl w-full mx-auto p-6 sm:p-8">
           {children}
         </main>
 

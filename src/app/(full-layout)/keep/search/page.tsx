@@ -87,9 +87,6 @@ export default function KeepSearchPage() {
                     <MdRender className="mb-4 text-xs text-gray-400">
                       {result.highlight?.summary?.join('\n\n') || result._source.summary}
                     </MdRender>
-                    <MdRender className="text-sm">
-                      {result.highlight?.content?.join('\n\n') || ''}
-                    </MdRender>
                   </Card>
                 </Link>
               )

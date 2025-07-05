@@ -43,43 +43,51 @@ const appLinks: LinkProps[] = [
     title: '笔记本',
     description: '记录灵感与思考的地方',
     href: '/keep',
+    target: '_blank',
     icon: <BookOpen className="w-8 h-8" />,
   },
   {
     title: '待办事项',
     description: '管理你的待办任务',
     href: '/todo',
+    target: '_blank',
     icon: <CheckSquare className="w-8 h-8" />,
   },
   {
     ...MomentCategoryMap.default,
     href: '/moment',
+    target: '_blank',
     icon: <MessageCircle className="w-8 h-8" />,
   },
   {
     ...MomentCategoryMap.eleven,
     href: '/moment/category/eleven',
+    target: '_blank',
     icon: <MessageCircle className="w-8 h-8" />,
   },
   {
     ...MomentCategoryMap.prompt,
     href: '/moment/category/prompt',
+    target: '_blank',
     icon: <MessageCircle className="w-8 h-8" />,
   },
   {
     ...MomentCategoryMap.keyword2blog,
     href: '/moment/category/keyword2blog',
+    target: '_blank',
     icon: <MessageCircle className="w-8 h-8" />,
   },
   {
     ...MomentCategoryMap['telegram:emt_channel'],
     href: '/moment/category/telegram:emt_channel',
+    target: '_blank',
     icon: <MessageCircle className="w-8 h-8" />,
   },
   {
     title: '思维导图',
     description: '在线思维导图工具',
     href: '/mindmap',
+    target: '_blank',
     icon: <Network className="w-8 h-8" />,
   },
 ]
@@ -117,18 +125,21 @@ const toyLinks: LinkProps[] = [
     title: '图片管理',
     description: '便捷的图片上传与管理工具',
     href: '/image',
+    target: '_blank',
     icon: <Image className="w-8 h-8" />,
   },
   {
     title: '图片转 Base64',
     description: '将图片转换为 Base64 字符串',
     href: '/image/base64',
+    target: '_blank',
     icon: <FileImage className="w-8 h-8" />,
   },
   {
     title: 'Demo',
     description: '一些栗子',
     href: '/demo',
+    target: '_blank',
     icon: <Package className="w-8 h-8" />,
   },
 ]
@@ -179,7 +190,7 @@ const toolLinks: LinkProps[] = [
     title: 'Dify',
     description: 'Dify 是一个开源的智能对话平台，用于构建智能对话应用程序。',
     href: 'https://dify.us4ever.com',
-    target: '_target',
+    target: '_blank',
     icon: (
       <img className="w-8 h-8" src="/icons/dify.avif" alt="" />
     ),
