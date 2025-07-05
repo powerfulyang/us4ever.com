@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Home } from 'lucide-react'
 import Link from 'next/link'
 import { logout } from '@/app/actions'
-import { SearchForm } from '@/components/search-form'
+import { SearchFormMobile } from '@/components/search-form'
 import UserIcon from '@/components/user/icon'
 
 export default async function FullLayout(
@@ -27,12 +27,8 @@ export default async function FullLayout(
                 </Link>
               </nav>
 
-              <div className="flex items-center gap-4">
-                <SearchForm
-                  searchPath="/search"
-                  placeholder="搜索笔记和动态..."
-                  className="hidden sm:block"
-                />
+              <div className="flex items-center gap-2 sm:gap-8">
+                <SearchFormMobile searchPath="/search" placeholder="搜索笔记和动态..." />
                 <UserIcon onLogoutAction={logout} />
               </div>
             </div>

@@ -166,7 +166,7 @@ export default function SearchPage() {
         {!isLoading && !query && (
           <Empty title="开始搜索" description="输入关键词搜索笔记和动态内容。" />
         )}
-        {!isLoading && !hasResults && (
+        {!isLoading && !hasResults && query && (
           <Empty title="没有结果" description="没有找到任何结果" />
         )}
       </div>

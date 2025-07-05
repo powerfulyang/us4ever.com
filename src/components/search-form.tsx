@@ -45,3 +45,32 @@ export function SearchForm({
     </form>
   )
 }
+
+export function SearchFormMobile({ searchPath, className, ...props }: SearchFormProps) {
+  const router = useRouter()
+  return (
+    <>
+      <div className="sm:hidden">
+        <button
+          type="button"
+          onClick={() => {
+            router.push(searchPath)
+          }}
+          className={cn(
+            'group relative overflow-hidden rounded-full p-2',
+            'bg-white/10 backdrop-blur-sm',
+            'active:scale-95 transition-all duration-200',
+            className,
+          )}
+        >
+          <SearchIcon className="h-5.5 w-5.5 text-white/70" />
+        </button>
+      </div>
+      <SearchForm
+        searchPath={searchPath}
+        {...props}
+        className={cn('hidden sm:block', className)}
+      />
+    </>
+  )
+}
