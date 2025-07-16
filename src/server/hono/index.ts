@@ -2,6 +2,7 @@ import type { CookieOptions } from 'hono/utils/cookie'
 import type { User } from '@/store/user'
 import { Hono } from 'hono'
 import { getCookie } from 'hono/cookie'
+import { cors } from 'hono/cors'
 import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
@@ -64,3 +65,13 @@ loadInternalRouter()
 // 挂载子应用
 app.route('/sync', protectedRoutes)
 app.route('/internal', internalRoutes)
+
+app.use(cors()).post('/proxy', async (ctx) => {
+  const formData = await ctx.req.formData()
+  const res = await fetch('https://im.gurl.eu.org/upload', {
+    method: 'POST',
+    body: formData,
+  })
+  const json = await res.json()
+  return ctx.json(json)
+})
