@@ -21,7 +21,7 @@ export interface ImageminOptions {
 export async function imageminService(
   input: ArrayBuffer,
   options: ImageminOptions = {},
-): Promise<ArrayBuffer> {
+) {
   const {
     width,
     height,
@@ -33,7 +33,7 @@ export async function imageminService(
     // 根据 metadata 自动旋转，解决 iOS 旋转问题
     .rotate()
 
-  return image
+  const bufferLike = await image
     .resize({
       width,
       height,
@@ -43,4 +43,6 @@ export async function imageminService(
       quality,
     })
     .toBuffer()
+
+  return new Uint8Array(bufferLike).buffer
 }

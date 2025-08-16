@@ -75,10 +75,9 @@ export async function handleImagePostProcess(options: {
   category: string
   imageId: string
 }) {
-  const { buffer, name, type, uploadedBy, isPublic, category, imageId } = options
+  const { buffer, name, uploadedBy, isPublic, category, imageId } = options
   let thumbnail_768x_image: FileWithBucket | null = null
   let compressed_image: FileWithBucket | null = null
-  let original_image: FileWithBucket | null = null
   try {
     // 生成 768x 缩略图
     const thumbnail_768x_buffer = await imageminService(buffer, { width: 768 })
@@ -105,17 +104,7 @@ export async function handleImagePostProcess(options: {
       isPublic,
       category,
     })
-    // 上传原图
-    original_image = await upload_to_bucket({
-      buffer,
-      name,
-      type,
-      uploadedBy,
-      bucketName: 'uploads',
-      isPublic,
-      path_prefix: `images/${category}/original`,
-      category,
-    })
+
     // 解析 exif 和 address
     let exif = null
     let address = ''
@@ -132,7 +121,6 @@ export async function handleImagePostProcess(options: {
       data: {
         thumbnail_768x: { connect: pick(thumbnail_768x_image, 'id') },
         compressed: { connect: pick(compressed_image, 'id') },
-        original: { connect: pick(original_image, 'id') },
         exif,
         address,
       },
@@ -141,7 +129,7 @@ export async function handleImagePostProcess(options: {
   catch (e) {
     console.error('handleImagePostProcess error', e)
     // 失败回滚，删除已上传的文件
-    const files = [thumbnail_768x_image, compressed_image, original_image]
+    const files = [thumbnail_768x_image, compressed_image]
     for (const file of files) {
       if (file) {
         await delete_from_bucket(file)

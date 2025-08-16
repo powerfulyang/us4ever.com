@@ -401,6 +401,18 @@ async function uploadImage(
     const hash = (await sha256(buffer))!
     const size = file.size
 
+    // 上传原图
+    const original_image = await upload_to_bucket({
+      buffer,
+      name,
+      type,
+      uploadedBy,
+      bucketName: 'uploads',
+      isPublic,
+      path_prefix: `images/${category}/original`,
+      category,
+    })
+
     // 创建图片记录（部分字段为 null，异步后补）
     const image = await db.image.create({
       data: {
@@ -416,6 +428,7 @@ async function uploadImage(
         thumbnail_320x: {
           connect: pick(thumbnail_320x_image, 'id'),
         },
+        original: { connect: pick(original_image, 'id') },
         uploadedByUser: {
           connect: { id: uploadedBy },
         },

@@ -2,6 +2,7 @@ import type { RouterOutputs } from '@/trpc/react'
 import { zfd } from 'zod-form-data'
 import { BaseFormDataCategoryField, BasePrimaryKeySchema, BaseQuerySchema } from '@/dto/base.dto'
 import {
+  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
@@ -13,7 +14,7 @@ export type Image = RouterOutputs['asset']['fetchImagesByCursor']['items'][numbe
 export type Video = RouterOutputs['asset']['fetchVideosByCursor']['items'][number]
 
 export const assetRouter = createTRPCRouter({
-  uploadImage: protectedProcedure
+  uploadImage: adminProcedure
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),
@@ -29,7 +30,7 @@ export const assetRouter = createTRPCRouter({
       })
     }),
 
-  uploadVideo: protectedProcedure
+  uploadVideo: adminProcedure
     .input(zfd.formData({
       file: zfd.file(),
       isPublic: zfd.text().default('false'),

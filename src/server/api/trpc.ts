@@ -179,3 +179,16 @@ export const protectedProcedure = t.procedure
       },
     })
   })
+
+export const adminProcedure = protectedProcedure
+  .use(async ({ ctx, next }) => {
+    if (!ctx.user?.isAdmin) {
+      throw toTRPCError(createError.forbidden())
+    }
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+      },
+    })
+  })
