@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { codeInspectorPlugin } from 'code-inspector-plugin'
+// import { codeInspectorPlugin } from 'code-inspector-plugin'
 import pkg from './package.json' with { type: 'json' };
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
@@ -17,7 +17,9 @@ const config = {
   },
   webpack: (config, context) => {
     if (context.dev) {
-      config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
+      import('code-inspector-plugin').then(({codeInspectorPlugin})=>{
+        config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
+      })
     }
 
     config.module.rules.push({

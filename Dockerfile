@@ -3,6 +3,8 @@ FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
+ENV CI=true
+
 # 先复制 package.json 和 pnpm-lock.yaml 用于依赖安装
 COPY package.json pnpm-lock.yaml ./
 
@@ -28,6 +30,8 @@ RUN pnpm run build
 FROM builder AS production
 
 WORKDIR /app
+
+ENV CI=true
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
