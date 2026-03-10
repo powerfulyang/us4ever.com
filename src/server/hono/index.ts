@@ -12,6 +12,7 @@ import { loadInternalRouter } from '@/server/hono/routes/internal'
 import { loadLpRouter } from '@/server/hono/routes/lp'
 import { loadSyncRouter } from '@/server/hono/routes/sync'
 import { loadSyncTelegramRouter } from '@/server/hono/routes/telegram'
+import { loadTtsRouter } from '@/server/hono/routes/tts'
 
 export interface AppEnv {
   Variables: {
@@ -61,6 +62,7 @@ loadSyncRouter()
 loadSyncTelegramRouter()
 loadBucketRouter()
 loadInternalRouter()
+loadTtsRouter()
 
 // 挂载子应用
 app.route('/sync', protectedRoutes)

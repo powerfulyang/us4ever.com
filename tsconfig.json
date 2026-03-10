@@ -2,7 +2,7 @@
   "compilerOptions": {
     "incremental": true,
     "target": "ESNext",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     /* Bundled projects */
     "lib": [
       "dom",
@@ -50,7 +50,8 @@
     "src/**/*.tsx",
     ".next/types/**/*.ts",
     "tests/**/*.ts",
-    "public/sw.js"
+    "public/sw.js",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

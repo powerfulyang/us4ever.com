@@ -9,19 +9,10 @@ import './src/env.js'
 
 /** @type {import("next").NextConfig} */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
   webpack: (config, context) => {
-    if (context.dev) {
-      import('code-inspector-plugin').then(({codeInspectorPlugin})=>{
-        config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
-      })
-    }
-
     config.module.rules.push({
       // 1. 只处理 page.ts / page.tsx
       test: /\.tsx?$/,
