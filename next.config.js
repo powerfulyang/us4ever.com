@@ -34,6 +34,30 @@ const config = {
 
     return config
   },
+  turbopack: {
+    rules: {
+      '*.ts': {
+        loaders: [
+          {
+            loader: path.resolve('loaders/inject-path-loader.mjs'),
+            options: {
+              repository: pkg.repository.url,
+            },
+          },
+        ],
+      },
+      '*.tsx': {
+        loaders: [
+          {
+            loader: path.resolve('loaders/inject-path-loader.mjs'),
+            options: {
+              repository: pkg.repository.url,
+            },
+          },
+        ],
+      },
+    },
+  },
   async headers() {
     return [
       {
