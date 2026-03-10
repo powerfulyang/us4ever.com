@@ -1,7 +1,10 @@
 import { EdgeTTS, VoicesManager } from 'edge-tts-universal'
+import { cors } from 'hono/cors'
 import { app } from '@/server/hono'
 
 export function loadTtsRouter() {
+  app.use('/tts', cors())
+  app.use('/tts/*', cors())
   app.get('/tts', async (ctx) => {
     const text = ctx.req.query('text')
     const voice = ctx.req.query('voice') || 'zh-CN-XiaoxiaoNeural'
@@ -19,6 +22,7 @@ export function loadTtsRouter() {
 
       const arrayBuffer = await result.audio.arrayBuffer()
       ctx.header('Content-Type', result.audio.type || 'audio/mpeg')
+      ctx.header('Cache-Control', 'public, max-age=31536000, immutable')
       return ctx.body(arrayBuffer)
     }
     catch (e: any) {
@@ -40,6 +44,7 @@ export function loadTtsRouter() {
 
       const arrayBuffer = await result.audio.arrayBuffer()
       ctx.header('Content-Type', result.audio.type || 'audio/mpeg')
+      ctx.header('Cache-Control', 'public, max-age=31536000, immutable')
       return ctx.body(arrayBuffer)
     }
     catch (e: any) {
