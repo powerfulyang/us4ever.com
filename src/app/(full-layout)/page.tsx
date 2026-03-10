@@ -8,7 +8,6 @@ import {
   CheckCircle,
   CheckSquare,
   Clock,
-  Edit3,
   FileImage,
   Image,
   List,
@@ -88,23 +87,16 @@ const toyLinks: LinkProps[] = [
   {
     title: '文本对比',
     description: '在线文本差异对比工具',
-    href: '/diff',
+    href: 'https://pandora.us4ever.com/dev-toolkit',
     target: '_blank',
     icon: <ArrowLeftRight className="w-8 h-8" />,
   },
   {
     title: 'JSON Viewer',
     description: 'JSON 数据查看器',
-    href: 'https://json.us4ever.com/editor',
+    href: 'https://pandora.us4ever.com/json-viewer',
     target: '_blank',
     icon: <Braces className="w-8 h-8" />,
-  },
-  {
-    title: '白板',
-    description: '在线白板',
-    href: '/draw',
-    target: '_blank',
-    icon: <Edit3 className="w-8 h-8" />,
   },
   {
     title: 'video list',
@@ -123,7 +115,7 @@ const toyLinks: LinkProps[] = [
   {
     title: '图片转 Base64',
     description: '将图片转换为 Base64 字符串',
-    href: '/image/base64',
+    href: 'https://pandora.us4ever.com/text-codec',
     target: '_blank',
     icon: <FileImage className="w-8 h-8" />,
   },

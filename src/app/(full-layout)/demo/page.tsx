@@ -1,5 +1,5 @@
 import type { LinkProps } from '@/app/(full-layout)/page'
-import { ArrowLeftRight, Clock, Edit, Mic } from 'lucide-react'
+import { ArrowLeftRight, Clock, Mic } from 'lucide-react'
 import { LinkGrid } from '@/components/link-grid'
 
 const demoLinks: LinkProps[] = [
@@ -20,16 +20,9 @@ const demoLinks: LinkProps[] = [
   {
     title: 'Excel/CSV 数据解析器',
     description: '上传 Excel 或 CSV 文件，自动解析为 JSON',
-    href: '/demo/data-parser',
+    href: 'https://pandora.us4ever.com/data-parser',
     target: '_blank',
     icon: <Clock className="w-8 h-8" />,
-  },
-  {
-    title: 'Image Editor',
-    description: '图片编辑器',
-    href: '/demo/image-editor',
-    target: '_blank',
-    icon: <Edit className="w-8 h-8" />,
   },
 ]
 

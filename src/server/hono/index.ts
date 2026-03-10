@@ -35,7 +35,7 @@ export const auth = createMiddleware(async (ctx, next) => {
   const secret = env.JWT_SECRET
   const request_url = ctx.req.url
   try {
-    const { user } = await verify(token, secret) as { user: User }
+    const { user } = await verify(token, secret, 'HS256') as { user: User }
     ctx.set('user', user)
   }
   catch {

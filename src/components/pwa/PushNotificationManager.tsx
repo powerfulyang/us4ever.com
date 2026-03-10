@@ -4,8 +4,8 @@ import { subscribeUser, unsubscribeUser } from '@/app/actions/web-push'
 import { cn } from '@/utils/cn'
 
 interface PushNotificationManagerProps {
-  onSubscribe: () => void
-  onUnsubscribe: () => void
+  onSubscribe?: () => void
+  onUnsubscribe?: () => void
 }
 
 export default function PushNotificationManager({ onSubscribe, onUnsubscribe }: PushNotificationManagerProps) {
@@ -44,7 +44,7 @@ export default function PushNotificationManager({ onSubscribe, onUnsubscribe }: 
       }
 
       await subscribeUser(webPushSubscription)
-      onSubscribe()
+      onSubscribe?.()
       setIsSubscribed(true)
       setError(null)
     }
@@ -63,7 +63,7 @@ export default function PushNotificationManager({ onSubscribe, onUnsubscribe }: 
       if (subscription) {
         await subscription.unsubscribe()
         await unsubscribeUser(subscription.endpoint)
-        onUnsubscribe()
+        onUnsubscribe?.()
         setIsSubscribed(false)
         setError(null)
       }

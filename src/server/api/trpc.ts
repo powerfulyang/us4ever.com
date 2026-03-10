@@ -129,7 +129,7 @@ const userMiddleware = t.middleware(async ({ ctx, next }) => {
   if (token) {
     const secret = env.JWT_SECRET
     try {
-      const res = await verify(token, secret) as { user: User }
+      const res = await verify(token, secret, 'HS256') as { user: User }
       user = await findUserWithGroupById(res.user.id)
       groupUserIds = user.group?.users.map(user => user.id) || [user.id]
     }
