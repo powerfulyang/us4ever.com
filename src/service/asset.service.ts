@@ -152,6 +152,61 @@ async function listImages({ userIds, take, cursor, category }: ListImageInput) {
 }
 
 /**
+ * 页码分页查询图片列表
+ * @returns 图片列表和分页信息
+ */
+async function listImagesByPage({
+  userIds,
+  page,
+  pageSize,
+  category,
+}: {
+  userIds: string[]
+  page: number
+  pageSize: number
+  category?: string
+}) {
+  const skip = (page - 1) * pageSize
+
+  const total = await db.image.count({
+    where: {
+      category,
+      OR: [
+        { uploadedBy: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+  })
+
+  const list = await db.image.findMany({
+    include: imageInclude,
+    where: {
+      category,
+      OR: [
+        { uploadedBy: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    skip,
+    take: pageSize,
+  })
+
+  const totalPages = Math.ceil(total / pageSize)
+
+  return {
+    items: list.map(transformImageToResponse),
+    total,
+    totalPages,
+    currentPage: page,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  }
+}
+
+/**
  * 分页查询视频列表
  * @returns 视频列表
  */
@@ -489,6 +544,7 @@ async function getImageCategories(userIds: string[]) {
 
 export const assetService = {
   findImagesByCursor: listImages,
+  findImagesByPage: listImagesByPage,
   findVideosByCursor: listVideos,
   createImage,
   createVideo,

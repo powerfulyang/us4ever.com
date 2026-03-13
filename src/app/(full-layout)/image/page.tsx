@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
 import { ImageCategoryServer } from './components/category'
-import { ImageList } from './components/list'
+import { ImagePaginationClient } from './components/pagination-client'
 import { ImageUpload } from './components/upload'
+import { ViewToggle } from './components/view-toggle'
 
 export const metadata: Metadata = {
   title: '图片管理',
@@ -16,19 +17,27 @@ export const metadata: Metadata = {
 export default async function ImagePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string, page?: string }>
 }) {
-  const { category } = await searchParams
-  await api.asset.fetchImagesByCursor.prefetch({ category })
+  const { category, page: pageParam } = await searchParams
+  const page = pageParam ? Number.parseInt(pageParam, 10) : 1
+
+  await api.asset.fetchImagesByPage.prefetch({
+    page: Math.max(1, page),
+    pageSize: 6,
+    category,
+  })
+
   return (
     <HydrateClient>
       <Container
         title="图片管理"
         description="图片统一管理"
+        actions={<ViewToggle category={category} />}
       >
         <ImageUpload />
         <ImageCategoryServer currentCategory={category} />
-        <ImageList category={category} />
+        <ImagePaginationClient category={category} initialPage={Math.max(1, page)} />
       </Container>
     </HydrateClient>
   )

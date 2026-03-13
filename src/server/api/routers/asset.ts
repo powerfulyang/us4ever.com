@@ -1,6 +1,6 @@
 import type { RouterOutputs } from '@/trpc/react'
 import { zfd } from 'zod-form-data'
-import { BaseFormDataCategoryField, BasePrimaryKeySchema, BaseQuerySchema } from '@/dto/base.dto'
+import { BaseFormDataCategoryField, BasePageQuerySchema, BasePrimaryKeySchema, BaseQuerySchema } from '@/dto/base.dto'
 import {
   adminProcedure,
   createTRPCRouter,
@@ -66,6 +66,18 @@ export const assetRouter = createTRPCRouter({
         items,
         nextCursor,
       }
+    },
+  ),
+
+  fetchImagesByPage: publicProcedure.input(BasePageQuerySchema).query(
+    async ({ ctx, input }) => {
+      const { page, pageSize, category } = input
+      return assetService.findImagesByPage({
+        userIds: ctx.groupUserIds,
+        page,
+        pageSize,
+        category,
+      })
     },
   ),
 
