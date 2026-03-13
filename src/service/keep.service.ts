@@ -207,6 +207,73 @@ async function findAccessibleList(query: QueryKeepDTO, userIds: string[]) {
   }
 }
 
+// 分页查找用户可访问的列表
+async function findAccessiblePage(
+  query: { page: number, pageSize: number, category?: string },
+  userIds: string[],
+): Promise<{
+  items: KeepWithIncludes[]
+  total: number
+  totalPages: number
+  currentPage: number
+  hasNextPage: boolean
+  hasPrevPage: boolean
+}> {
+  const { page, pageSize, category } = query
+  const skip = (page - 1) * pageSize
+
+  // 获取总数
+  const total = await db.keep.count({
+    where: {
+      category,
+      OR: [
+        {
+          ownerId: {
+            in: userIds,
+          },
+        },
+        {
+          isPublic: true,
+        },
+      ],
+    },
+  })
+
+  // 获取分页数据
+  const items = await db.keep.findMany({
+    skip,
+    take: pageSize,
+    where: {
+      category,
+      OR: [
+        {
+          ownerId: {
+            in: userIds,
+          },
+        },
+        {
+          isPublic: true,
+        },
+      ],
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: keepInclude,
+  })
+
+  const totalPages = Math.ceil(total / pageSize)
+
+  return {
+    items,
+    total,
+    totalPages,
+    currentPage: page,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  }
+}
+
 // 搜索结果接口定义
 export interface SearchResult {
   hits: Hits
@@ -307,6 +374,7 @@ async function getCategories(userIds: string[]) {
 
 export const keepService = {
   findAccessibleList,
+  findAccessiblePage,
   findPublicList,
   createKeep,
   updateKeep,
