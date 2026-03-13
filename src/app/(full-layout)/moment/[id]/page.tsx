@@ -42,11 +42,11 @@ export default async function MomentDetailPage({ params }: PageProps) {
           </Back>
         )}
       >
-        <div className="space-y-4 max-w-xl mx-auto">
+        <div className="space-y-4 max-w-2xl mx-auto">
           <MomentItem moment={moment} />
         </div>
 
-        <div className="max-w-xl mx-auto mt-6">
+        <div className="max-w-2xl mx-auto mt-6">
           <Waline />
         </div>
       </Container>

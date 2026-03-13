@@ -31,7 +31,7 @@ export const CodeBlock: FC<CodeBlockProps> = ({ language, children }) => {
             light: 'github-light',
             dark: 'github-dark',
           },
-          defaultColor: false,
+          defaultColor: 'light',
         })
         setHtml(result)
       }
@@ -43,7 +43,7 @@ export const CodeBlock: FC<CodeBlockProps> = ({ language, children }) => {
             light: 'github-light',
             dark: 'github-dark',
           },
-          defaultColor: false,
+          defaultColor: 'light',
         })
         setHtml(result)
       }
