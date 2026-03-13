@@ -130,8 +130,8 @@ export function Pagination({
         </Button>
 
         {/* 页码按钮 */}
-        {getPageNumbers().map(page => (
-          <React.Fragment key={page}>
+        {getPageNumbers().map((page, index) => (
+          <React.Fragment key={`${page}-${index}`}>
             {page === '...'
               ? (
                   <span className="px-2 text-muted-foreground">...</span>
