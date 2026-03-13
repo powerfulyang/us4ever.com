@@ -12,10 +12,6 @@ export default function LoginButton() {
   }, [])
 
   return (
-    <div className="h-[3rem]">
-      <Link href={loginUrl} className="text-white bg-blue-600 px-4 py-2 text-sm rounded leading-[3rem]">
-        登录
-      </Link>
-    </div>
+    <Link href={loginUrl}>登录</Link>
   )
 }

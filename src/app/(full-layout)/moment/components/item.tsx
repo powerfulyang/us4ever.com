@@ -5,16 +5,17 @@ import type { Moment } from '@/server/api/routers/moment'
 import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import * as React from 'react'
+import { useState } from 'react'
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
 import { ImagePreviewModal } from '@/app/(full-layout)/image/components/preview-modal'
 import { MdRender } from '@/components/md-render'
+import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Confirm } from '@/components/ui/confirm'
 import { Divider } from '@/components/ui/divider'
 import { ItemActions } from '@/components/ui/item-actions'
 import { api } from '@/trpc/react'
-import { cn } from '@/utils'
 
 interface MomentItemProps {
   moment: Moment
@@ -63,41 +64,42 @@ export function MomentItem({ moment }: MomentItemProps) {
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.2 }}
         onClick={gotoDetail}
+        className="cursor-pointer"
       >
-        <Card>
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
+        <Card hoverable className="p-4">
+          <div className="space-y-3">
+            {/* 头部：用户信息 */}
+            <div className="flex items-center gap-3">
               <img
                 src={moment.owner.avatar}
                 alt={moment.owner.nickname}
-                className="w-10 h-10 rounded-sm"
+                className="w-10 h-10 rounded-full"
               />
-              <div className="flex flex-col justify-center gap-1">
-                <h3 className="text-sm text-gray-200">{moment.owner.nickname}</h3>
-                <time className="text-xs text-gray-400">
-                  {dayjs(moment.createdAt).format('YYYY年MM月DD日 HH:mm')}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-medium text-foreground truncate">
+                  {moment.owner.nickname}
+                </h3>
+                <time className="text-xs text-muted-foreground">
+                  {dayjs(moment.createdAt).format('YYYY-MM-DD HH:mm')}
                 </time>
               </div>
-              <button
-                type="button"
-                className={cn(
-                  'px-2 py-1 text-xs rounded transition-colors ml-auto',
-                  moment.isPublic ? 'bg-green-500/20 text-green-300 hover:bg-green-500/30' : 'bg-gray-500/20 text-gray-300 hover:bg-gray-500/30',
-                )}
-              >
+              <Badge variant={moment.isPublic ? 'success' : 'secondary'} className="text-xs">
                 {moment.isPublic ? '公开' : '私密'}
-              </button>
+              </Badge>
             </div>
+
+            {/* 内容 */}
             {moment.content && (
-              <MdRender className="text-sm">
+              <MdRender className="text-sm text-foreground/90">
                 {moment.content}
               </MdRender>
             )}
 
+            {/* 图片/视频 */}
             {!!(moment.images.length || moment.videos.length) && (
               <div className="flex flex-col gap-2" onClick={stopPropagation}>
                 {moment.images.length === 1 && (
-                  <div onClick={() => handlePreview(0)}>
+                  <div onClick={() => handlePreview(0)} className="rounded-md overflow-hidden">
                     <AssetImageWithData
                       image={moment.images[0] as ImageResponse}
                       className="object-contain"
@@ -107,16 +109,16 @@ export function MomentItem({ moment }: MomentItemProps) {
                 )}
 
                 {moment.images.length > 1 && (
-                  <div className="grid grid-cols-3 gap-1">
+                  <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
                     {moment.images.map((image, index) => (
                       <div
                         key={image.id}
-                        className="rounded aspect-square overflow-hidden bg-white/5"
+                        className="aspect-square overflow-hidden bg-secondary"
                         onClick={() => handlePreview(index)}
                       >
                         <AssetImageWithData
                           image={image}
-                          className="object-cover"
+                          className="object-cover w-full h-full"
                         />
                       </div>
                     ))}
@@ -124,7 +126,7 @@ export function MomentItem({ moment }: MomentItemProps) {
                 )}
 
                 {moment.videos.length === 1 && (
-                  <div className="rounded aspect-[9/16] overflow-hidden bg-white/5">
+                  <div className="rounded-md aspect-[9/16] overflow-hidden bg-secondary">
                     <video
                       src={moment.videos[0]?.file_url}
                       controls
@@ -134,11 +136,11 @@ export function MomentItem({ moment }: MomentItemProps) {
                 )}
 
                 {moment.videos.length > 1 && (
-                  <div className="grid grid-cols-3 gap-1">
+                  <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
                     {moment.videos.map(video => (
                       <div
                         key={video.id}
-                        className="rounded aspect-square overflow-hidden bg-white/5"
+                        className="aspect-square overflow-hidden bg-secondary"
                       >
                         <video
                           src={video.file_url}
@@ -152,8 +154,9 @@ export function MomentItem({ moment }: MomentItemProps) {
               </div>
             )}
 
-            <div className="mt-auto">
-              <Divider className="mb-3 mt-1" />
+            {/* 底部操作栏 */}
+            <div className="pt-1">
+              <Divider className="mb-3" />
               <ItemActions
                 views={moment.views}
                 likes={moment.likes}
@@ -164,6 +167,8 @@ export function MomentItem({ moment }: MomentItemProps) {
           </div>
         </Card>
       </motion.div>
+
+      {/* 图片预览 */}
       <ImagePreviewModal
         images={moment.images.map((image) => {
           return {
@@ -178,6 +183,8 @@ export function MomentItem({ moment }: MomentItemProps) {
         isOpen={isPreviewOpen}
         onCloseAction={() => setIsPreviewOpen(false)}
       />
+
+      {/* 删除确认 */}
       <Confirm
         isOpen={showConfirm}
         onCloseAction={() => setShowConfirm(false)}

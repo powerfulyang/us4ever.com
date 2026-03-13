@@ -1,5 +1,6 @@
 import { useInView } from 'framer-motion'
-import React, { useEffect, useRef } from 'react'
+import * as React from 'react'
+import { useEffect, useRef } from 'react'
 import { cn } from '@/utils/cn'
 
 /**
@@ -55,18 +56,18 @@ export function InfiniteScroll({
     <div className={cn('relative', className)}>
       {children}
       <div ref={ref}>
-        {loading && (loadingComponent || <div className="py-4 text-center text-gray-100 animate-pulse">加载中...</div>)}
+        {loading && (loadingComponent || <div className="py-4 text-center text-foreground font-medium animate-pulse">加载中...</div>)}
         {error
           && !loading
           && (errorComponent || (
-            <div className="py-4 text-center text-gray-100">
+            <div className="py-4 text-center text-foreground">
               加载失败，
-              <button type="button" onClick={() => onLoadMore()} className="text-blue-500 hover:underline">
+              <button type="button" onClick={() => onLoadMore()} className="text-primary hover:underline">
                 点击重试
               </button>
             </div>
           ))}
-        {!hasMore && !loading && !error && (noMoreComponent || <div className="py-4 text-center text-gray-100">没有更多数据了</div>)}
+        {!hasMore && !loading && !error && (noMoreComponent || <div className="py-4 text-center text-muted-foreground">没有更多数据了</div>)}
       </div>
     </div>
   )

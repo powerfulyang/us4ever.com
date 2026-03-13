@@ -8,6 +8,7 @@ export default antfu(
       'public/**',
       'next.config.js',
       'README.md',
+      '**/*.md',
     ],
     react: true,
     formatters: {

@@ -1,53 +1,49 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
-import React from 'react'
-import { cn } from '@/utils'
+import type { VariantProps } from 'class-variance-authority'
+import { Slot } from '@radix-ui/react-slot'
+import { Loader2 } from 'lucide-react'
+import * as React from 'react'
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode
-  variant?: 'default' | 'outline' | 'ghost'
-  size?: 'xs' | 'sm' | 'md' | 'lg'
+import { cn } from '@/lib/utils'
+import { buttonVariants } from './button-variants'
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  VariantProps<typeof buttonVariants> {
+  asChild?: boolean
   isLoading?: boolean
-  leftIcon?: ReactNode
-  rightIcon?: ReactNode
+  leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
 }
 
-export function Button({ ref, children, className, variant = 'default', size = 'sm', isLoading, disabled, leftIcon, rightIcon, ...props }: ButtonProps & { ref?: React.RefObject<HTMLButtonElement> }) {
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none whitespace-nowrap'
-
-  const variants = {
-    default: 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 hover:scale-105',
-    outline: 'border border-purple-500 text-purple-500 hover:bg-purple-500/10',
-    ghost: 'text-gray-400 hover:text-purple-400 hover:bg-purple-500/10',
-  }
-
-  const sizes = {
-    xs: 'text-xs px-2 py-1 rounded-md',
-    sm: 'text-sm px-4 py-1.5 rounded-lg',
-    md: 'px-6 py-2 rounded-lg',
-    lg: 'text-lg px-8 py-3 rounded-xl',
+function Button({ ref, className, variant, size, asChild = false, isLoading, leftIcon, rightIcon, children, disabled, ...props }: ButtonProps & { ref?: React.RefObject<HTMLButtonElement | null> }) {
+  if (asChild) {
+    return (
+      <Slot
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </Slot>
+    )
   }
 
   return (
     <button
-      type="button"
+      className={cn(buttonVariants({ variant, size, className }))}
       ref={ref}
-      className={cn(
-        baseStyles,
-        variants[variant],
-        sizes[size],
-        className,
-      )}
       disabled={isLoading || disabled}
       {...props}
     >
       {isLoading && (
-        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
       )}
-      {leftIcon && <span className="mr-2">{leftIcon}</span>}
+      {!isLoading && leftIcon}
       {children}
-      {rightIcon && <span className="ml-2">{rightIcon}</span>}
+      {!isLoading && rightIcon}
     </button>
   )
 }
-
 Button.displayName = 'Button'
+
+export { Button }

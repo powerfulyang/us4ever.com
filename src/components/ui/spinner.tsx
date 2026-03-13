@@ -66,7 +66,7 @@ export function Loading({
     >
       <Spinner {...spinnerProps} />
       {text && (
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-foreground font-medium">
           {text}
         </span>
       )}

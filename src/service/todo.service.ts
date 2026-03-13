@@ -54,6 +54,9 @@ export async function findTodosByCursor({ userIds, limit, cursor }: FindTodosByC
         },
       ],
     },
+    include: {
+      owner: true,
+    },
     cursor: getCursor(cursor),
     orderBy: [
       {

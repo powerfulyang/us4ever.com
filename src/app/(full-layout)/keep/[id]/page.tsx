@@ -52,16 +52,16 @@ export default async function DetailPage({ params }: PageProps) {
 
   return (
     <>
+      <Back
+        fallback="/keep"
+        className="sticky top-24 animate-bounce inline-flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors whitespace-pre -mt-2 sm:mt-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>返回</span>
+      </Back>
       <div className="max-w-5xl w-full mx-auto flex flex-col sm:flex-row items-start gap-4">
-        <Back
-          fallback="/keep"
-          className="sticky top-24 animate-bounce inline-flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors whitespace-pre -mt-2 sm:mt-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>返回</span>
-        </Back>
         <Card className="w-full">
-          <div className="flex items-center justify-between mb-4 sm:mb-8 flex-wrap text-xs gap-y-4">
+          <div className="flex items-center justify-between flex-wrap text-xs px-6 pt-6">
             <div className="flex items-center gap-4">
               <div className="flex flex-col">
                 <span className="text-sm text-gray-400">创建于</span>
@@ -91,13 +91,13 @@ export default async function DetailPage({ params }: PageProps) {
             </OwnerOnly>
           </div>
 
-          <RemoteMdx enableMermaid>
+          <RemoteMdx enableMermaid className="px-6">
             {keep.content}
           </RemoteMdx>
         </Card>
 
       </div>
-      <div className="max-w-4xl m-auto">
+      <div className="max-w-5xl m-auto">
         <Waline />
       </div>
     </>

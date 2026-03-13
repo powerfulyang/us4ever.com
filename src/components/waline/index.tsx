@@ -1,13 +1,13 @@
 'use client'
 
-import type { WalineInitOptions, WalineInstance } from '@waline/client'
+import type { WalineInitOptions } from '@waline/client'
 import {
   init,
 } from '@waline/client'
+import { useTheme } from 'next-themes'
 import { usePathname } from 'next/navigation'
 
-import React, { useEffect, useRef } from 'react'
-import { useLifecycles } from 'react-use'
+import { useEffect, useRef } from 'react'
 import '@waline/client/style'
 
 export type WalineOptions = Partial<Omit<WalineInitOptions, 'el'> & { path: string }>
@@ -31,34 +31,43 @@ const reaction = [
 ].map(x => `https://littleeleven.com${x}`)
 
 export function Waline(props: WalineOptions) {
-  const walineInstanceRef = useRef<WalineInstance | null>(null)
   const containerRef = useRef<HTMLDivElement>(null!)
+  const walineInstanceRef = useRef<ReturnType<typeof init> | null>(null)
+  const pathname = usePathname()
+  const { resolvedTheme } = useTheme()
 
-  useLifecycles(
-    () => {
+  useEffect(() => {
+    if (!walineInstanceRef.current) {
       walineInstanceRef.current = init({
+        ...props,
         el: containerRef.current,
+        path: pathname,
         lang: 'zh-CN',
-        dark: true,
+        dark: resolvedTheme === 'dark',
         serverURL: 'https://waline.us4ever.com',
         emoji,
         reaction,
       })
-    },
-    () => {
-      walineInstanceRef.current?.destroy()
-      walineInstanceRef.current = null // 清理引用
-    },
-  )
-
-  const pathname = usePathname()
+    }
+    else {
+      walineInstanceRef.current.update({
+        ...props,
+        path: pathname,
+        lang: 'zh-CN',
+        dark: resolvedTheme === 'dark',
+        serverURL: 'https://waline.us4ever.com',
+        emoji,
+        reaction,
+      })
+    }
+  }, [pathname, resolvedTheme, props])
 
   useEffect(() => {
-    walineInstanceRef.current?.update({
-      ...props,
-      path: pathname,
-    })
-  }, [pathname, props])
+    return () => {
+      walineInstanceRef.current?.destroy()
+      walineInstanceRef.current = null
+    }
+  }, [])
 
   return <div ref={containerRef} />
 }

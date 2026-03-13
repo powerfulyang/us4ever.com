@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { cn } from '@/utils/cn'
+import { cn } from '@/lib/utils'
 
 interface CategoryListProps {
   title?: string
@@ -8,22 +8,29 @@ interface CategoryListProps {
   currentCategory?: string
 }
 
-export function CategoryList({ title = '分类', categories, basePath, currentCategory }: CategoryListProps) {
-  // 从路径或参数中获取当前分类
+export function CategoryList({
+  title = '分类',
+  categories,
+  basePath,
+  currentCategory,
+}: CategoryListProps) {
   const activeCategory = currentCategory
 
   return (
     <div className="my-6">
-      <h2 className="text-xl font-semibold mb-4 text-white">{title}</h2>
-      <div className="flex flex-wrap gap-3">
+      {title && (
+        <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+          {title}
+        </h2>
+      )}
+      <div className="flex flex-wrap gap-2">
         <Link
           href={basePath}
           className={cn(
-            'flex items-center justify-center px-3 py-1.5 rounded-lg text-white text-xs',
-            'border transition-all duration-300 shadow-sm hover:shadow-md',
+            'inline-flex items-center justify-center rounded-md border px-4 py-1.5 text-xs font-medium transition-all duration-200',
             !activeCategory
-              ? 'bg-purple-500/40 border-purple-500/70 hover:bg-purple-500/50'
-              : 'bg-white/10 hover:bg-purple-500/20 border-white/20 hover:border-purple-500/50',
+              ? 'border-primary bg-primary text-primary-foreground shadow-sm active:scale-[0.98]'
+              : 'border-border bg-background-secondary text-foreground-secondary hover:border-foreground/20 hover:bg-secondary hover:text-foreground active:scale-[0.98]',
           )}
         >
           全部
@@ -33,11 +40,10 @@ export function CategoryList({ title = '分类', categories, basePath, currentCa
             key={category}
             href={`${basePath}/category/${category}`}
             className={cn(
-              'flex items-center justify-center px-3 py-1.5 rounded-lg text-white text-xs',
-              'border transition-all duration-300 shadow-sm hover:shadow-md',
+              'inline-flex items-center justify-center rounded-md border px-4 py-1.5 text-xs font-medium transition-all duration-200',
               activeCategory === category
-                ? 'bg-purple-500/40 border-purple-500/70 hover:bg-purple-500/50'
-                : 'bg-white/10 hover:bg-purple-500/20 border-white/20 hover:border-purple-500/50',
+                ? 'border-primary bg-primary text-primary-foreground shadow-sm active:scale-[0.98]'
+                : 'border-border bg-background-secondary text-foreground-secondary hover:border-foreground/20 hover:bg-secondary hover:text-foreground active:scale-[0.98]',
             )}
           >
             {category}

@@ -33,20 +33,20 @@ export default async function MomentDetailPage({ params }: PageProps) {
       <Container
         title={`${moment.owner.nickname} 的动态`}
         description="动态详情"
-        rightContent={(
+        actions={(
           <Back
             fallback="/moment"
-            className="px-6 py-1 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:scale-105"
+            className="px-4 py-1.5 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors"
           >
             返回列表
           </Back>
         )}
       >
-        <div className="space-y-4 max-w-xl m-auto">
+        <div className="space-y-4 max-w-xl mx-auto">
           <MomentItem moment={moment} />
         </div>
 
-        <div className="max-w-xl m-auto mt-6">
+        <div className="max-w-xl mx-auto mt-6">
           <Waline />
         </div>
       </Container>

@@ -1,7 +1,15 @@
 'use client'
 
-import { Button } from './button'
-import { Modal } from './modal'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 interface ConfirmProps {
   isOpen: boolean
@@ -9,7 +17,7 @@ interface ConfirmProps {
   onConfirmAction: () => Promise<void> | void
   title?: string
   content?: string
-  isConfirmLoading?: false | true
+  isConfirmLoading?: boolean
 }
 
 export function Confirm({
@@ -21,28 +29,22 @@ export function Confirm({
   isConfirmLoading,
 }: ConfirmProps) {
   return (
-    <Modal
-      isOpen={isOpen}
-      onCloseAction={onCloseAction}
-      title={title}
-    >
-      <div className="space-y-4">
-        <p className="text-gray-300">{content}</p>
-        <div className="flex justify-end gap-4">
-          <Button
-            variant="ghost"
-            onClick={onCloseAction}
-          >
-            取消
-          </Button>
-          <Button
-            isLoading={isConfirmLoading}
+    <AlertDialog open={isOpen} onOpenChange={open => !open && onCloseAction()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{content}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>取消</AlertDialogCancel>
+          <AlertDialogAction
             onClick={onConfirmAction}
+            disabled={isConfirmLoading}
           >
-            确定
-          </Button>
-        </div>
-      </div>
-    </Modal>
+            {isConfirmLoading ? '处理中...' : '确定'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

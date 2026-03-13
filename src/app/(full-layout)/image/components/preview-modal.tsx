@@ -1,9 +1,13 @@
 'use client'
 
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Dialog } from '@/components/ui/dialog'
-import { cn } from '@/utils/cn'
+import * as React from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
 interface ImageType {
   src: string
@@ -121,93 +125,89 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
     return null
 
   return (
-    <Dialog isOpen={isOpen} onCloseAction={handleClose}>
-      <motion.div
-        className="w-full h-full flex justify-center items-center"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.img
-            key={currentImage?.src}
-            drag={canDrag}
-            dragElastic={0.1}
-            dragMomentum={false}
-            style={{ x: dragX, y: dragY }}
-            animate={{
-              scale,
-              rotate: rotation,
-              filter: isImageLoaded ? 'blur(0px)' : 'blur(10px)',
-            }}
-            transition={{
-              type: 'spring',
-              stiffness: 300,
-              damping: 30,
-              filter: {
-                duration: 0.3,
-                ease: 'easeOut',
-              },
-            }}
-            src={isImageLoaded ? currentImage?.src : currentImage?.placeholder}
-            alt={currentImage?.alt || '预览图片'}
-            onDoubleClick={handleDoubleClick}
-            className={cn(
-              'object-contain',
-              {
-                'cursor-move': canDrag,
-              },
-              {
-                'w-full': isMultipleMode && isWideImage,
-                'h-full': isMultipleMode && !isWideImage,
-                'max-w-full max-h-full': !isMultipleMode,
-              },
+    <Dialog open={isOpen} onOpenChange={open => !open && handleClose()}>
+      <DialogContent className="max-w-screen max-h-screen w-screen h-screen border-0 bg-black/90 p-0 [&>button]:hidden">
+        <div className="w-full h-full flex justify-center items-center relative">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.img
+              key={currentImage?.src}
+              drag={canDrag}
+              dragElastic={0.1}
+              dragMomentum={false}
+              style={{ x: dragX, y: dragY }}
+              animate={{
+                scale,
+                rotate: rotation,
+                filter: isImageLoaded ? 'blur(0px)' : 'blur(10px)',
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+                filter: {
+                  duration: 0.3,
+                  ease: 'easeOut',
+                },
+              }}
+              src={isImageLoaded ? currentImage?.src : currentImage?.placeholder}
+              alt={currentImage?.alt || '预览图片'}
+              onDoubleClick={handleDoubleClick}
+              className={cn(
+                'object-contain',
+                {
+                  'cursor-move': canDrag,
+                },
+                {
+                  'w-full': isMultipleMode && isWideImage,
+                  'h-full': isMultipleMode && !isWideImage,
+                  'max-w-full max-h-full': !isMultipleMode,
+                },
+              )}
+            />
+          </AnimatePresence>
+
+          {/* 控制按钮组 */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 rounded-lg bg-black/50">
+            <ControlButton onClick={() => handleRotate('left')} title="向左旋转" icon={RotateLeftIcon} />
+            <ControlButton onClick={() => handleRotate('right')} title="向右旋转" icon={RotateRightIcon} />
+            <ControlButton onClick={() => setScale(prev => prev + 0.5)} title="放大" icon={ZoomInIcon} />
+            <ControlButton onClick={() => setScale(prev => Math.max(0.1, prev - 0.5))} title="缩小" icon={ZoomOutIcon} />
+            <ControlButton onClick={handleReset} title="重置" icon={ResetIcon} />
+            {isMultipleMode && (
+              <>
+                <div className="w-px h-5 bg-white/20 mx-1" />
+                <ControlButton
+                  onClick={goToPreviousImage}
+                  title="上一张"
+                  icon={PreviousIcon}
+                  disabled={currentIndex === 0}
+                />
+                <span className="text-white text-sm px-2">
+                  {currentIndex + 1}
+                  /
+                  {images.length}
+                </span>
+                <ControlButton
+                  onClick={goToNextImage}
+                  title="下一张"
+                  icon={NextIcon}
+                  disabled={currentIndex === images.length - 1}
+                />
+              </>
             )}
-          />
-        </AnimatePresence>
-      </motion.div>
+          </div>
 
-      {/* 控制按钮组 */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 rounded-lg bg-black/50">
-        <ControlButton onClick={() => handleRotate('left')} title="向左旋转" icon={RotateLeftIcon} />
-        <ControlButton onClick={() => handleRotate('right')} title="向右旋转" icon={RotateRightIcon} />
-        <ControlButton onClick={() => setScale(prev => prev + 0.5)} title="放大" icon={ZoomInIcon} />
-        <ControlButton onClick={() => setScale(prev => Math.max(0.1, prev - 0.5))} title="缩小" icon={ZoomOutIcon} />
-        <ControlButton onClick={handleReset} title="重置" icon={ResetIcon} />
-        {isMultipleMode && (
-          <>
-            <div className="w-px h-5 bg-white/20 mx-1" />
-            <ControlButton
-              onClick={goToPreviousImage}
-              title="上一张"
-              icon={PreviousIcon}
-              disabled={currentIndex === 0}
-            />
-            <span className="text-white text-sm px-2">
-              {currentIndex + 1}
-              /
-              {images.length}
-            </span>
-            <ControlButton
-              onClick={goToNextImage}
-              title="下一张"
-              icon={NextIcon}
-              disabled={currentIndex === images.length - 1}
-            />
-          </>
-        )}
-      </div>
-
-      {/* 关闭按钮 */}
-      <button
-        type="button"
-        onClick={handleClose}
-        title="关闭"
-        className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
-      >
-        <CloseIcon className="w-6 h-6 text-white" />
-      </button>
+          {/* 关闭按钮 */}
+          <button
+            type="button"
+            onClick={handleClose}
+            title="关闭"
+            className="absolute top-4 right-4 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+          >
+            <CloseIcon className="w-6 h-6 text-white" />
+          </button>
+        </div>
+      </DialogContent>
     </Dialog>
   )
 }
@@ -241,8 +241,7 @@ function ControlButton({
   )
 }
 
-// SVG 图标组件保持不变...
-
+// SVG 图标组件
 function RotateLeftIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor">

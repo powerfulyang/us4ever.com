@@ -4,8 +4,9 @@
  */
 
 import type { ComponentType, ReactNode } from 'react'
-import React, { Component } from 'react'
-import { Alert } from '@/components/ui/alert'
+import * as React from 'react'
+import { Component } from 'react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
 interface ErrorBoundaryState {
@@ -69,30 +70,33 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
       return (
         <div className="p-4">
-          <Alert variant="error" title="组件渲染错误">
-            <div className="space-y-2">
-              <p>抱歉，组件渲染时发生了错误。</p>
-              {process.env.NODE_ENV === 'development' && error && (
-                <details className="mt-2">
-                  <summary className="cursor-pointer text-sm font-medium">
-                    错误详情
-                  </summary>
-                  <pre className="mt-2 text-xs bg-red-100 p-2 rounded overflow-auto">
-                    {error.toString()}
-                    {this.state.errorInfo?.componentStack}
-                  </pre>
-                </details>
-              )}
-              <div className="mt-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={this.handleRetry}
-                >
-                  重试
-                </Button>
+          <Alert variant="destructive">
+            <AlertTitle>组件渲染错误</AlertTitle>
+            <AlertDescription>
+              <div className="space-y-2">
+                <p>抱歉，组件渲染时发生了错误。</p>
+                {process.env.NODE_ENV === 'development' && error && (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-sm font-medium">
+                      错误详情
+                    </summary>
+                    <pre className="mt-2 text-xs bg-red-100 dark:bg-red-900/20 p-2 rounded overflow-auto">
+                      {error.toString()}
+                      {this.state.errorInfo?.componentStack}
+                    </pre>
+                  </details>
+                )}
+                <div className="mt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={this.handleRetry}
+                  >
+                    重试
+                  </Button>
+                </div>
               </div>
-            </div>
+            </AlertDescription>
           </Alert>
         </div>
       )
@@ -113,18 +117,18 @@ export function DefaultErrorFallback({
   return (
     <div className="flex flex-col items-center justify-center min-h-[200px] p-8">
       <div className="text-center">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">
+        <h2 className="text-lg font-semibold text-foreground mb-2">
           出现了一些问题
         </h2>
-        <p className="text-gray-600 mb-4">
+        <p className="text-muted-foreground mb-4">
           组件加载失败，请稍后重试
         </p>
         {process.env.NODE_ENV === 'development' && (
           <details className="mb-4 text-left">
-            <summary className="cursor-pointer text-sm text-gray-500">
+            <summary className="cursor-pointer text-sm text-muted-foreground">
               错误信息
             </summary>
-            <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto max-w-md">
+            <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto max-w-md">
               {error.message}
             </pre>
           </details>

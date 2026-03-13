@@ -1,0 +1,255 @@
+/* VitePress 风格 Markdown 样式 */
+
+.markdown {
+  /* 亮色主题变量 - 文档阅读风 */
+  --vp-c-text-1: #18181b;
+  --vp-c-text-2: #3f3f46;
+  --vp-c-brand-1: #0d9488;
+  --vp-c-brand-2: #14b8a6;
+  --vp-c-divider: #e4e4e7;
+  --vp-c-bg-soft: #fafafa;
+  --vp-c-bg-alt: #f4f4f5;
+  --vp-code-bg: rgba(0, 0, 0, 0.06);
+  --vp-code-color: #18181b;
+  --vp-link-color: #0d9488;
+  --vp-link-hover-color: #0f766e;
+  --vp-mark-color: #fcd34d;
+  --vp-strong-color: #09090b;
+  --vp-blockquote-border: #0d9488;
+  --vp-heading-color: #09090b;
+
+  color: var(--vp-c-text-1);
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}
+
+/* 暗色主题 - 使用 :global 包裹 */
+:global(.dark) .markdown {
+  --vp-c-text-1: #e4e4e7;
+  --vp-c-text-2: #a1a1aa;
+  --vp-c-brand-1: #2dd4bf;
+  --vp-c-brand-2: #5eead4;
+  --vp-c-divider: #27272a;
+  --vp-c-bg-soft: #1c1917;
+  --vp-c-bg-alt: #0c0a09;
+  --vp-code-bg: rgba(255, 255, 255, 0.1);
+  --vp-code-color: #e4e4e7;
+  --vp-link-color: #2dd4bf;
+  --vp-link-hover-color: #5eead4;
+  --vp-mark-color: #fbbf24;
+  --vp-strong-color: #f472b6;
+  --vp-blockquote-border: #2dd4bf;
+  --vp-heading-color: #fafaf9;
+}
+
+/* 标题 */
+.markdown :global(h1),
+.markdown :global(h2),
+.markdown :global(h3),
+.markdown :global(h4),
+.markdown :global(h5),
+.markdown :global(h6) {
+  color: var(--vp-heading-color);
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown :global(h1) {
+  font-size: 1.75rem;
+}
+.markdown :global(h2) {
+  font-size: 1.5rem;
+}
+.markdown :global(h3) {
+  font-size: 1.25rem;
+}
+.markdown :global(h4) {
+  font-size: 1.125rem;
+}
+.markdown :global(h5) {
+  font-size: 1rem;
+}
+.markdown :global(h6) {
+  font-size: 0.875rem;
+}
+
+/* 段落 */
+.markdown :global(p) {
+  margin: 1em 0;
+  line-height: 1.8;
+}
+
+/* 链接 */
+.link {
+  color: var(--vp-link-color);
+  text-decoration: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--vp-link-hover-color);
+    text-decoration: underline;
+  }
+}
+
+/* 行内代码 */
+.inlineCode {
+  background-color: var(--vp-code-bg);
+  color: var(--vp-code-color);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'Fira Code', 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-size: 0.85em;
+}
+
+/* 强调 */
+.markdown :global(strong) {
+  color: var(--vp-strong-color);
+  font-weight: 600;
+}
+
+.markdown :global(em) {
+  font-style: italic;
+}
+
+/* 标记 */
+.markdown :global(mark) {
+  background-color: var(--vp-mark-color);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  color: #1c1c1e;
+}
+
+/* 引用块 */
+.markdown :global(blockquote) {
+  margin: 1em 0;
+  padding: 0.75em 1em;
+  border-left: 4px solid var(--vp-blockquote-border);
+  background-color: var(--vp-c-bg-soft);
+  border-radius: 0 8px 8px 0;
+  color: var(--vp-c-text-2);
+
+  :global(p) {
+    margin: 0;
+  }
+
+  :global(blockquote) {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+}
+
+/* 列表 */
+.markdown :global(ul),
+.markdown :global(ol) {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+
+.markdown :global(ul) {
+  list-style-type: disc;
+
+  :global(ul) {
+    list-style-type: circle;
+
+    :global(ul) {
+      list-style-type: square;
+    }
+  }
+}
+
+.markdown :global(ol) {
+  list-style-type: decimal;
+}
+
+.markdown :global(li) {
+  margin: 0.25em 0;
+
+  &::marker {
+    color: var(--vp-c-brand-1);
+  }
+}
+
+/* 任务列表 */
+.markdown :global(ul.contains-task-list) {
+  list-style: none;
+  padding-left: 0;
+
+  :global(li) {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5em;
+
+    :global(input[type='checkbox']) {
+      margin-top: 0.3em;
+      accent-color: var(--vp-c-brand-1);
+    }
+  }
+}
+
+/* 分割线 */
+.markdown :global(hr) {
+  border: none;
+  border-top: 1px solid var(--vp-c-divider);
+  margin: 2em 0;
+}
+
+/* 表格容器 */
+.tableWrapper {
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+/* 表格 */
+.markdown :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875em;
+
+  :global(th),
+  :global(td) {
+    padding: 0.75em 1em;
+    border: 1px solid var(--vp-c-divider);
+    text-align: left;
+  }
+
+  :global(th) {
+    background-color: var(--vp-c-bg-soft);
+    font-weight: 600;
+  }
+
+  :global(tr:nth-child(2n)) {
+    background-color: var(--vp-c-bg-soft);
+  }
+}
+
+/* 图片 */
+.figure {
+  margin: 1.5em 0;
+  text-align: center;
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  figcaption {
+    margin-top: 0.5em;
+    font-size: 0.875em;
+    color: var(--vp-c-text-2);
+  }
+}
+
+/* 数学公式 */
+.markdown :global(.katex-display) {
+  overflow-x: auto;
+  padding: 1em 0;
+}
+
+/* 删除线 */
+.markdown :global(del) {
+  text-decoration: line-through;
+  color: var(--vp-c-text-2);
+}

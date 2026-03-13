@@ -1,9 +1,9 @@
 'use client'
 
 import type { FC } from 'react'
+import { useTheme } from 'next-themes'
 import { Prism } from 'react-syntax-highlighter'
-
-import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { atomDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { toast } from 'react-toastify'
 import { cn } from '@/utils'
 import styles from './prism.module.scss'
@@ -19,6 +19,12 @@ interface Props {
 delete atomDark['class-name']?.textDecoration
 
 export const PrismCode: FC<Props> = ({ language, children, maxHeight, className }) => {
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === 'dark'
+
+  const style = isDark ? atomDark : oneLight
+  const backgroundColor = isDark ? 'rgba(0, 0, 0, 0.8)' : 'hsl(var(--secondary))'
+
   return (
     <div className={cn(styles.pre, className)}>
       <div data-mdast="ignore" className={styles.toolbar}>
@@ -48,7 +54,7 @@ export const PrismCode: FC<Props> = ({ language, children, maxHeight, className 
       </div>
       <Prism
         showLineNumbers
-        style={atomDark}
+        style={style}
         language={language}
         PreTag="pre"
         codeTagProps={{
@@ -57,7 +63,7 @@ export const PrismCode: FC<Props> = ({ language, children, maxHeight, className 
         customStyle={{
           borderRadius: 0,
           margin: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor,
           maxHeight,
         }}
       >

@@ -1,63 +1,61 @@
 import type { ReactNode } from 'react'
-import { Home } from 'lucide-react'
-import Link from 'next/link'
-import { logout } from '@/app/actions'
-import { SearchFormMobile } from '@/components/search-form'
-import UserIcon from '@/components/user/icon'
+import { AppLayout } from '@/components/layout/AppLayout'
 
-export default async function FullLayout(
+export default function FullLayout(
   { children }: Readonly<{ children: ReactNode }>,
 ) {
   return (
-    <div className="min-h-[100dvh] bg-gradient-to-br from-purple-900 via-indigo-900 to-black">
-      <div className="relative min-h-[100dvh] flex flex-col">
-        <header className="sticky top-0 z-50">
-          <div
-            className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-indigo-500/10 backdrop-blur-xl"
-          />
-          <div className="relative max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
-              <nav className="flex items-center gap-8">
-                <Link
-                  href="/"
-                  className="group flex items-center gap-4 px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-all duration-300"
-                >
-                  <Home className="w-5 h-5 text-purple-400 group-hover:text-white transition-colors" />
-                  <span className="font-medium text-gray-300 group-hover:text-white transition-colors">首页</span>
-                </Link>
-              </nav>
+    <AppLayout>
+      {children}
 
-              <div className="flex items-center gap-2 sm:gap-8">
-                <SearchFormMobile searchPath="/search" placeholder="搜索笔记和动态..." />
-                <UserIcon onLogoutAction={logout} />
-              </div>
-            </div>
-          </div>
-        </header>
+      {/* 柔和渐变背景 - 亮色模式 */}
+      <div
+        className="fixed inset-0 -z-10 animate-gradient-breathe dark:hidden"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 60% at 50% 0%, hsl(270 50% 88% / 0.95), transparent 60%),
+            radial-gradient(ellipse 50% 50% at 85% 30%, hsl(280 45% 86% / 0.85), transparent 50%),
+            radial-gradient(ellipse 40% 40% at 15% 70%, hsl(260 50% 87% / 0.75), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 70% 85%, hsl(290 40% 89% / 0.65), transparent 50%)
+          `,
+        }}
+      />
 
-        <main className="flex-1 max-w-7xl w-full mx-auto p-6 sm:p-8">
-          {children}
-        </main>
+      {/* 柔和渐变背景 - 暗色模式 */}
+      <div
+        className="fixed inset-0 -z-10 animate-gradient-breathe hidden dark:block"
+        style={{
+          background: `
+            radial-gradient(ellipse 80% 60% at 50% 0%, hsl(270 50% 22% / 0.9), transparent 60%),
+            radial-gradient(ellipse 50% 50% at 85% 30%, hsl(280 45% 18% / 0.8), transparent 50%),
+            radial-gradient(ellipse 40% 40% at 15% 70%, hsl(260 50% 20% / 0.7), transparent 50%),
+            radial-gradient(ellipse 60% 40% at 70% 85%, hsl(290 40% 19% / 0.6), transparent 50%)
+          `,
+        }}
+      />
 
-        <footer className="mt-auto border-t border-white/10 backdrop-blur-lg">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <p className="text-center text-sm text-gray-400 flex gap-2 items-center justify-center">
-              <span>© 2024</span>
-              <span>
-                Power By
-                <a
-                  href="https://github.com/powerfulyang"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="text-gray-300 hover:text-white transition-colors pl-[1ch]"
-                >
-                  powerfulyang
-                </a>
-              </span>
-            </p>
-          </div>
-        </footer>
-      </div>
-    </div>
+      {/* 漂浮光晕装饰 - 亮色模式 */}
+      <div className="fixed top-20 left-10 w-96 h-96 bg-purple-300/20 rounded-full blur-3xl -z-10 animate-float-slow dark:hidden" />
+      <div className="fixed bottom-20 right-10 w-80 h-80 bg-violet-300/15 rounded-full blur-3xl -z-10 animate-float-medium dark:hidden" />
+      <div className="fixed top-1/2 left-1/3 w-64 h-64 bg-indigo-300/10 rounded-full blur-3xl -z-10 animate-float-fast dark:hidden" />
+
+      {/* 漂浮光晕装饰 - 暗色模式 */}
+      <div className="fixed top-20 left-10 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl -z-10 animate-float-slow hidden dark:block" />
+      <div className="fixed bottom-20 right-10 w-80 h-80 bg-indigo-600/15 rounded-full blur-3xl -z-10 animate-float-medium hidden dark:block" />
+      <div className="fixed top-1/3 right-1/4 w-72 h-72 bg-violet-600/12 rounded-full blur-3xl -z-10 animate-float-fast hidden dark:block" />
+      <div className="fixed bottom-1/3 left-1/4 w-56 h-56 bg-fuchsia-600/10 rounded-full blur-3xl -z-10 animate-float-slow hidden dark:block" style={{ animationDelay: '-5s' }} />
+
+      {/* 细腻网格纹理 */}
+      <div
+        className="fixed inset-0 -z-10 opacity-[0.03]"
+        style={{
+          backgroundImage: `
+            linear-gradient(hsl(25 20% 60%) 1px, transparent 1px),
+            linear-gradient(90deg, hsl(25 20% 60%) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px',
+        }}
+      />
+    </AppLayout>
   )
 }

@@ -4,8 +4,9 @@ import type { ChangeEvent, FormEvent } from 'react'
 import { Search as SearchIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { cn } from '@/utils/cn'
-import { Input } from './ui'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
 interface SearchFormProps {
   searchPath: string
@@ -31,16 +32,14 @@ export function SearchForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={cn(className)}>
+    <form onSubmit={handleSubmit} className={cn('relative', className)}>
+      <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
-        inputSize="sm"
         type="search"
         placeholder={placeholder || '请输入搜索关键词...'}
         value={query}
         onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
-        leftIcon={
-          <SearchIcon className="h-4 w-4" />
-        }
+        className="pl-9 h-9 w-full sm:w-64"
       />
     </form>
   )
@@ -48,23 +47,21 @@ export function SearchForm({
 
 export function SearchFormMobile({ searchPath, className, ...props }: SearchFormProps) {
   const router = useRouter()
+
   return (
     <>
       <div className="sm:hidden">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => {
             router.push(searchPath)
           }}
-          className={cn(
-            'group relative overflow-hidden rounded-full p-2',
-            'bg-white/10 backdrop-blur-sm',
-            'active:scale-95 transition-all duration-200',
-            className,
-          )}
+          className={cn('h-9 w-9', className)}
         >
-          <SearchIcon className="h-5.5 w-5.5 text-white/70" />
-        </button>
+          <SearchIcon className="h-4 w-4" />
+          <span className="sr-only">搜索</span>
+        </Button>
       </div>
       <SearchForm
         searchPath={searchPath}

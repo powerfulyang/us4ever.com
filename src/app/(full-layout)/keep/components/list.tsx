@@ -1,8 +1,9 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import Link from 'next/link'
-import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
+import { useState } from 'react'
 import { Empty } from '@/components/layout/Empty'
 import { Confirm } from '@/components/ui/confirm'
 import { ContentCard } from '@/components/ui/content-card'
@@ -11,6 +12,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
 
 function KeepCard({ keep }: { keep: any }) {
+  const router = useRouter()
   const [showConfirm, setShowConfirm] = useState(false)
   const utils = api.useUtils()
   const { mutate, isPending } = api.keep.delete.useMutation({
@@ -22,7 +24,12 @@ function KeepCard({ keep }: { keep: any }) {
 
   const handleDelete = (e?: React.MouseEvent) => {
     e?.preventDefault()
+    e?.stopPropagation()
     setShowConfirm(true)
+  }
+
+  const handleCardClick = () => {
+    router.push(`/keep/${keep.id}`)
   }
 
   return (
@@ -33,21 +40,21 @@ function KeepCard({ keep }: { keep: any }) {
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
     >
-      <Link href={`/keep/${keep.id}`} className="children-pointer block h-full">
-        <ContentCard
-          title={keep.title}
-          status={{
-            label: keep.isPublic ? '公开' : '私密',
-            type: keep.isPublic ? 'success' : 'default',
-          }}
-          content={keep.summary}
-          createdAt={keep.createdAt}
-          views={keep.views}
-          likes={keep.likes}
-          ownerId={keep.ownerId}
-          onDelete={handleDelete}
-        />
-      </Link>
+      <ContentCard
+        title={keep.title}
+        status={{
+          label: keep.isPublic ? '公开' : '私密',
+          type: keep.isPublic ? 'success' : 'default',
+        }}
+        content={keep.summary}
+        createdAt={keep.createdAt}
+        views={keep.views}
+        likes={keep.likes}
+        ownerId={keep.ownerId}
+        onDelete={handleDelete}
+        onClick={handleCardClick}
+        className="cursor-pointer"
+      />
       <Confirm
         isOpen={showConfirm}
         onCloseAction={() => setShowConfirm(false)}

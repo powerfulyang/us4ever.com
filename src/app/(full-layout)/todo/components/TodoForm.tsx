@@ -1,8 +1,11 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import { Plus } from 'lucide-react'
+import * as React from 'react'
+import { useMemo, useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
+import { Button } from '@/components/ui/button'
 import { api } from '@/trpc/react'
 
 export function TodoForm() {
@@ -33,31 +36,32 @@ export function TodoForm() {
   }
 
   return (
-    <div className="flex gap-4 items-center">
-      <TextareaAutosize
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="添加新的待办事项..."
-        minRows={1}
-        rows={1}
-        className="flex-1 rounded-lg bg-white/10 backdrop-blur-lg px-4 py-2 text-white placeholder-gray-400 border border-white/20 focus:border-purple-500/50 focus:outline-none transition-colors resize-none"
-      />
-      <AuthenticatedOnly disableChildren>
-        <button
-          type="button"
+    <AuthenticatedOnly disableChildren>
+      <div className="flex gap-3 items-center">
+        <TextareaAutosize
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="添加新的待办事项..."
+          minRows={1}
+          rows={1}
+          className="flex-1 rounded-md bg-secondary/50 px-4 py-2.5 text-foreground placeholder:text-muted-foreground border border-transparent focus:border-primary/50 focus:outline-none transition-colors resize-none"
+        />
+        <Button
           onClick={create}
           disabled={isDisableSubmit}
-          className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors relative overflow-hidden whitespace-nowrap"
+          className="gap-1 shrink-0"
         >
-          {createTodo.isPending && (
-            <div className="absolute inset-0 flex items-center justify-center bg-purple-500">
-              <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-            </div>
-          )}
+          {createTodo.isPending
+            ? (
+                <div className="w-4 h-4 border-2 border-primary-foreground/20 border-t-primary-foreground rounded-full animate-spin" />
+              )
+            : (
+                <Plus className="h-4 w-4" />
+              )}
           添加
-        </button>
-      </AuthenticatedOnly>
-    </div>
+        </Button>
+      </div>
+    </AuthenticatedOnly>
   )
 }

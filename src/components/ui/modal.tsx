@@ -1,10 +1,13 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
-import { Dialog } from '@/components/ui/dialog'
-import { cn } from '@/utils'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
 
 export interface ModalProps {
   isOpen: boolean
@@ -22,34 +25,15 @@ export function Modal({
   className,
 }: ModalProps) {
   return (
-    <Dialog isOpen={isOpen} onCloseAction={onCloseAction}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ duration: 0.2 }}
-        className={cn(
-          'relative w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4',
-          'bg-white/10 backdrop-blur-lg rounded-xl border border-white/20',
-          className,
+    <Dialog open={isOpen} onOpenChange={open => !open && onCloseAction()}>
+      <DialogContent className={cn('max-w-2xl max-h-[90vh] overflow-y-auto', className)}>
+        {title && (
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+          </DialogHeader>
         )}
-      >
-        <div className="flex text-gray-300 items-center justify-between p-4 border-b border-white/10">
-          {title && (
-            <h3 className="text-lg font-medium">{title}</h3>
-          )}
-          <button
-            type="button"
-            onClick={onCloseAction}
-            className="p-1 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="p-4">
-          {children}
-        </div>
-      </motion.div>
+        {children}
+      </DialogContent>
     </Dialog>
   )
 }

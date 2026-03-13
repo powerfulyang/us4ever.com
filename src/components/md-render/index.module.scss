@@ -1,32 +1,55 @@
 .markdownBody {
   display: flex;
   flex-direction: column;
-  //min-height: 100%;
   line-height: 1.8;
   letter-spacing: 0.5px;
   word-break: break-word;
   @apply box-border;
 
-  // 多色强调定义
-  --text-color: #f9fafb;
-  --accent-color-pink: #f472b6;
-  --accent-color-green: #34d399;
-  --accent-color-blue: #67e8f9;
-  --accent-color-yellow: #fcd34d;
-  --accent-color-purple: #c084fc;
+  // 亮色主题变量
+  --text-color: hsl(var(--foreground));
+  --text-muted: hsl(var(--muted-foreground));
+  --accent-color-pink: hsl(330, 80%, 60%);
+  --accent-color-green: hsl(160, 70%, 45%);
+  --accent-color-blue: hsl(190, 90%, 50%);
+  --accent-color-yellow: hsl(45, 90%, 55%);
+  --accent-color-purple: hsl(270, 70%, 60%);
 
-  --link-color: #00ffd1;
-  --link-hover-color: #5cfff0;
-  --blockquote-bg: rgba(255, 255, 255, 0.08);
-  --blockquote-border: var(--accent-color-purple);
-  --table-border-color: rgba(255, 255, 255, 0.2);
-  --code-bg-gradient: linear-gradient(135deg, rgba(192, 132, 252, 0.15) 0%, rgba(103, 232, 249, 0.15) 100%);
-  --code-text: #e0e0e0;
+  --link-color: hsl(var(--primary));
+  --link-hover-color: hsl(var(--primary) / 0.8);
+  --blockquote-bg: hsl(var(--muted) / 0.5);
+  --blockquote-border: hsl(var(--primary));
+  --table-border-color: hsl(var(--border));
+  --code-bg: hsl(var(--muted));
+  --code-text: hsl(var(--foreground));
+  --code-border: hsl(var(--border));
+  --hr-color: hsl(var(--border));
+  --hover-bg: hsl(var(--accent) / 0.3);
+  --thead-bg: hsl(var(--muted));
 
   color: var(--text-color);
 
+  // 暗色主题覆盖
+  :global(.dark) & {
+    --accent-color-pink: #f472b6;
+    --accent-color-green: #34d399;
+    --accent-color-blue: #67e8f9;
+    --accent-color-yellow: #fcd34d;
+    --accent-color-purple: #c084fc;
+
+    --link-color: #00ffd1;
+    --link-hover-color: #5cfff0;
+    --blockquote-bg: rgba(255, 255, 255, 0.08);
+    --code-bg: linear-gradient(135deg, rgba(192, 132, 252, 0.15) 0%, rgba(103, 232, 249, 0.15) 100%);
+    --code-text: #e0e0e0;
+    --code-border: rgba(255, 255, 255, 0.1);
+    --hr-color: rgba(255, 255, 255, 0.2);
+    --hover-bg: rgba(255, 255, 255, 0.05);
+    --thead-bg: rgba(255, 255, 255, 0.07);
+  }
+
   mark {
-    background-color: #c084fc;
+    background-color: var(--accent-color-purple);
     border-radius: 0.2rem;
     padding: 3px;
     color: white;
@@ -35,22 +58,20 @@
 
   hr {
     @apply my-[1em] border-dashed;
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--hr-color);
   }
 
   h1 {
     margin: auto;
   }
 
-  /* 标题样式：使用inline-block限制宽度 */
-  /* 父容器若希望居中标题，可通过 text-align:center 实现 */
-  /* 例如，如果 markdownBody 外层有容器，可对外层容器设置 text-align:center */
+  /* 标题样式 */
   h1,
   h2,
   h3,
   h4 {
     position: relative;
-    display: inline-block; /* 关键：使标题尺寸随内容而定 */
+    display: inline-block;
     font-weight: bold;
     color: var(--text-color);
     margin-bottom: 1em;
@@ -65,12 +86,7 @@
       left: 50%;
       width: 0;
       height: 3px;
-      background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.8) 50%,
-        rgba(255, 255, 255, 0) 100%
-      );
+      background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
       transition:
         width 0.4s ease,
         opacity 0.4s ease;
@@ -145,7 +161,6 @@
     word-break: break-word;
     color: var(--link-color);
     text-decoration: none;
-    //margin: 0 0.3em;
     padding: 0.15em 0;
     transition: color 0.3s ease;
 
@@ -175,19 +190,15 @@
 
   :not(pre) > code {
     font-family: Consolas, Monaco, 'Courier New', monospace;
-    background: var(--code-bg-gradient);
+    background: var(--code-bg);
     color: var(--code-text);
     @apply rounded px-[0.25em] py-[0.1em] mx-[4px];
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--code-border);
   }
 
   strong {
     @apply font-medium;
-    color: #f472b6;
-    //background: linear-gradient(to right, #f472b6, #c084fc);
-    //-webkit-background-clip: text;
-    //-webkit-text-fill-color: transparent;
-    //background-clip: text;
+    color: var(--accent-color-pink);
   }
 
   blockquote {
@@ -212,7 +223,7 @@
     font-size: 0.95em;
 
     thead {
-      background: rgba(255, 255, 255, 0.07);
+      background: var(--thead-bg);
       border-bottom: var(--table-border-color) 1px dashed;
 
       th {
@@ -231,7 +242,7 @@
         transition: background 0.3s;
 
         &:hover {
-          background-color: rgba(255, 255, 255, 0.05);
+          background-color: var(--hover-bg);
         }
 
         td {

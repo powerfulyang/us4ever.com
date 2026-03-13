@@ -3,6 +3,8 @@ import { BaseQuerySchema } from '@/dto/base.dto'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { todoService } from '@/service/todo.service'
 
+export type Todo = Awaited<ReturnType<typeof todoService.findTodosByCursor>>['items'][number]
+
 export const todoRouter = createTRPCRouter({
   fetchByCursor: publicProcedure.input(BaseQuerySchema).query(
     async ({ ctx, input }) => {

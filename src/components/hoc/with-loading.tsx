@@ -4,7 +4,7 @@
  */
 
 import type { ComponentType } from 'react'
-import React from 'react'
+import * as React from 'react'
 import { Loading } from '@/components/ui/spinner'
 import { cn } from '@/utils/cn'
 
@@ -34,8 +34,8 @@ export function DefaultLoadingComponent({
     return (
       <div className={cn('flex items-center justify-center p-8', className)}>
         <div className="text-center">
-          <p className="text-red-600 mb-2">加载失败</p>
-          <p className="text-sm text-gray-500">{error.message}</p>
+          <p className="text-destructive mb-2 font-medium">加载失败</p>
+          <p className="text-sm text-muted-foreground">{error.message}</p>
         </div>
       </div>
     )
@@ -62,12 +62,12 @@ export function SkeletonLoadingComponent({
 
   return (
     <div className={cn('animate-pulse space-y-4 p-4', className)}>
-      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+      <div className="h-4 bg-muted rounded w-3/4"></div>
       <div className="space-y-2">
-        <div className="h-4 bg-gray-200 rounded"></div>
-        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+        <div className="h-4 bg-muted rounded"></div>
+        <div className="h-4 bg-muted rounded w-5/6"></div>
       </div>
-      <div className="h-32 bg-gray-200 rounded"></div>
+      <div className="h-32 bg-muted rounded"></div>
     </div>
   )
 }
@@ -82,18 +82,18 @@ export function CardSkeletonComponent({
 
   return (
     <div className={cn('animate-pulse', className)}>
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-card rounded-lg shadow p-6 border border-border">
         <div className="flex items-center space-x-4 mb-4">
-          <div className="rounded-full bg-gray-200 h-10 w-10"></div>
+          <div className="rounded-full bg-muted h-10 w-10"></div>
           <div className="space-y-2 flex-1">
-            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-muted rounded w-1/4"></div>
+            <div className="h-3 bg-muted rounded w-1/2"></div>
           </div>
         </div>
         <div className="space-y-3">
-          <div className="h-4 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+          <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded w-5/6"></div>
+          <div className="h-4 bg-muted rounded w-4/6"></div>
         </div>
       </div>
     </div>
@@ -111,12 +111,13 @@ export function ListSkeletonComponent({
 
   return (
     <div className={cn('space-y-3', className)}>
-      {Array.from({ length: count }).map(_ => (
-        <div key={`list-skeleton-${_}`} className="animate-pulse flex items-center space-x-4 p-4">
-          <div className="rounded-full bg-gray-200 h-12 w-12"></div>
+      {Array.from({ length: count }).map((_, index) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <div key={`list-skeleton-${index}`} className="animate-pulse flex items-center space-x-4 p-4">
+          <div className="rounded-full bg-muted h-12 w-12"></div>
           <div className="space-y-2 flex-1">
-            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+            <div className="h-4 bg-muted rounded w-1/3"></div>
+            <div className="h-3 bg-muted rounded w-2/3"></div>
           </div>
         </div>
       ))}

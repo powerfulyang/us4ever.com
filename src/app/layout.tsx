@@ -1,17 +1,17 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import Script from 'next/script'
-import React from 'react'
-import { ToastContainer } from 'react-toastify'
+import * as React from 'react'
 import { UserProvider } from '@/components/auth/user-provider'
 import ServiceWorkerRegister from '@/components/pwa/Register'
+import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 import { BASE_URL } from '@/lib/constants'
 
 import { TRPCReactProvider } from '@/trpc/react'
 
 import { api } from '@/trpc/server'
 import '@/styles/globals.scss'
-import 'react-toastify/dist/ReactToastify.css'
 
 export const metadata: Metadata = {
   title: 'Resource Hub',
@@ -24,7 +24,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#4f46e5',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F8FAFC' },
+    { media: '(prefers-color-scheme: dark)', color: '#020203' },
+  ],
   viewportFit: 'cover',
 }
 
@@ -36,7 +39,7 @@ export default async function RootLayout({ children }: Props) {
   const user = await api.user.current()
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>
           {metadata.title as string}
@@ -49,13 +52,21 @@ export default async function RootLayout({ children }: Props) {
         </Script>
         <link rel="stylesheet" href="https://help.littleeleven.com/font.css" />
       </head>
-      <body className="dark">
-        <ServiceWorkerRegister />
-        <TRPCReactProvider>
-          <UserProvider user={user} />
-          {children}
-          <ToastContainer theme="colored" />
-        </TRPCReactProvider>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          storageKey="theme"
+        >
+          <ServiceWorkerRegister />
+          <TRPCReactProvider>
+            <UserProvider user={user} />
+            {children}
+            <Toaster />
+          </TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

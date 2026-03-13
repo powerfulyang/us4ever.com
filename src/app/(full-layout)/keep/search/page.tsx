@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React from 'react'
+import * as React from 'react'
 import { Container } from '@/components/layout/Container'
 import { Empty } from '@/components/layout/Empty'
 import { MdRender } from '@/components/md-render'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
@@ -43,50 +43,52 @@ export default function KeepSearchPage() {
 
   return (
     <Container
-      title="Search Keeps"
-      description="Find notes by searching their content."
+      title="搜索笔记"
+      description="通过关键词搜索你的笔记"
     >
-      <div className="max-w-[500px] m-auto space-y-4">
+      <div className="max-w-2xl mx-auto space-y-6">
         <form className="flex gap-2" onSubmit={onSearch}>
           <Input
             type="text"
             name="query"
             defaultValue={query}
             placeholder="输入搜索关键词..."
-            className="flex-1 rounded-lg bg-white/10 backdrop-blur-lg px-4 py-2 text-white placeholder-gray-400 border border-white/20 focus:border-purple-500/50 focus:outline-none transition-colors resize-none"
+            className="flex-1"
           />
           <Button
             type="submit"
             disabled={isFetching}
             isLoading={isFetching}
-            variant="default"
-            size="sm"
           >
-            Search
+            搜索
           </Button>
         </form>
 
         {error && (
-          <p className="text-red-500">
-            Error:
+          <p className="text-destructive">
+            错误:
             {error.message}
           </p>
         )}
 
-        {isFetching && <LoadingSpinner text="Searching..." />}
+        {isFetching && <LoadingSpinner text="搜索中..." />}
 
         {!isFetching && data.length > 0 && (
           <div className="flex flex-col gap-4">
             {data.map((result) => {
               return (
                 <Link key={result._id} href={`/keep/${result._id}`} target="_blank">
-                  <Card className="!p-4 block" hoverable={true}>
-                    <h3 className="text-lg font-medium text-purple-300 mb-4">
-                      {result._source.title}
-                    </h3>
-                    <MdRender className="mb-4 text-xs text-gray-400">
-                      {result.highlight?.summary?.join('\n\n') || result._source.summary}
-                    </MdRender>
+                  <Card hoverable>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg text-primary">
+                        {result._source.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <MdRender className="text-sm text-muted-foreground">
+                        {result.highlight?.summary?.join('\n\n') || result._source.summary}
+                      </MdRender>
+                    </CardContent>
                   </Card>
                 </Link>
               )
@@ -95,7 +97,7 @@ export default function KeepSearchPage() {
         )}
 
         {!isFetching && isSuccess && data.length === 0 && (
-          <Empty title="No results found" description={`No keeps match your search for "${query}".`} />
+          <Empty title="未找到结果" description={`没有找到与 "${query}" 相关的笔记`} />
         )}
       </div>
     </Container>
