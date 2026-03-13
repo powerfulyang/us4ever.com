@@ -14,7 +14,7 @@ interface Keep {
   summary: string
   content: string
   isPublic: boolean
-  tags: string[]
+  tags: unknown
   category: string
   views: number
   likes: number

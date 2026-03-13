@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 // Hook：在函数组件中使用错误边界
 export function useErrorHandler() {

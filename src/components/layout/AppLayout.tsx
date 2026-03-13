@@ -64,7 +64,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </header>
 
         {/* 页面内容 */}
-        <main className="flex-1 p-6 overflow-y-auto h-[calc(100vh-3.5rem)]">
+        <main className="flex-1 flex flex-col p-6 overflow-y-auto h-[calc(100vh-3.5rem)]">
           {children}
         </main>
       </div>

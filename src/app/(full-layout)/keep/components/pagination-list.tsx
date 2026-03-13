@@ -17,12 +17,7 @@ interface PaginationListProps {
 const PAGE_SIZE = 10
 
 export function PaginationList({ category, page = 1, onPageChange }: PaginationListProps) {
-  const [currentPage, setCurrentPage] = React.useState(page)
-
-  // 当外部 page 变化时同步
-  React.useEffect(() => {
-    setCurrentPage(page)
-  }, [page])
+  const currentPage = page
 
   const { data, isLoading, error } = api.keep.fetchByPage.useQuery({
     page: currentPage,
@@ -33,7 +28,6 @@ export function PaginationList({ category, page = 1, onPageChange }: PaginationL
   })
 
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage)
     if (onPageChange) {
       onPageChange(newPage)
     }

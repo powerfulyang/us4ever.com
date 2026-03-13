@@ -2,7 +2,8 @@
 
 import { ImagePlus } from 'lucide-react'
 import Image from 'next/image'
-import React, { useImperativeHandle, useRef, useState } from 'react'
+import * as React from 'react'
+import { useImperativeHandle, useRef, useState } from 'react'
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { cn } from '@/utils/cn'
 import { ImagePreviewModalSimple } from './preview-modal'

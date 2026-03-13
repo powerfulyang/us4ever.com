@@ -79,12 +79,10 @@ export const Markdown: FC<MarkdownProps> = ({ children, className }) => {
   const { resolvedTheme } = useTheme()
 
   const components = useMemo(() => ({
-    // 代码块渲染 - pre 保持默认包裹，code 组件处理内容
+    // 代码渲染 - 区分行内代码和代码块
     code: ({ node, inline, className: codeClassName, children: codeChildren, ...props }: any) => {
-      const match = LANGUAGE_REGEX.exec(codeClassName || '')
-      const language = match?.[1] || 'text'
-
-      if (inline) {
+      // 行内代码：没有 className 或 inline 为 true
+      if (inline || !codeClassName) {
         return (
           <code className={styles.inlineCode} {...props}>
             {codeChildren}
@@ -92,20 +90,18 @@ export const Markdown: FC<MarkdownProps> = ({ children, className }) => {
         )
       }
 
-      // 块级代码：确保不嵌套在 <p> 内
-      // react-markdown 默认会生成 <pre><code> 结构
-      // 我们在这里返回块级元素，让 pre 组件处理包裹
+      // 代码块：有 className (如 language-xxx)
+      const match = LANGUAGE_REGEX.exec(codeClassName || '')
+      const language = match?.[1] || 'text'
       return (
         <CodeBlock language={language}>
           {String(codeChildren).replace(NEWLINE_REGEX, '')}
         </CodeBlock>
       )
     },
-    // pre 组件：替换默认的 <pre> 包裹，避免嵌套问题
+    // pre 组件：包裹代码块，但不做额外处理
     pre: ({ children }: any) => {
-      // 如果 children 是 CodeBlock，直接返回它（已经是块级元素）
-      // 这样可以避免 <pre><div>...</div></pre> 的冗余结构
-      return <>{children}</>
+      return <div className="not-prose">{children}</div>
     },
     // 链接
     a: ({ href, children }: any) => (

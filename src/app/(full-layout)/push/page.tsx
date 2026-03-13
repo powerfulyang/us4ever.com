@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import * as React from 'react'
+import { useState } from 'react'
 import { sendNotification } from '@/app/actions/web-push'
 import PushNotificationManager from '@/components/pwa/PushNotificationManager'
 import { Button } from '@/components/ui'

@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import * as React from 'react'
+import { useRef, useState } from 'react'
 import GitHubCorner from '@/components/GitHubCorner'
 import { trackRequestProgress } from '@/lib/fetch'
 

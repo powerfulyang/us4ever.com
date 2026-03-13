@@ -1,0 +1,213 @@
+/* EasyMDE 自定义样式 - 使用项目字体 */
+
+/* 编辑器容器 */
+.custom-mde {
+  height: 100%;
+}
+
+.custom-mde .EasyMDEContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: none;
+  box-shadow: none;
+  font-family: inherit;
+}
+
+/* 编辑器工具栏 - 隐藏默认工具栏，使用自定义 */
+.custom-mde .editor-toolbar {
+  display: none;
+}
+
+/* 编辑区域 - 使用全局字体 */
+.custom-mde .CodeMirror {
+  flex: 1;
+  height: auto;
+  min-height: 100%;
+  border: none;
+  background: transparent;
+  /* 使用项目全局字体 */
+  font-family:
+    'Fira Code',
+    'LXGW',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  padding: 1rem;
+  color: hsl(var(--foreground));
+}
+
+/* 光标 */
+.custom-mde .CodeMirror-cursor {
+  border-left: 2px solid hsl(var(--primary));
+}
+
+/* 选中文字 */
+.custom-mde .CodeMirror-selected {
+  background: hsl(var(--primary) / 0.2) !important;
+}
+
+/* 行号 */
+.custom-mde .CodeMirror-linenumber {
+  color: hsl(var(--muted-foreground));
+  font-family: 'Fira Code', 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-size: 12px;
+  padding: 0 12px 0 8px;
+}
+
+/* 代码高亮 - 基础 */
+.custom-mde .cm-comment {
+  color: hsl(var(--muted-foreground));
+}
+
+.custom-mde .cm-string {
+  color: #22c55e;
+}
+
+.custom-mde .cm-keyword {
+  color: #f472b6;
+}
+
+.custom-mde .cm-number {
+  color: #fbbf24;
+}
+
+.custom-mde .cm-atom {
+  color: #a78bfa;
+}
+
+.custom-mde .cm-def {
+  color: #60a5fa;
+}
+
+.custom-mde .cm-variable {
+  color: hsl(var(--foreground));
+}
+
+.custom-mde .cm-property {
+  color: #2dd4bf;
+}
+
+.custom-mde .cm-operator {
+  color: hsl(var(--foreground));
+}
+
+.custom-mde .cm-meta {
+  color: hsl(var(--muted-foreground));
+}
+
+/* Markdown 特定样式 */
+.custom-mde .cm-header {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.custom-mde .cm-quote {
+  color: hsl(var(--muted-foreground));
+  font-style: italic;
+}
+
+.custom-mde .cm-link {
+  color: #0d9488;
+  text-decoration: underline;
+}
+
+.custom-mde .cm-url {
+  color: #0d9488;
+}
+
+.custom-mde .cm-em {
+  font-style: italic;
+}
+
+.custom-mde .cm-strong {
+  font-weight: 600;
+}
+
+.custom-mde .cm-strikethrough {
+  text-decoration: line-through;
+}
+
+.custom-mde .cm-hr {
+  color: hsl(var(--border));
+}
+
+/* 暗色模式适配 */
+.dark .custom-mde .cm-string {
+  color: #4ade80;
+}
+
+.dark .custom-mde .cm-keyword {
+  color: #f9a8d4;
+}
+
+.dark .custom-mde .cm-number {
+  color: #fcd34d;
+}
+
+.dark .custom-mde .cm-atom {
+  color: #c4b5fd;
+}
+
+.dark .custom-mde .cm-def {
+  color: #93c5fd;
+}
+
+.dark .custom-mde .cm-property {
+  color: #5eead4;
+}
+
+.dark .custom-mde .cm-link,
+.dark .custom-mde .cm-url {
+  color: #2dd4bf;
+}
+
+/* 滚动条样式 */
+.custom-mde .CodeMirror-vscrollbar::-webkit-scrollbar,
+.custom-mde .CodeMirror-hscrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-mde .CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.custom-mde .CodeMirror-hscrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-mde .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.custom-mde .CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+.custom-mde .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.custom-mde .CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* 焦点状态 */
+.custom-mde .CodeMirror-focused {
+  outline: none;
+}
+
+/* 隐藏不需要的元素 */
+.custom-mde .editor-statusbar {
+  display: none;
+}
+
+/* 预览区域占位符 */
+.editor-preview {
+  display: none !important;
+}
+
+/* 全屏模式适配 */
+.custom-mde.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+}

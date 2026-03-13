@@ -3,7 +3,8 @@
 import type { ChangeEvent } from 'react'
 import type { Image, Video } from '@/server/api/routers/asset'
 import { AlertTriangle, Plus, X } from 'lucide-react'
-import React, { useEffect, useRef, useState } from 'react'
+import * as React from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { api } from '@/trpc/react'
@@ -92,7 +93,7 @@ export function MediaUpload({
   })
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
+    const files = [...e.target.files || []]
     if (!files || files.length === 0) {
       return
     }

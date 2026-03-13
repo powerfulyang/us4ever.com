@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 // Hook：管理加载状态
 export function useLoading(initialState = false) {
