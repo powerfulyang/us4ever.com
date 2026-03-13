@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import { Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { KeepCategoryServer } from '@/app/(full-layout)/keep/components/category'
-import { KeepList } from '@/app/(full-layout)/keep/components/list'
+import { PaginationList } from '@/app/(full-layout)/keep/components/pagination-list'
+import { ViewToggle } from '@/app/(full-layout)/keep/components/view-toggle'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Container } from '@/components/layout/Container'
 import { Button } from '@/components/ui/button'
@@ -19,10 +20,18 @@ export const metadata: Metadata = {
 export default async function KeepPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string, page?: string }>
 }) {
-  const { category } = await searchParams
-  await api.keep.fetchByCursor.prefetch({ category })
+  const { category, page: pageParam } = await searchParams
+  const page = pageParam ? Number.parseInt(pageParam, 10) : 1
+
+  // 预取第一页数据
+  await api.keep.fetchByPage.prefetch({
+    page: Math.max(1, page),
+    pageSize: 10,
+    category,
+  })
+
   return (
     <HydrateClient>
       <Container
@@ -31,7 +40,8 @@ export default async function KeepPage({
         actions={(
           <AuthenticatedOnly disableChildren>
             <div className="flex items-center gap-2">
-              <Link href="/keep/search">
+              <ViewToggle category={category} />
+              <Link href="/search">
                 <Button variant="ghost" size="icon" className="h-8 w-8">
                   <Search className="h-4 w-4" />
                 </Button>
@@ -47,7 +57,7 @@ export default async function KeepPage({
         )}
       >
         <KeepCategoryServer currentCategory={category} />
-        <KeepList category={category} />
+        <PaginationList category={category} page={Math.max(1, page)} />
       </Container>
     </HydrateClient>
   )
