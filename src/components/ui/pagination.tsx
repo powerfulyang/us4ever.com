@@ -85,9 +85,9 @@ export function Pagination({
   }
 
   return (
-    <div className={cn('flex flex-col sm:flex-row items-center justify-between gap-4', className)}>
+    <div className={cn('flex flex-col sm:flex-row items-center justify-center gap-4 flex-wrap', className)}>
       {/* 统计信息 */}
-      <div className="text-sm text-muted-foreground">
+      <div className="text-sm text-muted-foreground whitespace-nowrap">
         共
         {' '}
         {total}
@@ -104,7 +104,7 @@ export function Pagination({
       </div>
 
       {/* 分页控制 */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 overflow-x-auto pb-1 max-w-full">
         {/* 首页 */}
         <Button
           variant="outline"
