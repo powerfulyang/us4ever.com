@@ -2,6 +2,7 @@ import type { listMoments } from '@/service/moment.service'
 import { z } from 'zod'
 import {
   BaseCategoryField,
+  BasePageQuerySchema,
   BasePrimaryKeySchema,
   BaseQuerySchema,
   QuerySearchSchema,
@@ -24,6 +25,14 @@ export const momentRouter = createTRPCRouter({
       const { limit, cursor, category } = input
       const userIds = ctx.groupUserIds
       return momentService.findMomentsByCursor({ userIds, limit, cursor, category })
+    },
+  ),
+
+  fetchByPage: publicProcedure.input(BasePageQuerySchema).query(
+    async ({ ctx, input }) => {
+      const { page, pageSize, category } = input
+      const userIds = ctx.groupUserIds
+      return momentService.findMomentsByPage({ userIds, page, pageSize, category })
     },
   ),
 

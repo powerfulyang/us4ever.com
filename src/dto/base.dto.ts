@@ -18,6 +18,12 @@ export const BaseQuerySchema = z.object({
   category: BaseCategoryField,
 })
 
+export const BasePageQuerySchema = z.object({
+  page: z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(50).default(6),
+  category: BaseCategoryField,
+})
+
 export const BasePrimaryKeySchema = z.object({
   id: z.string().min(1, 'id不能为空'),
 })

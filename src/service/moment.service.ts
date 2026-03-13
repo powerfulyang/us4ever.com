@@ -184,6 +184,94 @@ export async function findMomentsByCursor({ userIds, limit, cursor, category }: 
 }
 
 /**
+ * 使用页码分页查询动态列表
+ * @param params 查询参数
+ * @param params.userIds 用户ID列表
+ * @param params.page 页码
+ * @param params.pageSize 每页数量
+ * @param params.category 动态分类
+ * @returns 动态列表和分页信息
+ */
+export async function findMomentsByPage({
+  userIds,
+  page,
+  pageSize,
+  category,
+}: {
+  userIds: string[]
+  page: number
+  pageSize: number
+  category?: string
+}) {
+  const skip = (page - 1) * pageSize
+
+  // 获取总数
+  const total = await db.moment.count({
+    where: {
+      category,
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+  })
+
+  // 获取分页数据
+  const items = await db.moment.findMany({
+    include: {
+      images: {
+        include: {
+          image: {
+            include: imageInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      videos: {
+        include: {
+          video: {
+            include: videoInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      owner: true,
+    },
+    where: {
+      category,
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    skip,
+    take: pageSize,
+  })
+
+  const totalPages = Math.ceil(total / pageSize)
+
+  return {
+    items: items.map(moment => ({
+      ...moment,
+      images: moment.images.map(({ image }) => transformImageToResponse(image)),
+      videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
+    })),
+    total,
+    totalPages,
+    currentPage: page,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  }
+}
+
+/**
  * 创建新的动态
  * @returns 创建的动态
  */
@@ -691,6 +779,7 @@ export async function getCategories(userIds: string[]) {
 export const momentService = {
   listMoments,
   findMomentsByCursor,
+  findMomentsByPage,
   createMoment,
   updateMoment,
   deleteMoment,
