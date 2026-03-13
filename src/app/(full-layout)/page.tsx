@@ -17,6 +17,7 @@ import {
   Video,
   Zap,
 } from 'lucide-react'
+import Link from 'next/link'
 import * as React from 'react'
 import { MomentCategoryMap } from '@/constants/moment'
 
@@ -171,26 +172,33 @@ function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
         {title}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {links.map(link => (
-          <a
-            key={link.title}
-            href={link.href}
-            target={link.target}
-            className="group flex items-center gap-4 p-4 bg-white/90 hover:bg-white transition-colors dark:bg-secondary/50 dark:hover:bg-secondary"
-          >
-            <div className="p-2.5 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-              {link.icon}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[15px] font-semibold text-foreground truncate">
-                {link.title}
+        {links.map((link) => {
+          const isExternal = link.target === '_blank'
+          const LinkComponent = isExternal ? 'a' : Link
+          const linkProps = isExternal
+            ? { href: link.href, target: link.target }
+            : { href: link.href }
+
+          return (
+            <LinkComponent
+              key={link.title}
+              {...linkProps}
+              className="group flex items-center gap-4 p-4 rounded-lg bg-white/90 hover:bg-white transition-colors dark:bg-secondary/50 dark:hover:bg-secondary"
+            >
+              <div className="p-2.5 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                {link.icon}
               </div>
-              <div className="text-sm text-muted-foreground truncate mt-0.5">
-                {link.description}
+              <div className="flex-1 min-w-0">
+                <div className="text-[15px] font-semibold text-foreground truncate">
+                  {link.title}
+                </div>
+                <div className="text-sm text-muted-foreground truncate mt-0.5">
+                  {link.description}
+                </div>
               </div>
-            </div>
-          </a>
-        ))}
+            </LinkComponent>
+          )
+        })}
       </div>
     </div>
   )

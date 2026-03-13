@@ -54,7 +54,7 @@ export default async function DetailPage({ params }: PageProps) {
     <>
       <Back
         fallback="/keep"
-        className="sticky top-24 animate-bounce inline-flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors whitespace-pre -mt-2 sm:mt-2"
+        className="sticky top-4 sm:top-24 z-10 inline-flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors mb-4 sm:mb-0"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>返回</span>

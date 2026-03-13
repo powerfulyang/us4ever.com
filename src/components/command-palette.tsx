@@ -11,7 +11,6 @@ import {
   Network,
   Search,
   Sun,
-  Zap,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
@@ -37,10 +36,6 @@ const navigationItems: CommandItem[] = [
   { id: 'moment', title: '动态', icon: MessageCircle, href: '/moment', keywords: ['moment', 'dynamic', '动态'] },
   { id: 'mindmap', title: '思维导图', icon: Network, href: '/mindmap', keywords: ['mindmap', 'mind', '思维导图'] },
   { id: 'image', title: '图片管理', icon: FileImage, href: '/image', keywords: ['image', 'photo', '图片'] },
-]
-
-const toolItems: CommandItem[] = [
-  { id: 'tts', title: 'TTS 语音合成', icon: Zap, href: '/tts', keywords: ['tts', 'speech', '语音'] },
 ]
 
 interface CommandPaletteProps {
@@ -96,7 +91,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
     const allItems = [
       ...navigationItems.map(item => ({ ...item, section: '导航' })),
-      ...toolItems.map(item => ({ ...item, section: '工具' })),
       ...themeItems.map(item => ({ ...item, section: '设置' })),
     ]
 

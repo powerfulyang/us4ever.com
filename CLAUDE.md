@@ -4,7 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-这是一个基于 Next.js 15 (App Router) 构建的现代化个人工具集合应用，采用 TypeScript + tRPC + Prisma + PostgreSQL 技术栈喵～
+这是一个基于 Next.js 16 (App Router) 构建的现代化个人工具集合应用，采用 TypeScript + tRPC + Prisma + PostgreSQL 技术栈喵～
+
+### 功能模块
+
+- **笔记本 (Keep)**：支持 Markdown 格式的笔记管理，具备富文本编辑和实时预览
+- **思维导图 (MindMap)**：基于 simple-mind-map 的交互式思维导图工具
+- **待办事项 (Todo)**：智能的 Todo 管理系统，支持优先级和分类
+- **工具集 (Tools)**：包含图片转 Base64、文件处理等实用工具
 
 ## 开发命令
 
@@ -32,8 +39,9 @@ pnpm typecheck              # TypeScript 类型检查
 
 # 测试
 pnpm test                   # 运行测试
-pnpm test:watch             # 监听模式运行测试
-pnpm test:coverage          # 生成测试覆盖率报告
+pnpm test run <file>       # 运行单个测试文件
+pnpm test:watch            # 监听模式运行测试
+pnpm test:coverage         # 生成测试覆盖率报告
 ```
 
 ## 项目架构
@@ -63,11 +71,18 @@ src/
 
 ### 技术架构
 
-- **API 层**: tRPC 11 负责类型安全的 API 通信，Hono 用于特定路由 (如 TTS、同步等)
+- **API 层**: tRPC 11 负责类型安全的 API 通信，Hono 用于特定路由 (TTS、同步等)
 - **数据库**: Prisma ORM + PostgreSQL，Schema 定义在 `prisma/schema.prisma`
 - **状态管理**: Zustand (客户端) + React Query (服务端状态)
 - **UI 框架**: React 19 + Tailwind CSS + Framer Motion
 - **包管理**: pnpm
+
+### 核心重构亮点
+
+- **错误处理系统**：统一错误类型、自动日志记录、重试机制和断路器模式
+- **性能优化**：LRU 缓存、防抖/节流、批处理、资源池
+- **安全增强**：输入验证、XSS/CSRF 防护、速率限制、安全头部配置
+- **高阶组件**：错误边界、加载状态管理、统一设计系统
 
 ### 核心数据模型 (Prisma)
 
@@ -89,13 +104,25 @@ src/
 
 ### CSS 条件渲染
 
-使用 `cn` 工具函数 (路径：`@/utils/cn`)：
+使用 `cn` 工具函数 (路径：`@/utils/cn`) 进行条件类名渲染：
 
 ```tsx
 import { cn } from '@/utils/cn'
 
-// ✅ 推荐
+// ✅ 推荐 - 对象语法
 <div className={cn('text-sm', { 'text-blue-500': isActive, 'opacity-50': isDisabled })} />
+
+// 复杂示例
+<button className={cn(
+  'px-4 py-2 rounded-lg transition-colors',
+  {
+    'bg-blue-500 hover:bg-blue-600': variant === 'primary',
+    'bg-gray-500 hover:bg-gray-600': variant === 'secondary',
+    'bg-red-500 hover:bg-red-600': variant === 'danger',
+    'opacity-50 cursor-not-allowed': disabled,
+    'w-full': fullWidth
+  }
+)} />
 ```
 
 ### SSR 注意事项
