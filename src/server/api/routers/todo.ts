@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { BaseQuerySchema } from '@/dto/base.dto'
+import { BasePageQuerySchema, BaseQuerySchema } from '@/dto/base.dto'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { todoService } from '@/service/todo.service'
 
@@ -12,6 +12,14 @@ export const todoRouter = createTRPCRouter({
       const cursor = input.cursor
       const userIds = ctx.groupUserIds
       return todoService.findTodosByCursor({ userIds, limit, cursor })
+    },
+  ),
+
+  fetchByPage: publicProcedure.input(BasePageQuerySchema).query(
+    async ({ ctx, input }) => {
+      const { page, pageSize } = input
+      const userIds = ctx.groupUserIds
+      return todoService.findTodosByPage({ userIds, page, pageSize })
     },
   ),
 

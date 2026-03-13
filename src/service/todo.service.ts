@@ -82,6 +82,57 @@ export async function findTodosByCursor({ userIds, limit, cursor }: FindTodosByC
   }
 }
 
+export async function findTodosByPage({
+  userIds,
+  page,
+  pageSize,
+}: {
+  userIds: string[]
+  page: number
+  pageSize: number
+}) {
+  const skip = (page - 1) * pageSize
+
+  const total = await db.todo.count({
+    where: {
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+  })
+
+  const items = await db.todo.findMany({
+    skip,
+    take: pageSize,
+    where: {
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+    include: {
+      owner: true,
+    },
+    orderBy: [
+      { pinned: 'desc' },
+      { status: 'asc' },
+      { createdAt: 'desc' },
+    ],
+  })
+
+  const totalPages = Math.ceil(total / pageSize)
+
+  return {
+    items,
+    total,
+    totalPages,
+    currentPage: page,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  }
+}
+
 export async function createTodo(input: CreateTodoInput) {
   return db.todo.create({
     data: input,
@@ -256,6 +307,7 @@ export const todoService = {
   findById,
   findUserTodos,
   findTodosByCursor,
+  findTodosByPage,
   toggleStatus,
   togglePin,
   getStats,
