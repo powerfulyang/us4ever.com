@@ -1,5 +1,5 @@
 import { BasePrimaryKeySchema, QuerySearchSchema, UpdateViewsSchema } from '@/dto/base.dto'
-import { createKeepSchema, queryKeepSchema, updateKeepSchema } from '@/dto/keep.dto'
+import { createKeepSchema, queryKeepPageSchema, queryKeepSchema, updateKeepSchema } from '@/dto/keep.dto'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { keepService } from '@/service/keep.service'
 
@@ -13,6 +13,12 @@ export const keepRouter = createTRPCRouter({
   fetchByCursor: publicProcedure.input(queryKeepSchema).query(
     async ({ ctx, input }) => {
       return keepService.findAccessibleList(input, ctx.groupUserIds)
+    },
+  ),
+
+  fetchByPage: publicProcedure.input(queryKeepPageSchema).query(
+    async ({ ctx, input }) => {
+      return keepService.findAccessiblePage(input, ctx.groupUserIds)
     },
   ),
 
