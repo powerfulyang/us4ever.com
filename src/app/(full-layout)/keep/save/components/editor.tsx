@@ -1,13 +1,20 @@
 'use client'
 
 import type { Keep } from '@prisma/client'
-import { ArrowLeft, Eye, Image } from 'lucide-react'
+import { motion } from 'framer-motion'
+import {
+  ArrowLeft,
+  FileText,
+  Globe,
+  Image as ImageIcon,
+  Lock,
+  Save,
+  Sparkles,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
-import { useCallback, useRef, useState } from 'react'
-import { Back } from '@/app/(full-layout)/keep/components/back'
-import MdEditor from '@/components/md-editor'
-import { Markdown } from '@/components/md-render'
+import { useCallback, useState } from 'react'
+import MdEditor from '@/components/mdx-editor'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
@@ -19,22 +26,17 @@ interface KeepEditorProps {
 
 export default function KeepEditor({ keep }: KeepEditorProps) {
   const id = keep?.id
-  const editorRef = useRef<HTMLDivElement>(null)
-  const [editorHasFocus, setEditorHasFocus] = useState(false)
-
   const router = useRouter()
-  const [content, setContent] = useState(() => {
-    return keep?.content ?? ''
-  })
-  const [isPublic, setIsPublic] = useState(() => {
-    return keep?.isPublic ?? false
-  })
+  const [content, setContent] = useState(keep?.content ?? '')
+  const [isPublic, setIsPublic] = useState(keep?.isPublic ?? false)
+  const [isFocused, setIsFocused] = useState(false)
 
   const { mutate: createMutate, isPending: isCreatePending } = api.keep.create.useMutation({
     onSuccess: (data) => {
       router.replace(`/keep/${data.id}`)
     },
   })
+
   const { mutate: updateMutate, isPending: isUpdatePending } = api.keep.update.useMutation({
     onSuccess: (data) => {
       router.replace(`/keep/${data.id}`)
@@ -43,12 +45,8 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
 
   const { mutate: uploadImage, isPending: isUploading } = api.asset.uploadImage.useMutation({
     onSuccess: (data) => {
-      // 在光标位置插入图片 Markdown
       const markdownImage = `\n![${data.id || ''}](${data.original_url})\n`
       setContent(prev => prev + markdownImage)
-    },
-    onError: (error) => {
-      console.error('图片上传失败:', error)
     },
   })
 
@@ -56,146 +54,180 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
 
   // 处理图片粘贴
   const handlePaste = useCallback(async (e: ClipboardEvent) => {
-    if (!editorHasFocus)
+    if (!isFocused)
       return
     const items = e.clipboardData?.items
     if (!items)
       return
 
-    let hasImage = false
-    let imageFile: File | null = null
     for (let i = 0; i < items.length; i++) {
       const item = items[i]
-      if (item && item.type.includes('image')) {
-        hasImage = true
-        imageFile = item.getAsFile()
-        break
+      if (item?.type.includes('image')) {
+        const imageFile = item.getAsFile()
+        if (imageFile) {
+          e.preventDefault()
+          e.stopPropagation()
+          const formData = new FormData()
+          formData.append('file', imageFile)
+          formData.append('category', 'keep')
+          uploadImage(formData)
+          break
+        }
       }
     }
-    if (hasImage && imageFile) {
-      e.preventDefault()
-      e.stopPropagation()
-      try {
-        const formData = new FormData()
-        formData.append('file', imageFile)
-        formData.append('category', 'keep')
-        uploadImage(formData)
-      }
-      catch (error) {
-        console.error('处理粘贴图片失败:', error)
-      }
-    }
-  }, [uploadImage, editorHasFocus])
+  }, [uploadImage, isFocused])
 
-  // 监听粘贴事件
   React.useEffect(() => {
     if (typeof window === 'undefined')
       return
-
     document.addEventListener('paste', handlePaste)
-    return () => {
-      document.removeEventListener('paste', handlePaste)
-    }
+    return () => document.removeEventListener('paste', handlePaste)
   }, [handlePaste])
 
-  function handleSave() {
-    if (!content)
+  const handleSave = () => {
+    if (!content.trim())
       return
 
     if (id) {
-      updateMutate({
-        id,
-        content,
-        isPublic,
-      })
+      updateMutate({ id, content, isPublic })
     }
     else {
-      createMutate({
-        content,
-        isPublic,
-      })
+      createMutate({ content, isPublic })
     }
   }
 
-  return (
-    <div>
-      <Back
-        fallback="/keep"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-3 ml-2"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>返回笔记列表</span>
-      </Back>
+  const wordCount = content.length
+  const lineCount = content.split('\n').length
 
-      <Card className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-foreground">
-              {id ? '编辑笔记' : '创建新笔记'}
+  return (
+    <div className="max-w-4xl mx-auto space-y-4">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shrink-0"
+      >
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push('/keep')}
+            className="gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            返回
+          </Button>
+          <div className="h-4 w-px bg-border" />
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-primary" />
+            <h1 className="text-xl font-semibold">
+              {id ? '编辑笔记' : '新建笔记'}
             </h1>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* 字数统计 */}
+          <div className="hidden sm:flex items-center gap-3 text-sm text-muted-foreground">
+            <span>
+              {wordCount}
+              {' '}
+              字符
+            </span>
+            <span>
+              {lineCount}
+              {' '}
+              行
+            </span>
+          </div>
+
+          {/* 公开/私密切换 */}
+          <div className="flex items-center gap-2 px-3 py-1.5">
+            {isPublic
+              ? (
+                  <Globe className="w-4 h-4 text-emerald-500" />
+                )
+              : (
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                )}
+            <span className="text-sm">{isPublic ? '公开' : '私密'}</span>
             <Switch
               checked={isPublic}
               onCheckedChange={setIsPublic}
               disabled={isPending}
+              className="ml-1"
             />
+          </div>
+
+          {/* 保存按钮 */}
+          <Button
+            onClick={handleSave}
+            disabled={isPending || !content.trim()}
+            className="gap-2"
+          >
+            {isPending
+              ? (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                    </motion.div>
+                    保存中...
+                  </>
+                )
+              : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    保存
+                  </>
+                )}
+          </Button>
+        </div>
+      </motion.div>
+
+      {/* Editor */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="h-[800px] overflow-hidden border">
+          {/* Toolbar */}
+          <div className="bg-muted/50 px-4 py-2 border-b flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+              <ImageIcon className="w-3 h-3" />
+              支持 Ctrl+V 粘贴图片
+            </span>
             {isUploading && (
-              <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 px-3 py-1.5 rounded-full">
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent" />
-                <span>上传图片中...</span>
-              </div>
+              <span className="text-xs text-primary flex items-center gap-1">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                >
+                  <Sparkles className="w-3 h-3" />
+                </motion.div>
+                上传中...
+              </span>
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={handleSave}
-              disabled={isPending || !content}
-              isLoading={isPending}
-              className="gap-1"
-            >
-              {isPending ? '保存中...' : '保存笔记'}
-            </Button>
-          </div>
-        </div>
-
-        <div className="h-[55vh] grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* 编辑器 */}
+          {/* Editor Content */}
           <div
-            ref={editorRef}
-            className="relative rounded-none overflow-hidden border-none bg-card/50 backdrop-blur-sm"
-            onFocus={() => setEditorHasFocus(true)}
-            onBlur={() => setEditorHasFocus(false)}
+            className="h-[calc(800px-41px)]"
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           >
             <MdEditor
               value={content}
-              onChange={v => setContent(v)}
+              onChange={setContent}
               placeholder="开始输入内容..."
+              className="h-full"
             />
-            {/* 功能提示 */}
-            {editorHasFocus && !isUploading && (
-              <div className="absolute top-4 right-4 z-10 bg-background/90 backdrop-blur-sm text-foreground text-xs px-3 py-2 rounded-none border-none shadow-lg flex items-center gap-2">
-                <Image className="w-4 h-4 text-primary" />
-                <span>Ctrl+V 粘贴图片</span>
-              </div>
-            )}
           </div>
-
-          {/* 预览 */}
-          <div className="rounded-none overflow-hidden border-none bg-card/50 backdrop-blur-sm flex flex-col">
-            <div className="sticky top-0 z-10 bg-secondary/50 backdrop-blur-sm px-4 py-2 border-b border-none">
-              <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Eye className="w-4 h-4" />
-                预览
-              </h3>
-            </div>
-            <div className="p-4 overflow-y-auto flex-1">
-              <Markdown>
-                {content || '*开始输入内容，这里会实时显示预览...*'}
-              </Markdown>
-            </div>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      </motion.div>
     </div>
   )
 }

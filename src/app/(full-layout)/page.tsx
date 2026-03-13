@@ -56,22 +56,22 @@ const appLinks: LinkProps[] = [
   },
   {
     ...MomentCategoryMap.eleven,
-    href: '/moment/category/eleven',
+    href: '/moment?category=eleven',
     icon: <MessageCircle className="w-6 h-6" />,
   },
   {
     ...MomentCategoryMap.prompt,
-    href: '/moment/category/prompt',
+    href: '/moment?category=prompt',
     icon: <MessageCircle className="w-6 h-6" />,
   },
   {
     ...MomentCategoryMap.keyword2blog,
-    href: '/moment/category/keyword2blog',
+    href: '/moment?category=keyword2blog',
     icon: <MessageCircle className="w-6 h-6" />,
   },
   {
     ...MomentCategoryMap['telegram:emt_channel'],
-    href: '/moment/category/telegram:emt_channel',
+    href: '/moment?category=telegram:emt_channel',
     icon: <MessageCircle className="w-6 h-6" />,
   },
   {

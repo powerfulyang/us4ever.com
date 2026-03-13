@@ -13,8 +13,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function MomentPage() {
-  await api.moment.fetchByCursor.prefetch({})
+export default async function MomentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category } = await searchParams
+  await api.moment.fetchByCursor.prefetch({ category })
   return (
     <HydrateClient>
       <Container
@@ -23,8 +28,8 @@ export default async function MomentPage() {
       >
         <div className="max-w-2xl mx-auto space-y-4">
           <MomentCreate />
-          <MomentCategoryServer />
-          <MomentList />
+          <MomentCategoryServer currentCategory={category} />
+          <MomentList category={category} />
         </div>
       </Container>
     </HydrateClient>

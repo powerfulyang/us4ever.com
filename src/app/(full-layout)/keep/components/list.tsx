@@ -44,7 +44,7 @@ function KeepCard({ keep }: { keep: any }) {
         title={keep.title}
         status={{
           label: keep.isPublic ? '公开' : '私密',
-          type: keep.isPublic ? 'success' : 'default',
+          type: keep.isPublic ? 'success' : 'warning',
         }}
         content={keep.summary}
         createdAt={keep.createdAt}

@@ -4,7 +4,6 @@ import { zfd } from 'zod-form-data'
 export const BaseCategoryField = z
   .string()
   .transform(val => !val ? undefined : decodeURIComponent(val))
-  .default('default')
   .optional()
 
 export const BaseFormDataCategoryField = zfd

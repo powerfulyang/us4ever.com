@@ -15,6 +15,7 @@ export async function ImageCategoryServer({ currentCategory }: ImageCategoryProp
       categories={categories}
       basePath="/image"
       currentCategory={currentCategory}
+      linkType="query"
     />
   )
 }

@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import * as React from 'react'
+import { useState } from 'react'
 import { Empty } from '@/components/layout/Empty'
 import { Confirm } from '@/components/ui/confirm'
 import { ContentCard } from '@/components/ui/content-card'
@@ -38,7 +39,7 @@ function MindMapCard({ mindmap }: { mindmap: any }) {
           title={mindmap.title}
           status={{
             label: mindmap.isPublic ? '公开' : '私密',
-            type: mindmap.isPublic ? 'success' : 'default',
+            type: mindmap.isPublic ? 'success' : 'warning',
           }}
           content={mindmap.summary}
           createdAt={mindmap.createdAt}

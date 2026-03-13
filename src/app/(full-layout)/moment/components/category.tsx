@@ -15,6 +15,7 @@ export async function MomentCategoryServer({ currentCategory }: MomentCategoryPr
       categories={categories}
       basePath="/moment"
       currentCategory={currentCategory}
+      linkType="query"
     />
   )
 }

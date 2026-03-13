@@ -2,7 +2,8 @@
 
 import type { Image, Video } from '@/server/api/routers/asset'
 import { Upload } from 'lucide-react'
-import React, { useState } from 'react'
+import * as React from 'react'
+import { useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Button } from '@/components/ui/button'
@@ -102,11 +103,14 @@ export function MomentCreate({ category }: Props) {
             上传
           </Button>
         </AuthenticatedOnly>
-        <Switch
-          checked={isPublic}
-          onCheckedChange={setIsPublic}
-          disabled={isPending}
-        />
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">{isPublic ? '公开' : '私密'}</span>
+          <Switch
+            checked={isPublic}
+            onCheckedChange={setIsPublic}
+            disabled={isPending}
+          />
+        </div>
         <AuthenticatedOnly disableChildren>
           <Button
             onClick={handleSubmit}

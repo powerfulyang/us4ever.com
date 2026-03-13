@@ -1,9 +1,8 @@
 'use client'
 
 import type { Todo } from '@/server/api/routers/todo'
-import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
-import { Edit, Pin, Sparkles, Trash2 } from 'lucide-react'
+import { Edit, Globe, Lock, Pin, Sparkles, Trash2 } from 'lucide-react'
 import * as React from 'react'
 import { useMemo, useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize'
@@ -12,6 +11,7 @@ import { MdRender } from '@/components/md-render'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Confirm } from '@/components/ui/confirm'
+import { UserInfo } from '@/components/ui/user-info'
 import { useUserStore } from '@/store/user'
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
@@ -101,70 +101,49 @@ export function TodoItem({ todo, onUpdate }: TodoItemProps) {
 
           <div className="space-y-3">
             {/* 顶部：用户信息 + 开关 */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 min-w-0">
-                {todo.owner
-                  ? (
-                      <>
-                        <img
-                          src={todo.owner.avatar}
-                          alt={todo.owner.nickname}
-                          className="w-7 h-7 rounded-full ring-2 ring-background"
-                        />
-                        <span className="text-sm font-medium text-foreground truncate">
-                          {todo.owner.nickname}
-                        </span>
-                      </>
-                    )
-                  : (
-                      <span className="text-sm text-muted-foreground">匿名</span>
-                    )}
-                <span className="text-xs text-muted-foreground">
-                  ·
-                  {' '}
-                  {dayjs(todo.createdAt).format('YYYY-MM-DD HH:mm')}
-                </span>
-              </div>
-
-              {/* 精致的状态开关 */}
-              <motion.button
-                type="button"
-                onClick={() => {
-                  if (!todo.status) {
-                    setShowCompleteConfirm(true)
-                  }
-                  else {
-                    toggleStatus.mutate({ id: todo.id, status: false })
-                  }
-                }}
-                disabled={toggleStatus.isPending || !isOwn}
-                className={cn(
-                  'relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200',
-                  todo.status
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
-                  !isOwn && 'opacity-50 cursor-not-allowed',
-                )}
-                whileTap={{ scale: 0.95 }}
-              >
-                <motion.span
-                  key={todo.status ? 'done' : 'todo'}
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                  className="flex items-center justify-center"
+            <UserInfo
+              user={todo.owner}
+              createdAt={todo.createdAt}
+              rightArea={(
+                <motion.button
+                  type="button"
+                  onClick={() => {
+                    if (!todo.status) {
+                      setShowCompleteConfirm(true)
+                    }
+                    else {
+                      toggleStatus.mutate({ id: todo.id, status: false })
+                    }
+                  }}
+                  disabled={toggleStatus.isPending || !isOwn}
+                  className={cn(
+                    'relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200',
+                    todo.status
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                      : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
+                    !isOwn && 'opacity-50 cursor-not-allowed',
+                  )}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {todo.status
-                    ? (
-                        <Sparkles className="w-3.5 h-3.5" />
-                      )
-                    : (
-                        <span>😴</span>
-                      )}
-                </motion.span>
-                <span>{todo.status ? '已完成' : '待办'}</span>
-              </motion.button>
-            </div>
+                  <motion.span
+                    key={todo.status ? 'done' : 'todo'}
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                    className="flex items-center justify-center"
+                  >
+                    {todo.status
+                      ? (
+                          <Sparkles className="w-3.5 h-3.5" />
+                        )
+                      : (
+                          <span>😴</span>
+                        )}
+                  </motion.span>
+                  <span>{todo.status ? '已完成' : '待办'}</span>
+                </motion.button>
+              )}
+            />
 
             {/* 内容区 */}
             <div className={cn(
@@ -179,9 +158,10 @@ export function TodoItem({ todo, onUpdate }: TodoItemProps) {
             <div className="flex items-center justify-between pt-1">
               <div className="flex items-center gap-2">
                 <Badge
-                  variant={todo.isPublic ? 'success' : 'secondary'}
-                  className="text-[10px] px-1.5 py-0 h-5"
+                  variant={todo.isPublic ? 'success' : 'warning'}
+                  className="text-[10px] h-5 px-1.5 flex items-center gap-1 font-semibold uppercase tracking-wider"
                 >
+                  {todo.isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
                   {todo.isPublic ? '公开' : '私密'}
                 </Badge>
                 {todo.pinned && (

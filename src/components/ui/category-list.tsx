@@ -6,6 +6,7 @@ interface CategoryListProps {
   categories: string[]
   basePath: string
   currentCategory?: string
+  linkType?: 'path' | 'query'
 }
 
 export function CategoryList({
@@ -13,6 +14,7 @@ export function CategoryList({
   categories,
   basePath,
   currentCategory,
+  linkType = 'path',
 }: CategoryListProps) {
   const activeCategory = currentCategory
 
@@ -38,7 +40,7 @@ export function CategoryList({
         {categories.map(category => (
           <Link
             key={category}
-            href={`${basePath}/category/${category}`}
+            href={linkType === 'query' ? `${basePath}?category=${category}` : `${basePath}/category/${category}`}
             className={cn(
               'inline-flex items-center justify-center rounded-md border px-4 py-1.5 text-xs font-medium transition-all duration-200',
               activeCategory === category

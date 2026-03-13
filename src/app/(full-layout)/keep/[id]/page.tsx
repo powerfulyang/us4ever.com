@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import dayjs from 'dayjs'
-import { ArrowLeft, Edit } from 'lucide-react'
+import { ArrowLeft, Edit, Globe, Lock } from 'lucide-react'
 import Link from 'next/link'
 import { Back } from '@/app/(full-layout)/keep/components/back'
 import { OwnerOnly } from '@/components/auth/owner-only'
@@ -72,7 +72,11 @@ export default async function DetailPage({ params }: PageProps) {
               <div className="w-px h-8 bg-white/20" />
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-400">状态</span>
-                <Badge variant={keep.isPublic ? 'success' : 'default'}>
+                <Badge
+                  variant={keep.isPublic ? 'success' : 'warning'}
+                  className="text-[10px] h-5 px-1.5 flex items-center gap-1 font-semibold uppercase tracking-wider"
+                >
+                  {keep.isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
                   {keep.isPublic ? '公开' : '私密'}
                 </Badge>
               </div>

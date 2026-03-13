@@ -1,0 +1,468 @@
+/* MDX Editor 主题适配样式 */
+
+.markdown-editor {
+  height: 100%;
+
+  /* 基础容器 */
+  .mdxeditor {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  /* 工具栏样式 */
+  .mdxeditor-toolbar {
+    padding: 0.5rem;
+    border-bottom: 1px solid;
+    flex-shrink: 0;
+    min-height: auto;
+
+    button {
+      padding: 0.375rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: var(--toolbar-hover-bg);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      &[data-active='true'] {
+        background-color: var(--toolbar-active-bg);
+      }
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  /* 编辑器内容区域 */
+  .mdxeditor-content-editable {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    outline: none;
+
+    /* 段落间距 */
+    p {
+      margin-bottom: 0.75rem;
+    }
+
+    /* 标题样式 */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      margin-top: 0;
+    }
+    h2 {
+      font-size: 1.5rem;
+    }
+    h3 {
+      font-size: 1.25rem;
+    }
+    h4 {
+      font-size: 1.125rem;
+    }
+    h5 {
+      font-size: 1rem;
+    }
+    h6 {
+      font-size: 0.875rem;
+    }
+
+    /* 列表样式 */
+    ul,
+    ol {
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.25rem;
+    }
+
+    /* 引用块 */
+    blockquote {
+      border-left: 4px solid;
+      padding-left: 1rem;
+      margin: 1rem 0;
+      font-style: italic;
+    }
+
+    /* 代码块 */
+    pre {
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Fira Code', 'JetBrains Mono', Consolas, Monaco, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    code {
+      font-family: 'Fira Code', 'JetBrains Mono', Consolas, Monaco, monospace;
+      padding: 0.125rem 0.25rem;
+      border-radius: 3px;
+      font-size: 0.875em;
+    }
+
+    /* 行内代码 */
+    p code,
+    li code {
+      background-color: var(--inline-code-bg);
+    }
+
+    /* 表格 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th,
+    td {
+      border: 1px solid;
+      padding: 0.5rem;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 600;
+    }
+
+    /* 链接 */
+    a {
+      color: var(--link-color);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    /* 图片 */
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    /* 分隔线 */
+    hr {
+      margin: 1.5rem 0;
+      border: none;
+      border-top: 1px solid;
+    }
+
+    /* 占位符 */
+    [data-placeholder]::before {
+      content: attr(data-placeholder);
+      color: var(--placeholder-color);
+      pointer-events: none;
+      position: absolute;
+    }
+  }
+
+  /* 浮动链接编辑对话框 */
+  .mdxeditor-popup-container {
+    z-index: 50;
+  }
+
+  /* 代码块语言选择器 */
+  .mdxeditor-select {
+    select {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid;
+      font-size: 13px;
+      outline: none;
+    }
+  }
+
+  /* 选中文本样式 */
+  ::selection {
+    background-color: var(--selection-bg);
+  }
+}
+
+/* ==================== 亮色主题 ==================== */
+.markdown-editor.light {
+  --toolbar-bg: #f6f6f7;
+  --toolbar-hover-bg: rgba(0, 0, 0, 0.04);
+  --toolbar-active-bg: rgba(0, 0, 0, 0.08);
+  --editor-bg: #ffffff;
+  --editor-text: #24292f;
+  --border-color: #e2e2e3;
+  --link-color: #0969da;
+  --inline-code-bg: rgba(175, 184, 193, 0.2);
+  --block-code-bg: #f6f8fa;
+  --placeholder-color: #8c959f;
+  --selection-bg: #b3d7ff;
+  --quote-border: #d0d7de;
+  --quote-bg: transparent;
+
+  .mdxeditor {
+    background-color: var(--editor-bg);
+  }
+
+  .mdxeditor-toolbar {
+    background-color: var(--toolbar-bg);
+    border-color: var(--border-color);
+  }
+
+  .mdxeditor-content-editable {
+    color: var(--editor-text);
+    background-color: var(--editor-bg);
+
+    blockquote {
+      border-color: var(--quote-border);
+      background-color: var(--quote-bg);
+      color: #57606a;
+    }
+
+    pre {
+      background-color: var(--block-code-bg);
+    }
+
+    th,
+    td {
+      border-color: var(--border-color);
+    }
+
+    th {
+      background-color: var(--toolbar-bg);
+    }
+
+    hr {
+      border-color: var(--border-color);
+    }
+  }
+
+  .mdxeditor-select select {
+    background-color: var(--editor-bg);
+    border-color: var(--border-color);
+    color: var(--editor-text);
+  }
+}
+
+/* ==================== 暗色主题 ==================== */
+.markdown-editor.dark {
+  --toolbar-bg: #21262d;
+  --toolbar-hover-bg: rgba(255, 255, 255, 0.06);
+  --toolbar-active-bg: rgba(255, 255, 255, 0.1);
+  --editor-bg: #0d1117;
+  --editor-text: #c9d1d9;
+  --border-color: #30363d;
+  --link-color: #58a6ff;
+  --inline-code-bg: rgba(110, 118, 129, 0.4);
+  --block-code-bg: #161b22;
+  --placeholder-color: #6e7681;
+  --selection-bg: rgba(56, 139, 253, 0.4);
+  --quote-border: #30363d;
+  --quote-bg: transparent;
+
+  .mdxeditor {
+    background-color: var(--editor-bg);
+  }
+
+  .mdxeditor-toolbar {
+    background-color: var(--toolbar-bg);
+    border-color: var(--border-color);
+
+    button {
+      color: var(--editor-text);
+    }
+  }
+
+  .mdxeditor-content-editable {
+    color: var(--editor-text);
+    background-color: var(--editor-bg);
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: #e6edf3;
+    }
+
+    blockquote {
+      border-color: var(--quote-border);
+      background-color: var(--quote-bg);
+      color: #8b949e;
+    }
+
+    pre {
+      background-color: var(--block-code-bg);
+    }
+
+    th,
+    td {
+      border-color: var(--border-color);
+    }
+
+    th {
+      background-color: var(--toolbar-bg);
+      color: #e6edf3;
+    }
+
+    hr {
+      border-color: var(--border-color);
+    }
+  }
+
+  .mdxeditor-select select {
+    background-color: var(--editor-bg);
+    border-color: var(--border-color);
+    color: var(--editor-text);
+  }
+
+  /* CodeMirror 暗色主题覆盖 */
+  .cm-editor {
+    background-color: var(--block-code-bg);
+
+    .cm-gutters {
+      background-color: var(--block-code-bg);
+      border-color: var(--border-color);
+    }
+
+    .cm-activeLineGutter {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .cm-activeLine {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .cm-selectionBackground {
+      background-color: var(--selection-bg) !important;
+    }
+
+    .cm-cursor {
+      border-left-color: #c9d1d9;
+    }
+  }
+}
+
+/* 弹出菜单和对话框 */
+.mdxeditor-popup-container {
+  [data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
+  }
+}
+
+/* 链接对话框 */
+.mdxeditor-link-dialog {
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 38px -10px rgba(0, 0, 0, 0.35);
+
+  input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid;
+    font-size: 14px;
+    outline: none;
+
+    &:focus {
+      border-color: var(--link-color);
+    }
+  }
+
+  button {
+    padding: 0.375rem 0.75rem;
+    margin-right: 0.5rem;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+}
+
+.markdown-editor.light .mdxeditor-link-dialog {
+  background-color: #ffffff;
+  border: 1px solid #e2e2e3;
+
+  input {
+    background-color: #ffffff;
+    border-color: #e2e2e3;
+    color: #24292f;
+  }
+
+  button {
+    background-color: #f6f6f7;
+    border: 1px solid #e2e2e3;
+    color: #24292f;
+
+    &:hover {
+      background-color: #e2e2e3;
+    }
+
+    &:last-child {
+      background-color: #0969da;
+      border-color: #0969da;
+      color: #ffffff;
+
+      &:hover {
+        background-color: #0550ae;
+      }
+    }
+  }
+}
+
+.markdown-editor.dark .mdxeditor-link-dialog {
+  background-color: #21262d;
+  border: 1px solid #30363d;
+
+  input {
+    background-color: #0d1117;
+    border-color: #30363d;
+    color: #c9d1d9;
+  }
+
+  button {
+    background-color: #21262d;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+
+    &:hover {
+      background-color: #30363d;
+    }
+
+    &:last-child {
+      background-color: #238636;
+      border-color: #238636;
+      color: #ffffff;
+
+      &:hover {
+        background-color: #2ea043;
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@ import animate from 'tailwindcss-animate'
 
 export default {
   darkMode: 'class',
-  content: ['./src/**/*.tsx'],
+  content: ['./src/**/*.{ts,tsx}'],
   plugins: [
     animate,
     typography,

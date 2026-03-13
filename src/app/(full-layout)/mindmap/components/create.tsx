@@ -1,7 +1,8 @@
 'use client'
 
 import { Upload } from 'lucide-react'
-import React, { useState } from 'react'
+import * as React from 'react'
+import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Button } from '@/components/ui/button'
@@ -67,11 +68,14 @@ export function MindMapImport() {
           className="hidden"
         />
       </label>
-      <Switch
-        checked={isPublic}
-        onCheckedChange={setIsPublic}
-        disabled={isPending}
-      />
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">{isPublic ? '公开' : '私密'}</span>
+        <Switch
+          checked={isPublic}
+          onCheckedChange={setIsPublic}
+          disabled={isPending}
+        />
+      </div>
       <AuthenticatedOnly disableChildren>
         <Button
           onClick={handleParse}

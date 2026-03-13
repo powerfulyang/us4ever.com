@@ -11,7 +11,6 @@ import {
   MessageCircle,
   Network,
   Settings,
-  Zap,
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -32,10 +31,6 @@ const mainNavItems: NavItem[] = [
   { title: '动态', href: '/moment', icon: MessageCircle },
   { title: '思维导图', href: '/mindmap', icon: Network },
   { title: '图片管理', href: '/image', icon: FileImage },
-]
-
-const toolNavItems: NavItem[] = [
-  { title: 'TTS', href: '/tts', icon: Zap },
 ]
 
 interface SidebarProps {
@@ -80,7 +75,7 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
               transition={{ duration: 0.1 }}
               className="font-semibold text-sm"
             >
-              us4ever
+              Home Page
             </motion.div>
           )}
         </AnimatePresence>
@@ -143,74 +138,31 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
             )
           })}
         </div>
-
-        {/* Tools Section */}
-        {!collapsed && (
-          <div className="mt-6 mb-2">
-            <div className="px-2.5 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              工具
-            </div>
-          </div>
-        )}
-
-        <div className="space-y-0.5">
-          {toolNavItems.map((item) => {
-            const Icon = item.icon
-            const active = isActive(item.href)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 h-9 px-2.5 rounded-md text-sm transition-all duration-200 relative group',
-                  active
-                    ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-                )}
-              >
-                {active && (
-                  <motion.div
-                    layoutId="activeIndicatorTools"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-gradient-to-b from-purple-500 to-purple-600 dark:from-purple-400 dark:to-purple-500 rounded-r-full shadow-sm shadow-purple-500/20"
-                    transition={{ duration: 0.2 }}
-                  />
-                )}
-                <Icon className={cn(
-                  'w-4 h-4 flex-shrink-0 transition-colors duration-200',
-                  active ? 'text-purple-600 dark:text-purple-400' : 'group-hover:text-purple-500 dark:group-hover:text-purple-400',
-                )}
-                />
-                <AnimatePresence mode="wait">
-                  {!collapsed && (
-                    <motion.span
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: 'auto' }}
-                      exit={{ opacity: 0, width: 0 }}
-                      transition={{ duration: 0.1 }}
-                      className="truncate"
-                    >
-                      {item.title}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </Link>
-            )
-          })}
-        </div>
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-border p-2">
+      <div className="mt-auto border-t border-border/40 p-2">
         <Link
           href="/profile"
           className={cn(
-            'flex items-center gap-3 h-9 px-2.5 rounded-md text-sm transition-colors',
+            'flex items-center gap-3 h-9 px-2.5 rounded-md text-sm transition-all duration-200 group relative',
             isActive('/profile')
-              ? 'bg-accent text-accent-foreground'
-              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+              ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium'
+              : 'text-foreground/60 hover:text-foreground hover:bg-accent/50',
           )}
         >
-          <Settings className="w-4 h-4 flex-shrink-0" />
+          {isActive('/profile') && (
+            <motion.div
+              layoutId="footerActiveIndicator"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-gradient-to-b from-purple-500 to-purple-600 dark:from-purple-400 dark:to-purple-500 rounded-r-full shadow-sm shadow-purple-500/20"
+              transition={{ duration: 0.2 }}
+            />
+          )}
+          <Settings className={cn(
+            'w-4 h-4 flex-shrink-0 transition-colors duration-200',
+            isActive('/profile') ? 'text-purple-600 dark:text-purple-400' : 'group-hover:text-purple-500 dark:group-hover:text-purple-400',
+          )}
+          />
           <AnimatePresence mode="wait">
             {!collapsed && (
               <motion.span

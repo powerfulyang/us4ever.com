@@ -2,8 +2,8 @@
 
 import type { Image as ImageResponse } from '@/server/api/routers/asset'
 import type { Moment } from '@/server/api/routers/moment'
-import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
+import { Globe, Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useState } from 'react'
@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/card'
 import { Confirm } from '@/components/ui/confirm'
 import { Divider } from '@/components/ui/divider'
 import { ItemActions } from '@/components/ui/item-actions'
+import { UserInfo } from '@/components/ui/user-info'
 import { api } from '@/trpc/react'
 
 interface MomentItemProps {
@@ -69,24 +70,19 @@ export function MomentItem({ moment }: MomentItemProps) {
         <Card hoverable className="p-4">
           <div className="space-y-3">
             {/* 头部：用户信息 */}
-            <div className="flex items-center gap-3">
-              <img
-                src={moment.owner.avatar}
-                alt={moment.owner.nickname}
-                className="w-10 h-10 rounded-full"
-              />
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-foreground truncate">
-                  {moment.owner.nickname}
-                </h3>
-                <time className="text-xs text-muted-foreground">
-                  {dayjs(moment.createdAt).format('YYYY-MM-DD HH:mm')}
-                </time>
-              </div>
-              <Badge variant={moment.isPublic ? 'success' : 'secondary'} className="text-xs">
-                {moment.isPublic ? '公开' : '私密'}
-              </Badge>
-            </div>
+            <UserInfo
+              user={moment.owner}
+              createdAt={moment.createdAt}
+              rightArea={(
+                <Badge
+                  variant={moment.isPublic ? 'success' : 'warning'}
+                  className="text-[10px] h-5 px-1.5 flex items-center gap-1 font-semibold uppercase tracking-wider"
+                >
+                  {moment.isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+                  {moment.isPublic ? '公开' : '私密'}
+                </Badge>
+              )}
+            />
 
             {/* 内容 */}
             {moment.content && (

@@ -13,8 +13,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function ImagePage() {
-  await api.asset.fetchImagesByCursor.prefetch({})
+export default async function ImagePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category } = await searchParams
+  await api.asset.fetchImagesByCursor.prefetch({ category })
   return (
     <HydrateClient>
       <Container
@@ -22,8 +27,8 @@ export default async function ImagePage() {
         description="图片统一管理"
       >
         <ImageUpload />
-        <ImageCategoryServer />
-        <ImageList />
+        <ImageCategoryServer currentCategory={category} />
+        <ImageList category={category} />
       </Container>
     </HydrateClient>
   )

@@ -15,6 +15,7 @@ export async function KeepCategoryServer({ currentCategory }: KeepCategoryProps)
       categories={categories}
       basePath="/keep"
       currentCategory={currentCategory}
+      linkType="query"
     />
   )
 }

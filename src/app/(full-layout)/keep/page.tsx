@@ -16,8 +16,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function KeepPage() {
-  await api.keep.fetchByCursor.prefetch({})
+export default async function KeepPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category } = await searchParams
+  await api.keep.fetchByCursor.prefetch({ category })
   return (
     <HydrateClient>
       <Container
@@ -41,8 +46,8 @@ export default async function KeepPage() {
           </AuthenticatedOnly>
         )}
       >
-        <KeepCategoryServer />
-        <KeepList />
+        <KeepCategoryServer currentCategory={category} />
+        <KeepList category={category} />
       </Container>
     </HydrateClient>
   )

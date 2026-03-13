@@ -46,11 +46,14 @@ export function ImageUpload({ category }: ImageUploadProps) {
           disabled={uploadMutation.isPending}
         />
         <div className="flex justify-end items-center gap-4">
-          <Switch
-            checked={isPublic}
-            onCheckedChange={setIsPublic}
-            disabled={uploadMutation.isPending}
-          />
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">{isPublic ? '公开' : '私密'}</span>
+            <Switch
+              checked={isPublic}
+              onCheckedChange={setIsPublic}
+              disabled={uploadMutation.isPending}
+            />
+          </div>
           <AuthenticatedOnly disableChildren>
             <button
               type="button"
