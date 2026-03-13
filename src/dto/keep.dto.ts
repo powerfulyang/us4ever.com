@@ -49,3 +49,42 @@ export const keepListResponseSchema = z.object({
 })
 
 export type KeepListResponseDTO = z.infer<typeof keepListResponseSchema>
+
+// 分页查询 Keep 的 DTO（使用 page/pageSize）
+export const queryKeepPageSchema = z.object({
+  page: z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(50).default(10),
+  category: BaseCategoryField,
+})
+
+export type QueryKeepPageDTO = z.infer<typeof queryKeepPageSchema>
+
+// 分页响应 DTO
+export const keepPageResponseSchema = z.object({
+  items: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    summary: z.string(),
+    content: z.string(),
+    isPublic: z.boolean(),
+    tags: z.array(z.string()),
+    category: z.string(),
+    views: z.number(),
+    likes: z.number(),
+    ownerId: z.string(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    owner: z.object({
+      id: z.string(),
+      nickname: z.string(),
+      avatar: z.string().nullable(),
+    }),
+  })),
+  total: z.number(),
+  totalPages: z.number(),
+  currentPage: z.number(),
+  hasNextPage: z.boolean(),
+  hasPrevPage: z.boolean(),
+})
+
+export type KeepPageResponseDTO = z.infer<typeof keepPageResponseSchema>
