@@ -70,9 +70,18 @@
     background: transparent !important;
   }
 
+  :global(pre.shiki) {
+    background: transparent !important;
+  }
+
   :global(code) {
     background: transparent !important;
     padding: 0;
+  }
+
+  /* 确保 Shiki 高亮的颜色显示正常 */
+  :global(.shiki) {
+    background: transparent !important;
   }
 
   /* 行号和代码 */
