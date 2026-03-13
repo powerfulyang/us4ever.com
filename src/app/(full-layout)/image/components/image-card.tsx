@@ -35,8 +35,8 @@ export function ImageCard({ image, onDelete }: ImageCardProps) {
 
   return (
     <>
-      <Card hoverable className="p-2 group">
-        <div className="relative aspect-[4/3] rounded-md overflow-hidden bg-secondary">
+      <Card hoverable className="group">
+        <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
           <img
             src={selectedUrl}
             alt={image.name}
@@ -90,7 +90,7 @@ export function ImageCard({ image, onDelete }: ImageCardProps) {
           </div>
         </div>
         {/* 缩略图选择 */}
-        <div className="grid grid-cols-5 gap-1 pt-2">
+        <div className="grid grid-cols-5 gap-1 pt-2 px-1">
           {thumbnails.map(thumb => (
             <button
               type="button"

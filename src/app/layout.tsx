@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import Script from 'next/script'
 import * as React from 'react'
 import { UserProvider } from '@/components/auth/user-provider'
+import { PageProgress } from '@/components/page-progress'
 import ServiceWorkerRegister from '@/components/pwa/Register'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
@@ -63,6 +64,7 @@ export default async function RootLayout({ children }: Props) {
           <ServiceWorkerRegister />
           <TRPCReactProvider>
             <UserProvider user={user} />
+            <PageProgress />
             {children}
             <Toaster />
           </TRPCReactProvider>

@@ -1,5 +1,5 @@
 import type { LinkProps } from '@/app/(full-layout)/page'
-import { ArrowLeftRight, Clock, Mic, Speaker } from 'lucide-react'
+import { ArrowLeftRight, Clock, Mic } from 'lucide-react'
 import { LinkGrid } from '@/components/link-grid'
 
 const demoLinks: LinkProps[] = [
@@ -23,12 +23,6 @@ const demoLinks: LinkProps[] = [
     href: 'https://pandora.us4ever.com/data-parser',
     target: '_blank',
     icon: <Clock className="w-8 h-8" />,
-  },
-  {
-    title: 'Edge TTS',
-    description: '基于 edge-tts-universal 的语音合成测试端点',
-    href: '/tts',
-    icon: <Speaker className="w-8 h-8" />,
   },
 ]
 

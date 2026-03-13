@@ -1,6 +1,16 @@
-import type { LinkGridProps } from '@/app/(full-layout)/page'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+export interface LinkGridProps {
+  links: {
+    title: string
+    href: string
+    target?: string
+    icon: React.ReactNode
+    description: string
+  }[]
+  title: string
+}
 
 export function LinkGrid({ links, title }: LinkGridProps) {
   return (

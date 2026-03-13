@@ -35,9 +35,11 @@ export default async function ImagePage({
         description="图片统一管理"
         actions={<ViewToggle category={category} />}
       >
-        <ImageUpload />
-        <ImageCategoryServer currentCategory={category} />
-        <ImagePaginationClient category={category} initialPage={Math.max(1, page)} />
+        <div className="max-w-5xl mx-auto">
+          <ImageUpload />
+          <ImageCategoryServer currentCategory={category} />
+          <ImagePaginationClient category={category} initialPage={Math.max(1, page)} />
+        </div>
       </Container>
     </HydrateClient>
   )

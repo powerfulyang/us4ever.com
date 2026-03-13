@@ -51,6 +51,7 @@ jobs:
   deploy:
     needs: [build-with-github-action]
     runs-on: self-hosted
+    if: false
     steps:
       - name: Update container
         run: |

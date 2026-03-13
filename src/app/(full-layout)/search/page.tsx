@@ -1,7 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { FileText, MessageSquare, Search, Tag } from 'lucide-react'
+import { FileText, Loader2, Lock, MessageSquare, Search } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
@@ -91,10 +91,20 @@ export default function SearchPage() {
       _sortTime: item.updatedAt || item.createdAt,
     }))
 
-    return [...keeps, ...moments].sort(
+    let results = [...keeps, ...moments]
+
+    // 根据 filter 筛选结果
+    if (filter === 'keep') {
+      results = results.filter(item => item._type === 'keep')
+    }
+    else if (filter === 'moment') {
+      results = results.filter(item => item._type === 'moment')
+    }
+
+    return results.sort(
       (a, b) => new Date(b._sortTime).getTime() - new Date(a._sortTime).getTime(),
     )
-  }, [keepData, momentData, query])
+  }, [keepData, momentData, query, filter])
 
   const totalCount = keepData.length + momentData.length
 
@@ -138,7 +148,16 @@ export default function SearchPage() {
               disabled={isLoading}
               className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-6 rounded-xl"
             >
-              搜索
+              {isLoading
+                ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      搜索中
+                    </>
+                  )
+                : (
+                    '搜索'
+                  )}
             </Button>
           </div>
         </motion.form>
@@ -184,6 +203,19 @@ export default function SearchPage() {
           </motion.div>
         )}
 
+        {/* Loading 状态 */}
+        {isLoading && query && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col items-center justify-center py-16"
+          >
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-muted-foreground">搜索中...</p>
+          </motion.div>
+        )}
+
         {/* 搜索结果 */}
         <AnimatePresence mode="wait">
           {!isLoading && query && (
@@ -192,7 +224,7 @@ export default function SearchPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-4"
+              className="space-y-4 max-w-3xl mx-auto"
             >
               {/* 结果统计 */}
               <div className="flex items-center justify-between text-sm text-muted-foreground px-1">
@@ -221,93 +253,112 @@ export default function SearchPage() {
               </div>
 
               {/* 统一结果列表 */}
-              {combinedResults.length > 0 ? (
-                <div className="space-y-3">
-                  {combinedResults.map((result, index) => (
-                    <motion.div
-                      key={`${result._type}-${result._id || result.id}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      {result._type === 'keep' ? (
-                        // 笔记结果卡片
-                        <Link href={`/keep/${result._id}`}>
-                          <Card
-                            hoverable
-                            className="group p-5 transition-all duration-200 hover:shadow-md"
-                          >
-                            <div className="flex items-start gap-4">
-                              {/* 类型图标 */}
-                              <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-                                <FileText className="w-5 h-5 text-blue-500" />
-                              </div>
+              {combinedResults.length > 0
+                ? (
+                    <div className="space-y-3">
+                      {combinedResults.map((result, index) => (
+                        <motion.div
+                          key={`${result._type}-${result._id || result.id}`}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          {result._type === 'keep'
+                            ? (
+                          // 笔记结果卡片 - 简洁优雅设计
+                                <Link href={`/keep/${result._id}`}>
+                                  <Card
+                                    hoverable
+                                    className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-md hover:border-primary/30 cursor-pointer"
+                                  >
+                                    {/* 左侧色条指示器 */}
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-500 opacity-60 group-hover:opacity-100 transition-opacity" />
 
-                              {/* 内容区域 */}
-                              <div className="flex-1 min-w-0 space-y-2">
-                                {/* 标题和标签 */}
-                                <div className="flex items-center gap-2">
-                                  <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                                    {result._source.title}
-                                  </h3>
-                                  {result._source.isPublic
-                                    ? (
-                                        <Badge variant="outline" className="text-xs">
-                                          公开
-                                        </Badge>
-                                      )
-                                    : (
-                                        <Badge variant="secondary" className="text-xs">
-                                          私密
-                                        </Badge>
-                                      )}
-                                </div>
+                                    <div className="pl-5 pr-4 py-4">
+                                      {/* 标题行 */}
+                                      <div className="flex items-start justify-between gap-3 mb-2">
+                                        <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 flex-1">
+                                          {result._source.title}
+                                        </h3>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                          {result._source.isPublic
+                                            ? (
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400">
+                                                  公开
+                                                </span>
+                                              )
+                                            : (
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground flex items-center gap-0.5">
+                                                  <Lock className="w-2.5 h-2.5" />
+                                                  私密
+                                                </span>
+                                              )}
+                                        </div>
+                                      </div>
 
-                                {/* 摘要 */}
-                                {result.highlight?.summary
-                                  ? (
-                                      <MdRender className="text-sm text-muted-foreground line-clamp-2">
-                                        {result.highlight.summary.join('...')}
-                                      </MdRender>
-                                    )
-                                  : result._source.summary
-                                    ? (
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
-                                          {result._source.summary}
-                                        </p>
-                                      )
-                                    : null}
+                                      {/* 摘要 */}
+                                      {result.highlight?.summary
+                                        ? (
+                                            <div className="text-sm text-muted-foreground line-clamp-2 mb-3 bg-yellow-500/5 dark:bg-yellow-500/10 rounded-lg px-2 py-1.5 -mx-0.5">
+                                              <MdRender className="[&>*]:text-muted-foreground [&>*]:text-sm">
+                                                {result.highlight.summary.join('...')}
+                                              </MdRender>
+                                            </div>
+                                          )
+                                        : result._source.summary
+                                          ? (
+                                              <p className="text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
+                                                {result._source.summary}
+                                              </p>
+                                            )
+                                          : null}
 
-                                {/* 元信息 */}
-                                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                  {result._source.category && (
-                                    <span className="flex items-center gap-1">
-                                      <Tag className="w-3 h-3" />
-                                      {result._source.category}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </Card>
-                        </Link>
-                      ) : (
-                        // 动态结果卡片
-                        <MomentItem moment={result} />
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                // 无结果
-                !hasError && (keepSuccess || momentSuccess) && (
-                  <Empty
-                    title="未找到结果"
-                    description={`没有找到与"${query}"相关的内容。尝试其他关键词？`}
-                    className="py-12"
-                  />
-                )
-              )}
+                                      {/* 底部元信息 */}
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                          {result._source.category && (
+                                            <span className="flex items-center gap-1 text-blue-600/80 dark:text-blue-400/80">
+                                              <span className="w-1 h-1 rounded-full bg-current" />
+                                              {result._source.category}
+                                            </span>
+                                          )}
+                                          {result._source.updatedAt && (
+                                            <span className="text-muted-foreground/70">
+                                              {new Date(result._source.updatedAt).toLocaleDateString('zh-CN', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                              })}
+                                            </span>
+                                          )}
+                                        </div>
+
+                                        {/* 悬停显示箭头 */}
+                                        <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                          <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </Card>
+                                </Link>
+                              ) : (
+                          // 动态结果卡片
+                                <MomentItem moment={result} />
+                              )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+              // 无结果
+                    !hasError && (keepSuccess || momentSuccess) && (
+                      <Empty
+                        title="未找到结果"
+                        description={`没有找到与"${query}"相关的内容。尝试其他关键词？`}
+                        className="py-12"
+                      />
+                    )
+                  )}
             </motion.div>
           )}
         </AnimatePresence>

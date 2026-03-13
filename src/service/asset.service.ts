@@ -58,6 +58,11 @@ export const videoInclude = {
       bucket: true,
     },
   },
+  poster: {
+    include: {
+      bucket: true,
+    },
+  },
 } as const
 
 /**
@@ -109,9 +114,11 @@ interface ListImageInput extends BaseListFilter {
  * 视频资源类型
  */
 export function transformVideoToResponse(video: VideoWithIncludes) {
+  const fileUrl = getFileUrl(video.file)
   return {
     ...video,
-    file_url: getFileUrl(video.file),
+    file_url: fileUrl,
+    poster_url: getFileUrl(video.poster) || fileUrl,
   }
 }
 

@@ -30,9 +30,11 @@ export default async function ImageFeedPage({
         description="图片统一管理"
         actions={<ViewToggle category={category} />}
       >
-        <ImageUpload />
-        <ImageCategoryServer currentCategory={category} />
-        <ImageList category={category} />
+        <div className="max-w-5xl mx-auto">
+          <ImageUpload />
+          <ImageCategoryServer currentCategory={category} />
+          <ImageList category={category} />
+        </div>
       </Container>
     </HydrateClient>
   )

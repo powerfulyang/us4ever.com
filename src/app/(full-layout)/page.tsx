@@ -60,16 +60,6 @@ const appLinks: LinkProps[] = [
     icon: <MessageCircle className="w-6 h-6" />,
   },
   {
-    ...MomentCategoryMap.prompt,
-    href: '/moment?category=prompt',
-    icon: <MessageCircle className="w-6 h-6" />,
-  },
-  {
-    ...MomentCategoryMap.keyword2blog,
-    href: '/moment?category=keyword2blog',
-    icon: <MessageCircle className="w-6 h-6" />,
-  },
-  {
     ...MomentCategoryMap['telegram:emt_channel'],
     href: '/moment?category=telegram:emt_channel',
     icon: <MessageCircle className="w-6 h-6" />,
@@ -258,7 +248,7 @@ export default function Home() {
         }}
       />
 
-      <div className="space-y-16 relative">
+      <div className="space-y-16 relative pb-10">
         {/* 标题区域 - 带微妙装饰 */}
         <div className="relative">
           <div className="absolute -left-4 -top-8 w-24 h-24 bg-gradient-to-br from-amber-200/20 to-orange-200/10 rounded-full blur-2xl" />
