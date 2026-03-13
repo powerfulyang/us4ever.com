@@ -71,6 +71,52 @@ export async function findMindMapsByCursor({ userIds, take, cursor }: FindMindMa
   }
 }
 
+export async function findMindMapsByPage({
+  userIds,
+  page,
+  pageSize,
+}: {
+  userIds: string[]
+  page: number
+  pageSize: number
+}) {
+  const skip = (page - 1) * pageSize
+
+  const total = await db.mindMap.count({
+    where: {
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+  })
+
+  const items = await db.mindMap.findMany({
+    where: {
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    skip,
+    take: pageSize,
+  })
+
+  const totalPages = Math.ceil(total / pageSize)
+
+  return {
+    items,
+    total,
+    totalPages,
+    currentPage: page,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  }
+}
+
 export async function getMindMapById(id: string, { userId }: BaseListFilter) {
   const mindMap = await db.mindMap.findUnique({
     where: {
@@ -173,6 +219,7 @@ export async function deleteMindMap(id: string, ownerId: string) {
 export const mindMapService = {
   listMindMaps,
   findMindMapsByCursor,
+  findMindMapsByPage,
   getMindMapById,
   findMindMapById,
   incrementMindMapViews,

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { BasePrimaryKeySchema, BaseQuerySchema, UpdateViewsSchema } from '@/dto/base.dto'
+import { BasePageQuerySchema, BasePrimaryKeySchema, BaseQuerySchema, UpdateViewsSchema } from '@/dto/base.dto'
 import { mindMapService } from '@/service/mindmap.service'
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc'
 
@@ -12,6 +12,18 @@ export const mindMapRouter = createTRPCRouter({
         userIds,
         take: limit + 1,
         cursor,
+      })
+    },
+  ),
+
+  fetchByPage: publicProcedure.input(BasePageQuerySchema).query(
+    async ({ ctx, input }) => {
+      const { page, pageSize } = input
+      const userIds = ctx.groupUserIds
+      return mindMapService.findMindMapsByPage({
+        userIds,
+        page,
+        pageSize,
       })
     },
   ),

@@ -1,65 +1,12 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import Link from 'next/link'
 import * as React from 'react'
-import { useState } from 'react'
+import { MindMapCard } from '@/app/(full-layout)/mindmap/components/mindmap-card'
 import { Empty } from '@/components/layout/Empty'
-import { Confirm } from '@/components/ui/confirm'
-import { ContentCard } from '@/components/ui/content-card'
 import { InfiniteScroll } from '@/components/ui/infinite-scroll'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { api } from '@/trpc/react'
-
-function MindMapCard({ mindmap }: { mindmap: any }) {
-  const [showConfirm, setShowConfirm] = useState(false)
-  const utils = api.useUtils()
-  const { mutate, isPending } = api.mindMap.delete.useMutation({
-    onSuccess() {
-      setShowConfirm(false)
-      return utils.mindMap.fetchByCursor.invalidate()
-    },
-  })
-
-  const handleDelete = (e?: React.MouseEvent) => {
-    e?.preventDefault()
-    setShowConfirm(true)
-  }
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Link href={`/mindmap/${mindmap.id}`} className="children-pointer block h-full">
-        <ContentCard
-          title={mindmap.title}
-          status={{
-            label: mindmap.isPublic ? '公开' : '私密',
-            type: mindmap.isPublic ? 'success' : 'warning',
-          }}
-          content={mindmap.summary}
-          createdAt={mindmap.createdAt}
-          views={mindmap.views}
-          likes={mindmap.likes}
-          ownerId={mindmap.ownerId}
-          onDelete={handleDelete}
-        />
-      </Link>
-      <Confirm
-        isOpen={showConfirm}
-        onCloseAction={() => setShowConfirm(false)}
-        onConfirmAction={() => mutate({ id: mindmap.id })}
-        isConfirmLoading={isPending}
-        title="删除思维导图"
-        content="确定要删除这个思维导图吗？此操作不可逆"
-      />
-    </motion.div>
-  )
-}
 
 export function MindMapList() {
   const {
@@ -97,7 +44,16 @@ export function MindMapList() {
         <AnimatePresence mode="popLayout">
           {data.pages.map(page =>
             page.items.map(mindMap => (
-              <MindMapCard key={mindMap.id} mindmap={mindMap} />
+              <motion.div
+                key={mindMap.id}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+              >
+                <MindMapCard mindmap={mindMap} />
+              </motion.div>
             )),
           )}
         </AnimatePresence>

@@ -1,30 +1,20 @@
 import type { Metadata } from 'next'
-import { MindMapPaginationClient } from '@/app/(full-layout)/mindmap/components/pagination-client'
+import { MindMapList } from '@/app/(full-layout)/mindmap/components/list'
 import { ViewToggle } from '@/app/(full-layout)/mindmap/components/view-toggle'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
-import { MindMapImport } from './components/create'
+import { MindMapImport } from '../components/create'
 
 export const metadata: Metadata = {
   title: '思维导图',
   description: '记录和分享你的思维导图',
   alternates: {
-    canonical: `/mindmap`,
+    canonical: `/mindmap/feed`,
   },
 }
 
-export default async function MindMapPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>
-}) {
-  const { page: pageParam } = await searchParams
-  const page = pageParam ? Number.parseInt(pageParam, 10) : 1
-
-  await api.mindMap.fetchByPage.prefetch({
-    page: Math.max(1, page),
-    pageSize: 6,
-  })
+export default async function MindMapFeedPage() {
+  await api.mindMap.fetchByCursor.prefetch({})
 
   return (
     <HydrateClient>
@@ -38,7 +28,7 @@ export default async function MindMapPage({
           </div>
         )}
       >
-        <MindMapPaginationClient initialPage={Math.max(1, page)} />
+        <MindMapList />
       </Container>
     </HydrateClient>
   )
