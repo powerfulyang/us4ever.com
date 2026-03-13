@@ -28,7 +28,7 @@ export default async function KeepPage({
   // 预取第一页数据
   await api.keep.fetchByPage.prefetch({
     page: Math.max(1, page),
-    pageSize: 10,
+    pageSize: 6,
     category,
   })
 
