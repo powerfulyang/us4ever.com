@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Plus, Search } from 'lucide-react'
 import Link from 'next/link'
 import { KeepCategoryServer } from '@/app/(full-layout)/keep/components/category'
-import { PaginationList } from '@/app/(full-layout)/keep/components/pagination-list'
+import { KeepPaginationClient } from '@/app/(full-layout)/keep/components/pagination-client'
 import { ViewToggle } from '@/app/(full-layout)/keep/components/view-toggle'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Container } from '@/components/layout/Container'
@@ -57,7 +57,7 @@ export default async function KeepPage({
         )}
       >
         <KeepCategoryServer currentCategory={category} />
-        <PaginationList category={category} page={Math.max(1, page)} />
+        <KeepPaginationClient category={category} initialPage={Math.max(1, page)} />
       </Container>
     </HydrateClient>
   )
