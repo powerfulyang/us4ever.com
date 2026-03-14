@@ -11,8 +11,8 @@ import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import { visit } from 'unist-util-visit'
 import { cn } from '@/utils'
-import { CodeBlock } from './CodeBlock'
 import styles from './markdown.module.scss'
+import { PrismCode } from './PrismCode'
 import 'katex/dist/katex.min.css'
 
 interface MarkdownProps {
@@ -94,9 +94,9 @@ export const Markdown: FC<MarkdownProps> = ({ children, className }) => {
       const match = LANGUAGE_REGEX.exec(codeClassName || '')
       const language = match?.[1] || 'text'
       return (
-        <CodeBlock language={language}>
+        <PrismCode language={language} maxHeight={500}>
           {String(codeChildren).replace(NEWLINE_REGEX, '')}
-        </CodeBlock>
+        </PrismCode>
       )
     },
     // pre 组件：包裹代码块，但不做额外处理

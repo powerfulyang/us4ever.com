@@ -32,7 +32,7 @@ export const PrismCode: FC<Props> = ({ language, children, maxHeight, className 
         <div className={styles.toolbarAction}>
           <button
             type="button"
-            className="pointer"
+            style={{ background: 'transparent', border: 'none' }}
             onClick={async (e) => {
               e.preventDefault()
               try {

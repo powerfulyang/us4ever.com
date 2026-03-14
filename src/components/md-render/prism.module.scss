@@ -28,7 +28,8 @@
   position: relative;
   height: 2rem;
   width: 100%;
-  background-color: hsl(var(--secondary));
+  background: linear-gradient(180deg, #3c3c3c 0%, #2a2a2a 100%);
+  border-bottom: 1px solid #1a1a1a;
   @apply flex align-middle;
 
   .toolbarLanguage {
@@ -37,7 +38,11 @@
     left: 50%;
     transform: translate(-50%, -50%);
     cursor: text;
-    color: hsl(var(--primary));
+    color: #a8a8a8;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .toolbarAction {
@@ -45,15 +50,18 @@
     line-height: 2rem;
     color: hsl(var(--muted-foreground));
     @apply mr-2;
+    font-size: 0.75rem;
 
     &:hover {
       color: hsl(var(--primary));
+      background: transparent;
     }
   }
 
   &::before {
     position: absolute;
     top: 50%;
+    left: 12px;
     width: 11px;
     height: 11px;
     background: #fc625d;
@@ -61,23 +69,24 @@
     box-shadow:
       20px 0 #fdbc40,
       40px 0 #35cd4b;
-    transform: translate(50%, -50%);
+    transform: translateY(-50%);
     content: ' ';
   }
 
-  // 暗色主题
-  :global(.dark) & {
-    background-color: rgb(34 31 31);
+  // 亮色主题
+  :global(.light) & {
+    background: linear-gradient(180deg, #f5f5f5 0%, #ebebeb 100%);
+    border-bottom-color: #ddd;
 
     .toolbarLanguage {
-      color: #67e8f9;
+      color: #555;
     }
 
     .toolbarAction {
-      color: #67e8f9;
+      color: #555;
 
       &:hover {
-        color: #00ffd1;
+        color: hsl(var(--primary));
       }
     }
   }

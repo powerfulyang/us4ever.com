@@ -5,8 +5,8 @@ import rehypeKatex from 'rehype-katex'
 import remarkFlexibleToc from 'remark-flexible-toc'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { CodeBlock } from '@/components/md-render/CodeBlock'
 import { LazyMermaidRender } from '@/components/md-render/lazy'
+import { PrismCode } from '@/components/md-render/PrismCode'
 import { cn } from '@/utils'
 import styles from './markdown.module.scss'
 import 'katex/dist/katex.min.css'
@@ -28,7 +28,7 @@ function PreComponent({ children }: any) {
     )
   }
 
-  return <CodeBlock language={language}>{value}</CodeBlock>
+  return <PrismCode language={language} maxHeight={500}>{value}</PrismCode>
 }
 
 function LinkComponent({ href, children }: any) {
