@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { KeepCategoryServer } from '@/app/(full-layout)/keep/components/category'
 import { KeepPaginationClient } from '@/app/(full-layout)/keep/components/pagination-client'
 import { ViewToggle } from '@/app/(full-layout)/keep/components/view-toggle'
+import { MobileRedirect } from '@/components/mobile-redirect'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Container } from '@/components/layout/Container'
 import { Button } from '@/components/ui/button'
@@ -34,6 +35,7 @@ export default async function KeepPage({
 
   return (
     <HydrateClient>
+      <MobileRedirect />
       <Container
         title="笔记本"
         description="记录灵感与思考的地方"

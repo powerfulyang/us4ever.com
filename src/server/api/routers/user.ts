@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, adminProcedure, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 
 export const userRouter = createTRPCRouter({
   current: publicProcedure.query(
@@ -7,6 +7,35 @@ export const userRouter = createTRPCRouter({
       return ctx.user
     },
   ),
+
+  // 获取用户列表（仅管理员）
+  list: adminProcedure
+    .input(z.object({
+      page: z.number().min(1).default(1),
+      pageSize: z.number().min(1).max(100).default(20),
+    }))
+    .query(async ({ ctx, input }) => {
+      const { page, pageSize } = input
+
+      const [users, total] = await Promise.all([
+        ctx.db.user.findMany({
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            group: true,
+          },
+        }),
+        ctx.db.user.count(),
+      ])
+
+      return {
+        users,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+        currentPage: page,
+      }
+    }),
 
   updateProfile: protectedProcedure
     .input(z.object({

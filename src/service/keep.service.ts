@@ -296,6 +296,10 @@ export interface Source {
   content: string
   summary: string
   title: string
+  isPublic: boolean
+  category: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Highlight {
@@ -333,10 +337,7 @@ async function searchKeepsWithAccess(query: string, userIds: string[]) {
   const resultList = result.hits.hits
   const ids = map(resultList, '_id')
 
-  const list = await db.keep.findMany({
-    select: {
-      id: true,
-    },
+  const accessibleKeeps = await db.keep.findMany({
     where: {
       id: {
         in: ids,
@@ -350,10 +351,36 @@ async function searchKeepsWithAccess(query: string, userIds: string[]) {
         { isPublic: true },
       ],
     },
+    select: {
+      id: true,
+      isPublic: true,
+      category: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   })
 
-  // 按照原始搜索结果的顺序返回
-  return resultList.filter(hit => list.some(keep => keep.id === hit._id))
+  // 创建一个 map 方便查找
+  const keepsMap = new Map(accessibleKeeps.map(k => [k.id, k]))
+
+  // 合并数据库数据到搜索结果
+  const mergedResults = resultList
+    .filter(hit => keepsMap.has(hit._id))
+    .map(hit => {
+      const keepData = keepsMap.get(hit._id)!
+      return {
+        ...hit,
+        _source: {
+          ...hit._source,
+          isPublic: keepData.isPublic,
+          category: keepData.category,
+          createdAt: keepData.createdAt.toISOString(),
+          updatedAt: keepData.updatedAt.toISOString(),
+        },
+      }
+    })
+
+  return mergedResults
 }
 
 async function getCategories(userIds: string[]) {

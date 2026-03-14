@@ -37,6 +37,22 @@ export function VideoPlayer({ video, onDelete }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  // 马卡龙配色
+  const pastelColors = [
+    'from-pink-300/30 to-rose-200/30',
+    'from-rose-300/30 to-pink-200/30',
+    'from-orange-200/30 to-amber-200/30',
+    'from-amber-200/30 to-yellow-200/30',
+    'from-emerald-200/30 to-teal-200/30',
+    'from-cyan-200/30 to-sky-200/30',
+    'from-sky-300/30 to-blue-200/30',
+    'from-violet-200/30 to-purple-200/30',
+    'from-fuchsia-200/30 to-pink-200/30',
+  ]
+
+  // 随机选择一个配色
+  const colorIndex = video.id.charCodeAt(0) % pastelColors.length
+
   // 自动隐藏控制条
   useEffect(() => {
     if (!isPlaying) {
@@ -126,7 +142,12 @@ export function VideoPlayer({ video, onDelete }: VideoPlayerProps) {
 
   return (
     <div
-      className="group relative aspect-[9/16] rounded-2xl overflow-hidden bg-gradient-to-br from-muted via-muted/80 to-muted/50 shadow-inner"
+      className={cn(
+        'group relative aspect-[9/16] rounded-2xl overflow-hidden transition-all duration-500 cursor-pointer',
+        'bg-gradient-to-br shadow-lg hover:shadow-pink-300/50 dark:hover:shadow-pink-700/40 transition-all duration-500',
+        pastelColors[colorIndex],
+        isLoaded && 'shadow-pink-200/50 dark:shadow-pink-900/30',
+      )}
       onMouseMove={resetControlsTimer}
       onMouseLeave={() => isPlaying && setShowControls(false)}
     >
@@ -135,7 +156,7 @@ export function VideoPlayer({ video, onDelete }: VideoPlayerProps) {
         <video
           ref={videoRef}
           src={video.file_url}
-          className="w-full h-full object-contain bg-black"
+          className="w-full h-full object-contain bg-gradient-to-br from-slate-900 to-slate-800"
           muted={isMuted}
           autoPlay
           playsInline
@@ -145,30 +166,46 @@ export function VideoPlayer({ video, onDelete }: VideoPlayerProps) {
         />
       )}
 
-      {/* 封面/占位区域 */}
+      {/* 封面/占位区域 - 马卡龙风格 */}
       {!isLoaded && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-300">
-            <Film className="w-7 h-7 text-primary/70" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-5">
+          {/* 糖霜效果背景 */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.4)_0%,transparent_50%)]" />
+
+          <div className={cn(
+            'relative w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-500',
+            'bg-gradient-to-br shadow-lg backdrop-blur-sm',
+            colorIndex < 3 && 'from-pink-400 to-rose-400',
+            colorIndex >= 3 && colorIndex < 5 && 'from-amber-300 to-orange-300',
+            colorIndex >= 5 && colorIndex < 7 && 'from-emerald-300 to-teal-300',
+            colorIndex >= 7 && 'from-violet-400 to-purple-400',
+          )}>
+            <Film className="w-8 h-8 text-white drop-shadow-md" />
+            {/* 闪光效果 */}
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-white/80 rounded-full animate-pulse" />
           </div>
-          <p className="text-sm text-foreground/80 text-center line-clamp-2 font-medium">
+
+          <p className="relative text-sm text-slate-700 dark:text-slate-100 text-center line-clamp-2 font-semibold drop-shadow-sm">
             {video.name}
           </p>
-          <p className="text-xs text-muted-foreground/70 mt-2">
-            点击播放加载视频
+          <p className="relative text-xs text-slate-500 dark:text-slate-400 mt-2">
+            点击播放
           </p>
         </div>
       )}
 
-      {/* 播放按钮遮罩 */}
+      {/* 播放按钮遮罩 - 毛玻璃效果 */}
       {(!isLoaded || !isPlaying) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/40 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300">
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-slate-900/40 via-slate-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
           <button
             type="button"
             onClick={togglePlay}
-            className="w-14 h-14 rounded-full bg-white/95 hover:bg-white text-foreground flex items-center justify-center transform hover:scale-110 transition-all duration-200 shadow-xl"
+            className={cn(
+              'w-16 h-16 rounded-2xl flex items-center justify-center transform hover:scale-110 transition-all duration-300 shadow-2xl',
+              'bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-md hover:from-white hover:to-pink-50',
+            )}
           >
-            <Play className="w-6 h-6 ml-1 text-primary" fill="currentColor" />
+            <Play className="w-7 h-7 ml-1 text-pink-500" fill="currentColor" />
           </button>
         </div>
       )}
@@ -179,80 +216,100 @@ export function VideoPlayer({ video, onDelete }: VideoPlayerProps) {
           <button
             type="button"
             onClick={togglePlay}
-            className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-sm hover:bg-black/70 text-white flex items-center justify-center transform hover:scale-110 transition-all duration-200 pointer-events-auto shadow-lg"
+            className="w-14 h-14 rounded-2xl bg-white/90 backdrop-blur-md hover:bg-white flex items-center justify-center transform hover:scale-110 transition-all duration-200 pointer-events-auto shadow-2xl"
           >
-            <Pause className="w-5 h-5" fill="currentColor" />
+            <Pause className="w-6 h-6 text-pink-500" fill="currentColor" />
           </button>
         </div>
       )}
 
-      {/* 控制条 */}
+      {/* 控制条 - 糖果渐变 */}
       <div
         className={cn(
-          'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 pb-3 transition-all duration-300',
+          'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/80 via-slate-900/50 to-transparent p-4 pb-3 transition-all duration-300',
           showControls || !isPlaying ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
         )}
       >
-        {/* 进度条 */}
+        {/* 进度条 - 马卡龙渐变 */}
         <div
-          className="w-full h-1.5 bg-white/20 rounded-full mb-4 cursor-pointer group/progress hover:h-2 transition-all"
+          className="w-full h-2 bg-white/20 rounded-full mb-4 cursor-pointer group/progress hover:h-2.5 transition-all"
           onClick={handleProgressClick}
         >
           <div
-            className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-100 relative"
+            className={cn(
+              'h-full rounded-full transition-all duration-100 relative shadow-lg',
+              colorIndex < 3 && 'bg-gradient-to-r from-pink-400 to-rose-400',
+              colorIndex >= 3 && colorIndex < 5 && 'bg-gradient-to-r from-amber-300 to-orange-400',
+              colorIndex >= 5 && colorIndex < 7 && 'bg-gradient-to-r from-emerald-300 to-teal-400',
+              colorIndex >= 7 && 'bg-gradient-to-r from-violet-400 to-purple-400',
+            )}
             style={{ width: `${progress}%` }}
           >
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover/progress:opacity-100 transition-opacity shadow-md scale-0 group-hover/progress:scale-100" />
+            <div className={cn(
+              'absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-md opacity-0 group-hover/progress:opacity-100 transition-all scale-0 group-hover/progress:scale-100',
+            )} />
           </div>
         </div>
 
-        {/* 控制按钮 */}
+        {/* 控制按钮 - 圆润糖果风格 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={togglePlay}
-              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white flex items-center justify-center transition-all hover:scale-105"
+              className={cn(
+                'w-9 h-9 rounded-2xl flex items-center justify-center transition-all hover:scale-110 shadow-lg',
+                'bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm hover:from-pink-100 hover:to-rose-100',
+              )}
             >
               {isPlaying
-                ? <Pause className="w-4 h-4" fill="currentColor" />
-                : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
+                ? <Pause className="w-4 h-4 text-pink-500" fill="currentColor" />
+                : <Play className="w-4 h-4 ml-0.5 text-pink-500" fill="currentColor" />}
             </button>
             <button
               type="button"
               onClick={toggleMute}
-              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white flex items-center justify-center transition-all hover:scale-105"
+              className={cn(
+                'w-9 h-9 rounded-2xl flex items-center justify-center transition-all hover:scale-110 shadow-lg',
+                'bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm hover:from-emerald-100 hover:to-teal-100',
+              )}
             >
               {isMuted
-                ? <VolumeX className="w-4 h-4" />
-                : <Volume2 className="w-4 h-4" />}
+                ? <VolumeX className="w-4 h-4 text-emerald-500" />
+                : <Volume2 className="w-4 h-4 text-emerald-500" />}
             </button>
-            <span className="text-xs text-white/90 ml-1 font-medium">
+            <span className="text-xs text-white/95 ml-1 font-semibold">
               {formatTime(currentTime)}
               <span className="text-white/50 mx-1">/</span>
               {formatTime(duration)}
             </span>
           </div>
 
-          {/* 更多操作 */}
+          {/* 更多操作 - 糖果风格 */}
           {onDelete && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white flex items-center justify-center transition-all hover:scale-105"
+                  className={cn(
+                    'w-9 h-9 rounded-2xl flex items-center justify-center transition-all hover:scale-110 shadow-lg',
+                    'bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-sm hover:from-violet-100 hover:to-purple-100',
+                  )}
                 >
-                  <MoreVertical className="w-4 h-4" />
+                  <MoreVertical className="w-4 h-4 text-violet-500" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem onClick={() => window.open(video.file_url, '_blank')}>
-                  <Download className="w-4 h-4 mr-2" />
-                  下载视频
+              <DropdownMenuContent align="end" className="w-44 rounded-2xl border-0 shadow-2xl bg-white/95 backdrop-blur-xl">
+                <DropdownMenuItem
+                  onClick={() => window.open(video.file_url, '_blank')}
+                  className="rounded-xl m-1.5 py-2.5 cursor-pointer"
+                >
+                  <Download className="w-4 h-4 mr-2 text-blue-400" />
+                  <span className="text-slate-600">下载视频</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={onDelete}
-                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                  className="rounded-xl m-1.5 py-2.5 cursor-pointer text-red-400 focus:text-red-500 focus:bg-red-50"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   删除
@@ -263,13 +320,22 @@ export function VideoPlayer({ video, onDelete }: VideoPlayerProps) {
         </div>
       </div>
 
-      {/* 顶部信息栏 */}
-      <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 via-black/30 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
-        <p className="text-xs text-white font-medium line-clamp-1 drop-shadow-sm">{video.name}</p>
+      {/* 顶部信息栏 - 糖果风格 */}
+      <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-slate-900/70 via-slate-900/30 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
+        <p className="text-xs text-white font-semibold line-clamp-1 drop-shadow-md">{video.name}</p>
         <p className="text-[10px] text-white/70 mt-1">
           {formatFileSize(video.file?.size)}
         </p>
       </div>
+
+      {/* 装饰性糖果元素 */}
+      {!isLoaded && (
+        <>
+          <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-pink-300/60 animate-bounce" style={{ animationDelay: '0s' }} />
+          <div className="absolute top-6 right-6 w-1.5 h-1.5 rounded-full bg-amber-200/60 animate-bounce" style={{ animationDelay: '0.2s' }} />
+          <div className="absolute bottom-20 left-4 w-2.5 h-2.5 rounded-full bg-emerald-200/40 animate-bounce" style={{ animationDelay: '0.4s' }} />
+        </>
+      )}
     </div>
   )
 }

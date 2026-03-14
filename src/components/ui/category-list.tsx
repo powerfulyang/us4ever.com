@@ -21,18 +21,18 @@ export function CategoryList({
   return (
     <div className="my-6">
       {title && (
-        <h2 className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
+        <h2 className="mb-3 text-sm font-medium text-muted-foreground">
           {title}
         </h2>
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         <Link
           href={basePath}
           className={cn(
-            'inline-flex items-center justify-center rounded-md border px-4 py-1.5 text-xs font-medium transition-all duration-200',
+            'inline-flex items-center rounded-md text-xs font-medium transition-all px-3 py-1.5 border',
             !activeCategory
-              ? 'border-primary bg-primary text-primary-foreground shadow-sm active:scale-[0.98]'
-              : 'border-border bg-background-secondary text-foreground-secondary hover:border-foreground/20 hover:bg-secondary hover:text-foreground active:scale-[0.98]',
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-background/50 backdrop-blur-sm border-border/30 text-muted-foreground hover:bg-background/80 hover:text-foreground hover:border-border/50',
           )}
         >
           全部
@@ -42,10 +42,10 @@ export function CategoryList({
             key={category}
             href={linkType === 'query' ? `${basePath}?category=${category}` : `${basePath}/category/${category}`}
             className={cn(
-              'inline-flex items-center justify-center rounded-md border px-4 py-1.5 text-xs font-medium transition-all duration-200',
+              'inline-flex items-center rounded-md text-xs font-medium transition-all px-3 py-1.5 border',
               activeCategory === category
-                ? 'border-primary bg-primary text-primary-foreground shadow-sm active:scale-[0.98]'
-                : 'border-border bg-background-secondary text-foreground-secondary hover:border-foreground/20 hover:bg-secondary hover:text-foreground active:scale-[0.98]',
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-background/50 backdrop-blur-sm border-border/30 text-muted-foreground hover:bg-background/80 hover:text-foreground hover:border-border/50',
             )}
           >
             {category}

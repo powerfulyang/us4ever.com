@@ -120,12 +120,26 @@ export default function ProfilePage() {
       </motion.div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
-          <TabsTrigger value="profile" className="gap-2">
+        <TabsList className="bg-muted/50 rounded-lg p-1 w-full max-w-md inline-flex justify-start">
+          <TabsTrigger
+            value="profile"
+            className={cn(
+              'gap-2 rounded-md text-sm font-medium transition-all px-4 py-2 flex-1 justify-center',
+              'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+              'text-muted-foreground hover:text-foreground data-[state=active]:text-foreground'
+            )}
+          >
             <User className="w-4 h-4" />
             个人信息
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
+          <TabsTrigger
+            value="notifications"
+            className={cn(
+              'gap-2 rounded-md text-sm font-medium transition-all px-4 py-2 flex-1 justify-center',
+              'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+              'text-muted-foreground hover:text-foreground data-[state=active]:text-foreground'
+            )}
+          >
             <Bell className="w-4 h-4" />
             通知设置
           </TabsTrigger>

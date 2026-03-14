@@ -31,6 +31,7 @@ interface CommandItem {
 
 const navigationItems: CommandItem[] = [
   { id: 'home', title: '首页', icon: Home, href: '/', keywords: ['home', 'index'] },
+  { id: 'search', title: '搜索', icon: Search, href: '/search', keywords: ['search', 'search', '搜索'] },
   { id: 'keep', title: '笔记本', icon: BookOpen, href: '/keep', keywords: ['note', 'keep', '笔记'] },
   { id: 'todo', title: '待办事项', icon: CheckSquare, href: '/todo', keywords: ['todo', 'task', '待办'] },
   { id: 'moment', title: '动态', icon: MessageCircle, href: '/moment', keywords: ['moment', 'dynamic', '动态'] },
@@ -61,14 +62,21 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   // 键盘快捷键
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+      // 如果焦点在 input/textarea 上，不拦截（让用户可以在输入框内使用 Ctrl+K）
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault()
+        e.stopPropagation()
         onOpenChange(!open)
       }
     }
 
-    document.addEventListener('keydown', down)
-    return () => document.removeEventListener('keydown', down)
+    // 使用 window 添加监听器，确保更早捕获
+    window.addEventListener('keydown', down, { capture: true })
+    return () => window.removeEventListener('keydown', down, { capture: true })
   }, [open, onOpenChange])
 
   const filteredItems = React.useMemo(() => {

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
+import { MobileRedirect } from '@/components/mobile-redirect'
 import { ImageCategoryServer } from './components/category'
 import { ImagePaginationClient } from './components/pagination-client'
 import { ImageUpload } from './components/upload'
@@ -30,6 +31,7 @@ export default async function ImagePage({
 
   return (
     <HydrateClient>
+      <MobileRedirect />
       <Container
         title="图片管理"
         description="图片统一管理"

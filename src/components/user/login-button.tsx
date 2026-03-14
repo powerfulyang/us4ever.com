@@ -12,6 +12,11 @@ export default function LoginButton() {
   }, [])
 
   return (
-    <Link href={loginUrl}>登录</Link>
+    <Link
+      href={loginUrl}
+      className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-transparent hover:border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
+    >
+      登录
+    </Link>
   )
 }

@@ -183,9 +183,9 @@ function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
             <LinkComponent
               key={link.title}
               {...linkProps}
-              className="group flex items-center gap-4 p-4 rounded-lg bg-white/90 hover:bg-white transition-colors dark:bg-secondary/50 dark:hover:bg-secondary"
+              className="group flex items-center gap-4 p-4 rounded-lg bg-card/50 dark:bg-card/30 backdrop-blur-md border border-border/30 hover:border-primary/50 transition-all active:scale-[0.98]"
             >
-              <div className="p-2.5 bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+              <div className="p-2.5 bg-primary/10 text-primary rounded-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                 {link.icon}
               </div>
               <div className="flex-1 min-w-0">

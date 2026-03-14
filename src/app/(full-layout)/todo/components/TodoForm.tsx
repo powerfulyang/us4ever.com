@@ -50,7 +50,7 @@ export function TodoForm() {
         <Button
           onClick={create}
           disabled={isDisableSubmit}
-          className="gap-1 shrink-0"
+          className="gap-1 shrink-0 h-[45px]"
         >
           {createTodo.isPending
             ? (

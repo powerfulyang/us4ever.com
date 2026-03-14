@@ -1,7 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { FileText, Loader2, Lock, MessageSquare, Search } from 'lucide-react'
+import { FileText, Globe, Loader2, Lock, MessageSquare, Search } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
@@ -83,12 +83,14 @@ export default function SearchPage() {
       ...item,
       _type: 'keep' as const,
       _sortTime: item._source.updatedAt || item._source.createdAt,
+      resultId: item._id,
     }))
 
     const moments = momentData.map(item => ({
       ...item,
       _type: 'moment' as const,
       _sortTime: item.updatedAt || item.createdAt,
+      resultId: item.id,
     }))
 
     let results = [...keeps, ...moments]
@@ -258,7 +260,7 @@ export default function SearchPage() {
                     <div className="space-y-3">
                       {combinedResults.map((result, index) => (
                         <motion.div
-                          key={`${result._type}-${result._id || result.id}`}
+                          key={`${result._type}-${result.resultId}`}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
@@ -266,10 +268,10 @@ export default function SearchPage() {
                           {result._type === 'keep'
                             ? (
                           // 笔记结果卡片 - 简洁优雅设计
-                                <Link href={`/keep/${result._id}`}>
+                                <Link href={`/keep/${result.resultId}`}>
                                   <Card
                                     hoverable
-                                    className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-md hover:border-primary/30 cursor-pointer"
+                                    className="group relative overflow-hidden rounded-md transition-all duration-300 hover:shadow-md hover:border-primary/30 cursor-pointer"
                                   >
                                     {/* 左侧色条指示器 */}
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-500 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -281,18 +283,15 @@ export default function SearchPage() {
                                           {result._source.title}
                                         </h3>
                                         <div className="flex items-center gap-2 shrink-0">
-                                          {result._source.isPublic
-                                            ? (
-                                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400">
-                                                  公开
-                                                </span>
-                                              )
-                                            : (
-                                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground flex items-center gap-0.5">
-                                                  <Lock className="w-2.5 h-2.5" />
-                                                  私密
-                                                </span>
-                                              )}
+                                          <Badge
+                                            variant={result._source.isPublic ? 'success' : 'warning'}
+                                            className="text-[10px] h-5 px-1.5 flex items-center gap-1 font-semibold uppercase tracking-wider"
+                                          >
+                                            {result._source.isPublic
+                                              ? <Globe className="w-3 h-3" />
+                                              : <Lock className="w-3 h-3" />}
+                                            {result._source.isPublic ? '公开' : '私密'}
+                                          </Badge>
                                         </div>
                                       </div>
 
@@ -320,14 +319,6 @@ export default function SearchPage() {
                                             <span className="flex items-center gap-1 text-blue-600/80 dark:text-blue-400/80">
                                               <span className="w-1 h-1 rounded-full bg-current" />
                                               {result._source.category}
-                                            </span>
-                                          )}
-                                          {result._source.updatedAt && (
-                                            <span className="text-muted-foreground/70">
-                                              {new Date(result._source.updatedAt).toLocaleDateString('zh-CN', {
-                                                month: 'short',
-                                                day: 'numeric',
-                                              })}
                                             </span>
                                           )}
                                         </div>

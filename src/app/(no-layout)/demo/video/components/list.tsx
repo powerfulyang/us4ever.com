@@ -2,7 +2,6 @@
 
 import { Film } from 'lucide-react'
 import { useState } from 'react'
-import { Empty } from '@/components/layout/Empty'
 import { Confirm } from '@/components/ui/confirm'
 import { InfiniteScroll } from '@/components/ui/infinite-scroll'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
@@ -56,11 +55,23 @@ export function VideoList() {
 
   if (!allVideos.length && !isPending) {
     return (
-      <Empty
-        title="暂无视频"
-        description="上传一个视频开始体验"
-        icon={<Film className="w-12 h-12 text-muted-foreground/50" />}
-      />
+      <div className="flex flex-col items-center justify-center py-20">
+        {/* 空的糖果展示 */}
+        <div className="relative mb-6">
+          <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/40 dark:to-pink-900/40 flex items-center justify-center shadow-xl shadow-rose-200/30 dark:shadow-rose-900/20">
+            <Film className="w-14 h-14 text-rose-300 dark:text-rose-600" />
+          </div>
+          {/* 装饰糖果 */}
+          <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-pink-300/60 animate-bounce" />
+          <div className="absolute -bottom-2 -left-2 w-5 h-5 rounded-full bg-amber-200/60 animate-bounce" style={{ animationDelay: '0.2s' }} />
+        </div>
+        <h3 className="text-xl font-bold text-slate-700 dark:text-slate-200 mb-2">
+          暂无视频
+        </h3>
+        <p className="text-slate-500 dark:text-slate-400">
+          上传一个视频开始体验
+        </p>
+      </div>
     )
   }
 
@@ -73,16 +84,26 @@ export function VideoList() {
         error={!!error}
         className="w-full"
       >
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 p-2">
+        {/* 视频数量标签 */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="px-4 py-2 rounded-full bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/40 dark:to-rose-900/40 text-sm font-semibold text-pink-600 dark:text-pink-400 shadow-sm">
+            {allVideos.length} 个视频
+          </div>
+        </div>
+
+        {/* 视频网格 - 马卡龙风格 */}
+        <div className="grid grid-cols-3 gap-5 p-2">
           {allVideos.map(video => (
             <div
               key={video.id}
-              className="group relative rounded-2xl overflow-hidden bg-gradient-to-br from-card to-card/80 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="group relative rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2"
             >
               <VideoPlayer
                 video={video}
                 onDelete={() => handleDelete(video.id)}
               />
+              {/* 悬浮时的装饰光晕 */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-pink-300/20 via-transparent to-rose-300/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             </div>
           ))}
         </div>

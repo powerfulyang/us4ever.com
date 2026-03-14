@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { TodoPaginationClient } from '@/app/(full-layout)/todo/components/pagination-client'
 import { TodoForm } from '@/app/(full-layout)/todo/components/TodoForm'
 import { ViewToggle } from '@/app/(full-layout)/todo/components/view-toggle'
+import { MobileRedirect } from '@/components/mobile-redirect'
 import { Container } from '@/components/layout/Container'
 import { api, HydrateClient } from '@/trpc/server'
 
@@ -28,6 +29,7 @@ export default async function TodoPage({
 
   return (
     <HydrateClient>
+      <MobileRedirect />
       <Container
         title="待办事项"
         description="管理你的待办任务"

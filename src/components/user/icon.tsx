@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation } from '@tanstack/react-query'
-import { LogOut, User } from 'lucide-react'
+import { LogOut, User, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
 import {
@@ -62,7 +62,7 @@ export default function UserIcon({ onLogoutAction }: Props) {
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-accent transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-transparent hover:border-border transition-colors"
           >
             <Avatar className="h-7 w-7">
               <AvatarImage src={currentUser.avatar} alt={currentUser.nickname} />
@@ -88,6 +88,17 @@ export default function UserIcon({ onLogoutAction }: Props) {
               个人中心
             </Link>
           </DropdownMenuItem>
+          {currentUser.isAdmin && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/admin/users" className="cursor-pointer">
+                  <Users className="mr-2 h-4 w-4" />
+                  用户管理
+                </Link>
+              </DropdownMenuItem>
+            </>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive cursor-pointer"

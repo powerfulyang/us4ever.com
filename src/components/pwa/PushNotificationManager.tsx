@@ -105,7 +105,7 @@ export default function PushNotificationManager({ onSubscribe, onUnsubscribe }: 
       {/* 状态卡片 */}
       <div
         className={cn(
-          'rounded-xl p-5 border transition-all duration-300',
+          'rounded-xl p-5 border',
           isSubscribed
             ? 'bg-green-500/5 border-green-500/20'
             : 'bg-muted/30 border-border/50',

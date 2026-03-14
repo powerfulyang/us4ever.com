@@ -19,13 +19,14 @@ interface CodeBlockProps {
  * 支持 VitePress 风格的代码块，自动切换亮暗主题
  */
 export const CodeBlock: FC<CodeBlockProps> = ({ language, children }) => {
+  const trimmedCode = children.trimEnd()
   const [html, setHtml] = useState<string>('')
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     const highlight = async () => {
       try {
-        const result = await codeToHtml(children, {
+        const result = await codeToHtml(trimmedCode, {
           lang: language,
           themes: {
             light: 'github-light',
@@ -37,7 +38,7 @@ export const CodeBlock: FC<CodeBlockProps> = ({ language, children }) => {
       }
       catch {
         // 如果语言不支持，降级为纯文本
-        const result = await codeToHtml(children, {
+        const result = await codeToHtml(trimmedCode, {
           lang: 'text',
           themes: {
             light: 'github-light',
@@ -53,7 +54,7 @@ export const CodeBlock: FC<CodeBlockProps> = ({ language, children }) => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(children)
+      await navigator.clipboard.writeText(trimmedCode)
       setCopied(true)
       setTimeout(setCopied, 2000, false)
     }
