@@ -13,6 +13,7 @@ import { TRPCReactProvider } from '@/trpc/react'
 
 import { api } from '@/trpc/server'
 import '@/styles/globals.scss'
+import 'react-photo-view/dist/react-photo-view.css'
 
 export const metadata: Metadata = {
   title: 'Resource Hub',

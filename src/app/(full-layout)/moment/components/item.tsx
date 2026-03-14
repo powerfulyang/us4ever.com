@@ -7,8 +7,8 @@ import { Globe, Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useState } from 'react'
+import { PhotoProvider, PhotoView } from 'react-photo-view'
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
-import { ImagePreviewModal } from '@/app/(full-layout)/image/components/preview-modal'
 import { MdRender } from '@/components/md-render'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
@@ -24,8 +24,6 @@ interface MomentItemProps {
 
 export function MomentItem({ moment }: MomentItemProps) {
   const [showConfirm, setShowConfirm] = useState(false)
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-  const [previewIndex, setPreviewIndex] = useState(0)
   const utils = api.useUtils()
 
   const { mutate: deleteMoment, isPending } = api.moment.delete.useMutation({
@@ -38,11 +36,6 @@ export function MomentItem({ moment }: MomentItemProps) {
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation()
     setShowConfirm(true)
-  }
-
-  function handlePreview(index: number) {
-    setIsPreviewOpen(true)
-    setPreviewIndex(index)
   }
 
   const showDelete = moment.category !== 'eleven'
@@ -93,61 +86,65 @@ export function MomentItem({ moment }: MomentItemProps) {
 
             {/* 图片/视频 */}
             {!!(moment.images.length || moment.videos.length) && (
-              <div className="flex flex-col gap-2" onClick={stopPropagation}>
-                {moment.images.length === 1 && (
-                  <div onClick={() => handlePreview(0)} className="rounded-md overflow-hidden">
-                    <AssetImageWithData
-                      image={moment.images[0] as ImageResponse}
-                      className="object-contain"
-                      showCompressed
-                    />
-                  </div>
-                )}
-
-                {moment.images.length > 1 && (
-                  <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
-                    {moment.images.map((image, index) => (
-                      <div
-                        key={image.id}
-                        className="aspect-square overflow-hidden bg-secondary"
-                        onClick={() => handlePreview(index)}
-                      >
+              <PhotoProvider maskOpacity={0.8}>
+                <div className="flex flex-col gap-2" onClick={stopPropagation}>
+                  {moment.images.length === 1 && moment.images[0] && (
+                    <PhotoView src={moment.images[0].compressed_url}>
+                      <div className="rounded-md overflow-hidden cursor-pointer">
                         <AssetImageWithData
-                          image={image}
-                          className="object-cover w-full h-full"
+                          image={moment.images[0] as ImageResponse}
+                          className="object-contain"
+                          showCompressed
                         />
                       </div>
-                    ))}
-                  </div>
-                )}
+                    </PhotoView>
+                  )}
 
-                {moment.videos.length === 1 && (
-                  <div className="rounded-md aspect-[9/16] overflow-hidden bg-secondary">
-                    <video
-                      src={moment.videos[0]?.file_url}
-                      controls
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                )}
+                  {moment.images.length > 1 && (
+                    <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
+                      {moment.images.map(image => (
+                        <PhotoView key={image.id} src={image.compressed_url}>
+                          <div
+                            className="aspect-square overflow-hidden bg-secondary cursor-pointer"
+                          >
+                            <AssetImageWithData
+                              image={image}
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        </PhotoView>
+                      ))}
+                    </div>
+                  )}
 
-                {moment.videos.length > 1 && (
-                  <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
-                    {moment.videos.map(video => (
-                      <div
-                        key={video.id}
-                        className="aspect-square overflow-hidden bg-secondary"
-                      >
-                        <video
-                          src={video.file_url}
-                          controls
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                  {moment.videos.length === 1 && (
+                    <div className="rounded-md aspect-[9/16] overflow-hidden bg-secondary">
+                      <video
+                        src={moment.videos[0]?.file_url}
+                        controls
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )}
+
+                  {moment.videos.length > 1 && (
+                    <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
+                      {moment.videos.map(video => (
+                        <div
+                          key={video.id}
+                          className="aspect-square overflow-hidden bg-secondary"
+                        >
+                          <video
+                            src={video.file_url}
+                            controls
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </PhotoProvider>
             )}
 
             {/* 底部操作栏 */}
@@ -163,22 +160,6 @@ export function MomentItem({ moment }: MomentItemProps) {
           </div>
         </Card>
       </motion.div>
-
-      {/* 图片预览 */}
-      <ImagePreviewModal
-        images={moment.images.map((image) => {
-          return {
-            src: image.compressed_url,
-            placeholder: image.thumbnail_320x_url,
-            width: image.width,
-            height: image.height,
-          }
-        })}
-        currentIndex={previewIndex}
-        onCurrentIndexChange={setPreviewIndex}
-        isOpen={isPreviewOpen}
-        onCloseAction={() => setIsPreviewOpen(false)}
-      />
 
       {/* 删除确认 */}
       <Confirm
