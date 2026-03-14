@@ -366,7 +366,7 @@ async function searchKeepsWithAccess(query: string, userIds: string[]) {
   // 合并数据库数据到搜索结果
   const mergedResults = resultList
     .filter(hit => keepsMap.has(hit._id))
-    .map(hit => {
+    .map((hit) => {
       const keepData = keepsMap.get(hit._id)!
       return {
         ...hit,

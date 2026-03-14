@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
-import { api, HydrateClient } from '@/trpc/server'
 import { MobileRedirect } from '@/components/mobile-redirect'
+import { api, HydrateClient } from '@/trpc/server'
 import { MomentCategoryServer } from './components/category'
 import { MomentCreate } from './components/create'
 import { MomentPaginationClient } from './components/pagination-client'

@@ -131,7 +131,7 @@ export function Pagination({
 
         {/* 页码按钮 */}
         {getPageNumbers().map((page, index) => (
-          <React.Fragment key={`${page}-${index}`}>
+          <React.Fragment key={page === '...' ? `ellipsis-${index}` : page}>
             {page === '...'
               ? (
                   <span className="px-2 text-muted-foreground">...</span>

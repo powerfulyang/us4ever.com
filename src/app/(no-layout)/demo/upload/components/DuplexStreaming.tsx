@@ -6,7 +6,7 @@ import GitHubCorner from '@/components/GitHubCorner'
 import { trackRequestProgress } from '@/lib/fetch'
 
 export function DuplexStreaming() {
-  const [isUploading, setUploading] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [response, setResponse] = useState<string>('')
@@ -34,7 +34,7 @@ export function DuplexStreaming() {
     })
 
     try {
-      setUploading(true)
+      setIsUploading(true)
       // Use trackRequestProgress to wrap request and add progress listener
       const trackedRequest = await trackRequestProgress(request, (event) => {
         // event.loaded represents uploaded bytes
@@ -51,7 +51,7 @@ export function DuplexStreaming() {
       console.error('Upload failed:', error)
     }
     finally {
-      setUploading(false)
+      setIsUploading(false)
     }
   }
 

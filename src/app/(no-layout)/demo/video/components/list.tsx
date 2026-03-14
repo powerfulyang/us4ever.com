@@ -87,7 +87,9 @@ export function VideoList() {
         {/* 视频数量标签 */}
         <div className="flex items-center gap-3 mb-6">
           <div className="px-4 py-2 rounded-full bg-gradient-to-r from-pink-100 to-rose-100 dark:from-pink-900/40 dark:to-rose-900/40 text-sm font-semibold text-pink-600 dark:text-pink-400 shadow-sm">
-            {allVideos.length} 个视频
+            {allVideos.length}
+            {' '}
+            个视频
           </div>
         </div>
 

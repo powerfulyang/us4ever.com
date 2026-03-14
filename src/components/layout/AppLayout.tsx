@@ -57,7 +57,8 @@ export function AppLayout({ children }: AppLayoutProps) {
               <Search className="w-4 h-4" />
               <span className="flex-1 text-left truncate">搜索...</span>
               <kbd className="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground/70 bg-muted/50 rounded">
-                <span className="text-xs">⌘</span>K
+                <span className="text-xs">⌘</span>
+                K
               </kbd>
             </button>
           </div>

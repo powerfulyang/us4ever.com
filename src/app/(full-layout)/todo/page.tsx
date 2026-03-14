@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { TodoPaginationClient } from '@/app/(full-layout)/todo/components/pagination-client'
 import { TodoForm } from '@/app/(full-layout)/todo/components/TodoForm'
 import { ViewToggle } from '@/app/(full-layout)/todo/components/view-toggle'
-import { MobileRedirect } from '@/components/mobile-redirect'
 import { Container } from '@/components/layout/Container'
+import { MobileRedirect } from '@/components/mobile-redirect'
 import { api, HydrateClient } from '@/trpc/server'
 
 export const metadata: Metadata = {

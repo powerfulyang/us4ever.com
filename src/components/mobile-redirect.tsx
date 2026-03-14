@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 import { useIsMobile } from '@/hooks/use-is-mobile'
 
 const FEED_ROUTES: Record<string, string> = {

@@ -138,11 +138,13 @@ export function VideoUpload() {
             isDragging
               ? 'bg-gradient-to-br from-pink-400 to-rose-400 scale-110 shadow-pink-400/40'
               : 'bg-gradient-to-br from-rose-200 to-pink-200 dark:from-rose-700 dark:to-pink-700 hover:from-rose-300 hover:to-pink-300',
-          )}>
+          )}
+          >
             <Upload className={cn(
               'w-12 h-12 transition-all duration-500',
               isDragging ? 'text-white' : 'text-rose-600 dark:text-rose-200',
-            )} />
+            )}
+            />
             {/* 闪光装饰 */}
             <div className="absolute -top-2 -right-2 w-5 h-5 bg-white/80 rounded-full animate-ping" />
           </div>
@@ -181,7 +183,8 @@ export function VideoUpload() {
                 file.status === 'success' && 'bg-gradient-to-br from-emerald-400 to-teal-400',
                 file.status === 'error' && 'bg-gradient-to-br from-red-400 to-rose-400',
                 file.status === 'uploading' && 'bg-gradient-to-br from-rose-300 to-pink-300 animate-pulse',
-              )}>
+              )}
+              >
                 {file.status === 'success' && <span className="text-white text-lg">✓</span>}
                 {file.status === 'error' && <span className="text-white text-lg">✗</span>}
                 {file.status === 'uploading' && <Upload className="w-5 h-5 text-white" />}

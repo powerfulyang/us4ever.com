@@ -126,7 +126,7 @@ export default function ProfilePage() {
             className={cn(
               'gap-2 rounded-md text-sm font-medium transition-all px-4 py-2 flex-1 justify-center',
               'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
-              'text-muted-foreground hover:text-foreground data-[state=active]:text-foreground'
+              'text-muted-foreground hover:text-foreground data-[state=active]:text-foreground',
             )}
           >
             <User className="w-4 h-4" />
@@ -137,7 +137,7 @@ export default function ProfilePage() {
             className={cn(
               'gap-2 rounded-md text-sm font-medium transition-all px-4 py-2 flex-1 justify-center',
               'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
-              'text-muted-foreground hover:text-foreground data-[state=active]:text-foreground'
+              'text-muted-foreground hover:text-foreground data-[state=active]:text-foreground',
             )}
           >
             <Bell className="w-4 h-4" />

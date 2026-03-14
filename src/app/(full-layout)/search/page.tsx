@@ -267,7 +267,7 @@ export default function SearchPage() {
                         >
                           {result._type === 'keep'
                             ? (
-                          // 笔记结果卡片 - 简洁优雅设计
+                                // 笔记结果卡片 - 简洁优雅设计
                                 <Link href={`/keep/${result.resultId}`}>
                                   <Card
                                     hoverable
@@ -298,7 +298,7 @@ export default function SearchPage() {
                                       {/* 摘要 */}
                                       {result.highlight?.summary
                                         ? (
-                                            <div className="text-sm text-muted-foreground line-clamp-2 mb-3 bg-yellow-500/5 dark:bg-yellow-500/10 rounded-lg px-2 py-1.5 -mx-0.5">
+                                            <div className="text-sm text-muted-foreground line-clamp-5 mb-4 bg-yellow-500/5 dark:bg-yellow-500/10 rounded-lg px-2 py-1.5 -mx-0.5">
                                               <MdRender className="[&>*]:text-muted-foreground [&>*]:text-sm">
                                                 {result.highlight.summary.join('...')}
                                               </MdRender>
@@ -306,7 +306,7 @@ export default function SearchPage() {
                                           )
                                         : result._source.summary
                                           ? (
-                                              <p className="text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
+                                              <p className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed">
                                                 {result._source.summary}
                                               </p>
                                             )
@@ -333,15 +333,17 @@ export default function SearchPage() {
                                     </div>
                                   </Card>
                                 </Link>
-                              ) : (
-                          // 动态结果卡片
+                              )
+                            : (
+                                // 动态结果卡片
                                 <MomentItem moment={result} />
                               )}
                         </motion.div>
                       ))}
                     </div>
-                  ) : (
-              // 无结果
+                  )
+                : (
+                    // 无结果
                     !hasError && (keepSuccess || momentSuccess) && (
                       <Empty
                         title="未找到结果"

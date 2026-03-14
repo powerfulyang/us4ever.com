@@ -179,7 +179,8 @@ export function VideoPlayer({ video, onDelete }: VideoPlayerProps) {
             colorIndex >= 3 && colorIndex < 5 && 'from-amber-300 to-orange-300',
             colorIndex >= 5 && colorIndex < 7 && 'from-emerald-300 to-teal-300',
             colorIndex >= 7 && 'from-violet-400 to-purple-400',
-          )}>
+          )}
+          >
             <Film className="w-8 h-8 text-white drop-shadow-md" />
             {/* 闪光效果 */}
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-white/80 rounded-full animate-pulse" />
@@ -247,7 +248,8 @@ export function VideoPlayer({ video, onDelete }: VideoPlayerProps) {
           >
             <div className={cn(
               'absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-md opacity-0 group-hover/progress:opacity-100 transition-all scale-0 group-hover/progress:scale-100',
-            )} />
+            )}
+            />
           </div>
         </div>
 
