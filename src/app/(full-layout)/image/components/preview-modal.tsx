@@ -1,16 +1,10 @@
 'use client'
 
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion'
 import {
   ChevronLeft,
   ChevronRight,
-  Maximize2,
-  Minimize2,
-  RotateCcw,
-  RotateCw,
   X,
-  ZoomIn,
-  ZoomOut,
 } from 'lucide-react'
 import * as React from 'react'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
@@ -94,18 +88,12 @@ const variants = {
 interface ViewState {
   page: number
   direction: number
-  scale: number
-  rotation: number
-  isFullSize: boolean
   isLoaded: boolean
 }
 
 type ViewAction
   = | { type: 'RESET', payload: number }
     | { type: 'PAGINATE', payload: { page: number, direction: number } }
-    | { type: 'SET_SCALE', payload: number }
-    | { type: 'SET_ROTATION', payload: number }
-    | { type: 'TOGGLE_FULLSIZE' }
     | { type: 'SET_LOADED', payload: boolean }
 
 function viewReducer(state: ViewState, action: ViewAction): ViewState {
@@ -114,9 +102,6 @@ function viewReducer(state: ViewState, action: ViewAction): ViewState {
       return {
         page: action.payload,
         direction: 0,
-        scale: 1,
-        rotation: 0,
-        isFullSize: false,
         isLoaded: false,
       }
     case 'PAGINATE':
@@ -124,16 +109,8 @@ function viewReducer(state: ViewState, action: ViewAction): ViewState {
         ...state,
         page: action.payload.page,
         direction: action.payload.direction,
-        scale: 1,
-        rotation: 0,
         isLoaded: false,
       }
-    case 'SET_SCALE':
-      return { ...state, scale: action.payload }
-    case 'SET_ROTATION':
-      return { ...state, rotation: action.payload }
-    case 'TOGGLE_FULLSIZE':
-      return { ...state, isFullSize: !state.isFullSize }
     case 'SET_LOADED':
       return { ...state, isLoaded: action.payload }
     default:
@@ -146,13 +123,10 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
   const [state, dispatch] = useReducer(viewReducer, currentIndex, (index: number) => ({
     page: index,
     direction: 0,
-    scale: 1,
-    rotation: 0,
-    isFullSize: false,
     isLoaded: false,
   }))
 
-  const { page, direction, scale, rotation, isFullSize, isLoaded } = state
+  const { page, direction, isLoaded } = state
 
   // 同步外部 currentIndex
   const [prevIndex, setPrevIndex] = useState(currentIndex)
@@ -161,7 +135,7 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
     dispatch({ type: 'RESET', payload: currentIndex })
   }
 
-  // 这里的 page 实际上就是当前图片的索引，但为了动画效果我们使用这种方式
+  // 这里的 page 实际上就是当前图片的索引
   const activeIndex = useMemo(() => {
     if (!images.length)
       return 0
@@ -182,12 +156,9 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
     if (!isOpen)
       return
 
-    // 当预览打开时，向历史记录添加一个状态
     window.history.pushState({ modal: 'image-preview' }, '')
 
     const handlePopState = () => {
-      // 这里的 state 可能为 null 或者我们 push 进去的对象
-      // 如果触发了 popstate，说明用户点击了返回键
       onCloseAction()
     }
 
@@ -199,7 +170,6 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
 
   const handleClose = useCallback(() => {
     if (isOpen) {
-      // 如果是手动关闭（点击 X 或背景），我们需要“回退”一下历史记录来清理状态
       window.history.back()
     }
   }, [isOpen])
@@ -241,54 +211,47 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
     return indices
   }, [activeIndex, images.length])
 
+  // 拖拽手势
+  const dragX = useMotionValue(0)
+  const dragY = useMotionValue(0)
+  const bgOpacity = useTransform(dragY, [0, 400], [1, 0.2])
+  const imageDragScale = useTransform(dragY, [0, 400], [1, 0.7])
+
   if (!images.length)
     return null
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && handleClose()}>
-      <DialogContent className="max-w-none w-screen h-screen m-0 p-0 border-0 bg-black/95 backdrop-blur-sm transition-colors duration-300 [&>button]:hidden">
+      <DialogContent className="max-w-none w-screen h-screen m-0 p-0 border-0 bg-transparent [&>button]:hidden overflow-hidden">
+        {/* 透明度随拖拽变化的背景 */}
+        <motion.div
+          className="absolute inset-0 bg-black/95 backdrop-blur-md"
+          style={{ opacity: bgOpacity }}
+        />
+
         <div className="relative w-full h-full flex flex-col overflow-hidden select-none touch-none">
           {preloadIndices.map(idx => (
             <ImagePreloader key={images[idx]!.src} src={images[idx]!.src} />
           ))}
 
-          {/* 顶部工具栏 */}
-          <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
-            <div className="text-white/80 text-sm font-medium px-3 py-1 bg-black/40 rounded-full backdrop-blur-md">
+          {/* 右上角关闭按钮 */}
+          <div className="absolute top-0 right-0 z-[60] p-4 flex items-center gap-4">
+            <div className="text-white/60 text-sm font-medium px-3 py-1 bg-white/5 rounded-full backdrop-blur-sm border border-white/10">
               {activeIndex + 1}
               {' '}
               /
               {images.length}
             </div>
-            <div className="flex items-center gap-2">
-              <ControlButton onClick={() => dispatch({ type: 'SET_ROTATION', payload: rotation - 90 })} icon={<RotateCcw className="w-5 h-5" />} title="向左旋转" />
-              <ControlButton onClick={() => dispatch({ type: 'SET_ROTATION', payload: rotation + 90 })} icon={<RotateCw className="w-5 h-5" />} title="向右旋转" />
-              <div className="w-px h-4 bg-white/20 mx-1" />
-              <ControlButton onClick={() => dispatch({ type: 'SET_SCALE', payload: Math.max(0.2, scale - 0.2) })} icon={<ZoomOut className="w-5 h-5" />} title="缩小" />
-              <ControlButton onClick={() => dispatch({ type: 'SET_SCALE', payload: Math.min(5, scale + 0.2) })} icon={<ZoomIn className="w-5 h-5" />} title="放大" />
-              <ControlButton
-                onClick={() => dispatch({ type: 'TOGGLE_FULLSIZE' })}
-                icon={isFullSize ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-                title={isFullSize ? '适应屏幕' : '原始尺寸'}
-              />
-              <div className="w-px h-4 bg-white/20 mx-1" />
-              <button
-                onClick={handleClose}
-                className="p-2 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full transition-colors text-white"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+            <button
+              onClick={handleClose}
+              className="p-2 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-full transition-all text-white border border-white/10 backdrop-blur-sm group"
+            >
+              <X className="w-6 h-6 group-hover:scale-110 transition-transform" />
+            </button>
           </div>
 
           {/* 图片显示区 */}
-          <div
-            className="flex-1 w-full h-full relative flex items-center justify-center overflow-hidden"
-            onClick={(e) => {
-              if (e.target === e.currentTarget)
-                handleClose()
-            }}
-          >
+          <div className="flex-1 w-full h-full relative">
             <AnimatePresence initial={false} custom={direction} mode="popLayout">
               <motion.div
                 key={activeIndex}
@@ -297,11 +260,23 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
                 initial="enter"
                 animate="center"
                 exit="exit"
+                style={{
+                  y: dragY,
+                  x: dragX,
+                  scale: imageDragScale,
+                }}
                 className="absolute inset-0 flex items-center justify-center p-4 md:p-8"
-                drag={scale === 1 ? 'x' : false}
-                dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.4}
+                drag
+                dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                dragElastic={0.8}
                 onDragEnd={(_, { offset, velocity }) => {
+                  // 向下滑动或快速向下滑动退出
+                  if (offset.y > 150 || (offset.y > 50 && velocity.y > 500)) {
+                    handleClose()
+                    return
+                  }
+
+                  // 左右切换
                   const swipe = Math.abs(offset.x) > 50 || Math.abs(velocity.x) > 500
                   if (swipe) {
                     if (offset.x > 0)
@@ -309,26 +284,21 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
                     else handlePaginate(1)
                   }
                 }}
+                onClick={(e) => {
+                  if (e.target === e.currentTarget)
+                    handleClose()
+                }}
               >
-                <div className="relative group flex items-center justify-center w-full h-full">
+                <div className="relative group flex items-center justify-center w-full h-full pointer-events-none">
                   <motion.img
                     src={isLoaded ? currentImage?.src : (currentImage?.placeholder || currentImage?.src)}
                     alt={currentImage?.alt || '预览图片'}
                     draggable={false}
                     onLoad={() => dispatch({ type: 'SET_LOADED', payload: true })}
-                    animate={{
-                      scale,
-                      rotate: rotation,
-                    }}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    style={{
-                      cursor: scale > 1 ? 'move' : 'zoom-in',
-                    }}
-                    onDoubleClick={() => dispatch({ type: 'SET_SCALE', payload: scale === 1 ? 2 : 1 })}
                     className={cn(
-                      'shadow-2xl object-contain rounded-sm transition-[filter] duration-500',
+                      'shadow-2xl object-contain rounded-sm transition-[filter] duration-500 pointer-events-auto max-w-full max-h-full',
                       !isLoaded && 'blur-xl',
-                      isFullSize ? 'max-w-none max-h-none' : 'max-w-full max-h-full',
                     )}
                   />
                 </div>
@@ -346,10 +316,10 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
                   e.stopPropagation()
                   handlePaginate(-1)
                 }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur-md hidden md:flex items-center justify-center transition-all disabled:opacity-0"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/5 hover:bg-white/15 text-white rounded-full backdrop-blur-md hidden md:flex items-center justify-center transition-all border border-white/10 disabled:opacity-0 group"
                 disabled={activeIndex === 0}
               >
-                <ChevronLeft className="w-8 h-8" />
+                <ChevronLeft className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
               </motion.button>
               <motion.button
                 initial={{ opacity: 0, x: 20 }}
@@ -358,23 +328,23 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
                   e.stopPropagation()
                   handlePaginate(1)
                 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-black/30 hover:bg-black/50 text-white rounded-full backdrop-blur-md hidden md:flex items-center justify-center transition-all disabled:opacity-0"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-white/5 hover:bg-white/15 text-white rounded-full backdrop-blur-md hidden md:flex items-center justify-center transition-all border border-white/10 disabled:opacity-0 group"
                 disabled={activeIndex === images.length - 1}
               >
-                <ChevronRight className="w-8 h-8" />
+                <ChevronRight className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
               </motion.button>
             </>
           )}
 
-          {/* 缩略图栏（可选，如果图片很多可以加） */}
+          {/* 简约指示条 */}
           {images.length > 1 && (
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 px-4 pointer-events-none">
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-1.5 px-4 pointer-events-none">
               {images.map((_, idx) => (
                 <div
                   key={images[idx]?.src || idx}
                   className={cn(
-                    'h-1.5 rounded-full transition-all duration-300',
-                    idx === activeIndex ? 'w-8 bg-white' : 'w-1.5 bg-white/30',
+                    'h-1 rounded-full transition-all duration-300',
+                    idx === activeIndex ? 'w-8 bg-white/80' : 'w-1.5 bg-white/20',
                   )}
                 />
               ))}
@@ -383,34 +353,5 @@ export function ImagePreviewModal(props: ImagePreviewModalProps) {
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
-
-function ControlButton({
-  onClick,
-  icon,
-  title,
-  disabled = false,
-}: {
-  onClick: () => void
-  icon: React.ReactNode
-  title: string
-  disabled?: boolean
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      className={cn(
-        'p-2 rounded-full transition-all text-white/70 hover:text-white',
-        disabled
-          ? 'opacity-30 cursor-not-allowed'
-          : 'hover:bg-white/10 active:bg-white/20',
-      )}
-      disabled={disabled}
-    >
-      {icon}
-    </button>
   )
 }

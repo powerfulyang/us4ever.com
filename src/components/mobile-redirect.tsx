@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useIsMobile } from '@/hooks/use-is-mobile'
 
@@ -16,6 +16,7 @@ export function MobileRedirect() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const isMobile = useIsMobile()
+  const router = useRouter()
 
   useEffect(() => {
     if (isMobile && FEED_ROUTES[pathname]) {
@@ -23,9 +24,9 @@ export function MobileRedirect() {
       const redirectUrl = params
         ? `${FEED_ROUTES[pathname]}?${params}`
         : FEED_ROUTES[pathname]
-      window.location.href = redirectUrl
+      router.replace(redirectUrl)
     }
-  }, [isMobile, pathname, searchParams])
+  }, [isMobile, pathname, searchParams, router])
 
   return null
 }
