@@ -5,7 +5,7 @@ import { sign } from 'hono/jwt'
 import { pick } from 'lodash-es'
 import { env } from '@/env'
 import { app, COOKIE_NAME, COOKIE_OPTIONS } from '@/server/hono'
-import { createOrSignIn } from '@/service/user.serivce'
+import { createOrSignIn } from '@/service/user.service'
 
 export function loadLpRouter() {
   app.get('/lp', async (ctx) => {

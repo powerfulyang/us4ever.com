@@ -18,7 +18,7 @@ import { env } from '@/env'
 import { createError, logError, sanitizeError, toTRPCError, transformError } from '@/lib/error-handler'
 import { db } from '@/server/db'
 import { COOKIE_NAME } from '@/server/hono'
-import { findUserWithGroupById } from '@/service/user.serivce'
+import { findUserWithGroupById } from '@/service/user.service'
 
 /**
  * 1. CONTEXT
