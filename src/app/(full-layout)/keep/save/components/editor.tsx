@@ -20,10 +20,10 @@ import {
   Sparkles,
   Strikethrough,
 } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useCallback, useRef, useState } from 'react'
-import SimpleMDE from 'react-simplemde-editor'
 import { Markdown } from '@/components/md-render'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -32,6 +32,8 @@ import { cn } from '@/lib/utils'
 import { api } from '@/trpc/react'
 import 'easymde/dist/easymde.min.css'
 import './editor.css'
+
+const SimpleMDE = dynamic(() => import('react-simplemde-editor'), { ssr: false })
 
 interface KeepEditorProps {
   keep?: Keep | null

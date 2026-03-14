@@ -3,10 +3,10 @@
 import { ImagePlus } from 'lucide-react'
 import Image from 'next/image'
 import * as React from 'react'
-import { useImperativeHandle, useRef, useState } from 'react'
+import { useImperativeHandle, useRef } from 'react'
+import { PhotoProvider, PhotoView } from 'react-photo-view'
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { cn } from '@/utils/cn'
-import { ImagePreviewModalSimple } from './preview-modal'
 
 export interface UploadAreaRef {
   reset: () => void
@@ -27,7 +27,6 @@ export function UploadArea({
   disabledText = '请先登录',
   ref,
 }: UploadAreaProps) {
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const { preview: internalPreview, handleFile, handleDrop, accept, reset } = useImageUpload({
     onFileSelect,
   })
@@ -85,31 +84,29 @@ export function UploadArea({
 
         {preview
           ? (
-              <div
-                className="relative h-[200px] overflow-hidden rounded-lg"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setIsPreviewOpen(true)
-                }}
-              >
-                <Image
-                  src={preview}
-                  alt="Preview"
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <p
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      inputRef.current?.click()
-                    }}
-                    className="text-white text-sm"
-                  >
-                    重新上传
-                  </p>
-                </div>
-              </div>
+              <PhotoProvider>
+                <PhotoView src={preview}>
+                  <div className="relative h-[200px] overflow-hidden rounded-lg cursor-pointer">
+                    <Image
+                      src={preview}
+                      alt="Preview"
+                      fill
+                      className="object-cover transition-transform group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <p
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          inputRef.current?.click()
+                        }}
+                        className="text-white text-sm"
+                      >
+                        重新上传
+                      </p>
+                    </div>
+                  </div>
+                </PhotoView>
+              </PhotoProvider>
             )
           : (
               <div className="flex flex-col items-center gap-4">
@@ -123,14 +120,6 @@ export function UploadArea({
               </div>
             )}
       </div>
-
-      {preview && (
-        <ImagePreviewModalSimple
-          src={preview}
-          isOpen={isPreviewOpen}
-          onCloseAction={() => setIsPreviewOpen(false)}
-        />
-      )}
     </>
   )
 }

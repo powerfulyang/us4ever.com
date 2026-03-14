@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # 构建阶段
 FROM node:lts-alpine AS builder
 
@@ -12,11 +13,16 @@ COPY prisma ./prisma
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# 安装 pnpm（单独一层，以便缓存）
-RUN npm install -g pnpm
+# 设置 pnpm 存储路径（必须与挂载路径一致）
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 
-# 安装依赖（利用缓存）
-RUN pnpm install --frozen-lockfile
+# 安装 pnpm（单独一层，以便缓存）
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# 安装依赖（利用 pnpm store 挂载缓存）
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile
 
 # 复制其余源代码（放在依赖安装后，因为代码变化更频繁）
 COPY . .
@@ -42,9 +48,14 @@ RUN apk update && apk add --no-cache ffmpeg
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
 
+# 设置 pnpm 存储路径
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
 # 安装 pnpm 和生产依赖
-RUN npm install -g pnpm
-RUN pnpm install --prod --frozen-lockfile
+RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --prod --frozen-lockfile
 
 #
 COPY --from=builder /app/.next ./.next
