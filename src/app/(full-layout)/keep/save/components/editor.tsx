@@ -405,7 +405,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
                 }}
                 getMdeInstance={(instance) => {
                   // 获取底层 textarea 用于操作
-                  const textarea = instance.element as HTMLTextAreaElement
+                  const textarea = (instance as any).element as HTMLTextAreaElement
                   textareaRef.current = textarea
                 }}
                 className="h-full custom-mde"

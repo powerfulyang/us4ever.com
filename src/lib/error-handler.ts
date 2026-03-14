@@ -107,8 +107,8 @@ export function transformError(error: unknown): AppError {
 
   // Zod 验证错误
   if (error instanceof ZodError) {
-    const message = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
-    return createError.validation(message, { zodErrors: error.errors })
+    const message = error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
+    return createError.validation(message, { zodErrors: error.issues })
   }
 
   // Prisma 错误

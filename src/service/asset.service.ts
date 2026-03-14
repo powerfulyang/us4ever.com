@@ -246,7 +246,7 @@ async function listVideos({ userIds, take, cursor, category }: ListVideoInput) {
  */
 interface CreateImageInput extends Omit<Prisma.ImageCreateInput, 'uploadedByUser' | 'thumbnail_10x'> {
   uploadedById: string
-  thumbnail_10x: Buffer
+  thumbnail_10x: Uint8Array
 }
 
 /**
@@ -259,7 +259,7 @@ async function createImage(input: CreateImageInput) {
   return db.image.create({
     data: {
       isPublic,
-      thumbnail_10x,
+      thumbnail_10x: new Uint8Array(thumbnail_10x),
       ...rest,
       uploadedByUser: {
         connect: {
@@ -303,7 +303,7 @@ async function createVideo(input: CreateVideoInput) {
 interface UpdateImageInput extends Omit<Prisma.ImageUpdateInput, 'uploadedByUser' | 'thumbnail_10x'> {
   id: string
   uploadedById: string
-  thumbnail_10x?: Buffer
+  thumbnail_10x?: Uint8Array
 }
 
 /**
@@ -318,7 +318,10 @@ async function updateImage(input: UpdateImageInput) {
       id,
       uploadedBy: uploadedById,
     },
-    data: rest,
+    data: {
+      ...rest,
+      thumbnail_10x: rest.thumbnail_10x ? new Uint8Array(rest.thumbnail_10x) : undefined,
+    },
   })
 }
 
@@ -486,7 +489,7 @@ async function uploadImage(
         hash,
         address: '', // 后补
         exif: {}, // 后补
-        thumbnail_10x: Buffer.from(thumbnail_10x_buffer), // 后补
+        thumbnail_10x: new Uint8Array(thumbnail_10x_buffer), // 后补
         thumbnail_320x: {
           connect: pick(thumbnail_320x_image, 'id'),
         },

@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client'
 import type { listMoments } from '@/service/moment.service'
 import { z } from 'zod'
 import {
@@ -44,7 +45,7 @@ export const momentRouter = createTRPCRouter({
       videoIds: z.array(z.string()).default([]),
       isPublic: z.boolean().default(false),
       tags: z.array(z.string()).default([]),
-      extraData: z.record(z.any()).default({}),
+      extraData: z.record(z.string(), z.any()).default({}),
     }))
     .mutation(async ({ input, ctx }) => {
       const { imageIds, videoIds, ...rest } = input
@@ -53,6 +54,7 @@ export const momentRouter = createTRPCRouter({
       return momentService.createMoment(
         {
           ...rest,
+          extraData: rest.extraData as Prisma.InputJsonValue,
           images,
           videos,
         },
@@ -68,7 +70,7 @@ export const momentRouter = createTRPCRouter({
       imageIds: z.array(z.string()),
       videoIds: z.array(z.string()),
       tags: z.array(z.string()).default([]),
-      extraData: z.record(z.any()).default({}),
+      extraData: z.record(z.string(), z.any()).default({}),
     }))
     .mutation(async ({ input, ctx }) => {
       const { imageIds, videoIds, ...rest } = input
@@ -77,6 +79,7 @@ export const momentRouter = createTRPCRouter({
       return momentService.updateMoment(
         {
           ...rest,
+          extraData: rest.extraData as Prisma.InputJsonValue,
           images,
           videos,
         },

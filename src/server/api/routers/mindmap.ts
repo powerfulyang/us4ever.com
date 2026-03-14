@@ -38,7 +38,7 @@ export const mindMapRouter = createTRPCRouter({
   createByXMind: protectedProcedure
     .input(z.object({
       title: z.string().optional(),
-      content: z.record(z.any()),
+      content: z.record(z.string(), z.any()),
       isPublic: z.boolean().default(false),
     }))
     .mutation(async ({ ctx, input }) => {
@@ -53,7 +53,7 @@ export const mindMapRouter = createTRPCRouter({
       id: z.string(),
       isPublic: z.boolean(),
       title: z.string(),
-      content: z.record(z.any()),
+      content: z.record(z.string(), z.any()),
     }))
     .mutation(async ({ ctx, input }) => {
       return mindMapService.updateMindMap({
