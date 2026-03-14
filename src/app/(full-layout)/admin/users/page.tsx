@@ -2,7 +2,6 @@
 
 import { Users as UsersIcon } from 'lucide-react'
 import { useState } from 'react'
-import { MobileRedirect } from '@/components/mobile-redirect'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -35,7 +34,6 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      <MobileRedirect />
       <div className="p-4 md:p-6 space-y-4">
         <div className="flex items-center gap-2">
           <UsersIcon className="h-5 w-5" />

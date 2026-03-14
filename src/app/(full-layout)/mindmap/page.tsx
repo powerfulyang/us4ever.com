@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { MindMapPaginationClient } from '@/app/(full-layout)/mindmap/components/pagination-client'
 import { ViewToggle } from '@/app/(full-layout)/mindmap/components/view-toggle'
 import { Container } from '@/components/layout/Container'
-import { MobileRedirect } from '@/components/mobile-redirect'
 import { api, HydrateClient } from '@/trpc/server'
 import { MindMapImport } from './components/create'
 
@@ -29,7 +28,6 @@ export default async function MindMapPage({
 
   return (
     <HydrateClient>
-      <MobileRedirect />
       <Container
         title="思维导图"
         description="记录和分享你的思维导图"

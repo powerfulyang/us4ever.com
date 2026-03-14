@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
-import { MobileRedirect } from '@/components/mobile-redirect'
 import { api, HydrateClient } from '@/trpc/server'
 import { MomentCategoryServer } from './components/category'
 import { MomentCreate } from './components/create'
@@ -31,7 +30,6 @@ export default async function MomentPage({
 
   return (
     <HydrateClient>
-      <MobileRedirect />
       <Container
         title="动态"
         description="分享生活点滴"

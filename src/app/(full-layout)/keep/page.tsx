@@ -6,7 +6,6 @@ import { KeepPaginationClient } from '@/app/(full-layout)/keep/components/pagina
 import { ViewToggle } from '@/app/(full-layout)/keep/components/view-toggle'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Container } from '@/components/layout/Container'
-import { MobileRedirect } from '@/components/mobile-redirect'
 import { Button } from '@/components/ui/button'
 import { api, HydrateClient } from '@/trpc/server'
 
@@ -35,7 +34,6 @@ export default async function KeepPage({
 
   return (
     <HydrateClient>
-      <MobileRedirect />
       <Container
         title="笔记本"
         description="记录灵感与思考的地方"

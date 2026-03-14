@@ -41,34 +41,34 @@ const appLinks: LinkProps[] = [
   {
     title: '笔记本',
     description: '记录灵感与思考的地方',
-    href: '/keep',
+    href: '/keep/feed',
     icon: <BookOpen className="w-6 h-6" />,
   },
   {
     title: '待办事项',
     description: '管理你的待办任务',
-    href: '/todo',
+    href: '/todo/feed',
     icon: <CheckSquare className="w-6 h-6" />,
   },
   {
     ...MomentCategoryMap.default,
-    href: '/moment',
+    href: '/moment/feed',
     icon: <MessageCircle className="w-6 h-6" />,
   },
   {
     ...MomentCategoryMap.eleven,
-    href: '/moment?category=eleven',
+    href: '/moment/feed?category=eleven',
     icon: <MessageCircle className="w-6 h-6" />,
   },
   {
     ...MomentCategoryMap['telegram:emt_channel'],
-    href: '/moment?category=telegram:emt_channel',
+    href: '/moment/feed?category=telegram:emt_channel',
     icon: <MessageCircle className="w-6 h-6" />,
   },
   {
     title: '思维导图',
     description: '在线思维导图工具',
-    href: '/mindmap',
+    href: '/mindmap/feed',
     icon: <Network className="w-6 h-6" />,
   },
 ]
