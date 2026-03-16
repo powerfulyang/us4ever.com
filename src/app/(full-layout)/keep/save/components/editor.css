@@ -1,5 +1,3 @@
-/* EasyMDE 自定义样式 - 使用项目字体 */
-
 /* 编辑器容器 */
 .custom-mde {
   height: 100%;
@@ -108,12 +106,30 @@
   font-weight: 600;
 }
 
-.custom-mde .cm-header-1 { font-size: 1.6em; line-height: 1.3; }
-.custom-mde .cm-header-2 { font-size: 1.4em; line-height: 1.3; }
-.custom-mde .cm-header-3 { font-size: 1.2em; line-height: 1.3; }
-.custom-mde .cm-header-4 { font-size: 1.1em; line-height: 1.3; }
-.custom-mde .cm-header-5 { font-size: 1em; line-height: 1.3; }
-.custom-mde .cm-header-6 { font-size: 0.9em; line-height: 1.3; }
+.custom-mde .cm-header-1 {
+  font-size: 1.6em;
+  line-height: 1.3;
+}
+.custom-mde .cm-header-2 {
+  font-size: 1.4em;
+  line-height: 1.3;
+}
+.custom-mde .cm-header-3 {
+  font-size: 1.2em;
+  line-height: 1.3;
+}
+.custom-mde .cm-header-4 {
+  font-size: 1.1em;
+  line-height: 1.3;
+}
+.custom-mde .cm-header-5 {
+  font-size: 1em;
+  line-height: 1.3;
+}
+.custom-mde .cm-header-6 {
+  font-size: 0.9em;
+  line-height: 1.3;
+}
 
 .custom-mde .cm-quote {
   color: hsl(var(--muted-foreground));

@@ -56,7 +56,6 @@
     "coordtransform": "^2.1.2",
     "dayjs": "^1.11.19",
     "dompurify": "3.3.3",
-    "easymde": "^2.20.0",
     "edge-tts-universal": "^1.4.0",
     "exifr": "^7.1.3",
     "file-type": "^21.3.2",

@@ -92,9 +92,6 @@ importers:
       dompurify:
         specifier: 3.3.3
         version: 3.3.3
-      easymde:
-        specifier: ^2.20.0
-        version: 2.20.0
       edge-tts-universal:
         specifier: ^1.4.0
         version: 1.4.0

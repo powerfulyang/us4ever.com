@@ -30,7 +30,6 @@ import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { api } from '@/trpc/react'
-import 'easymde/dist/easymde.min.css'
 import './editor.css'
 
 const SimpleMDE = dynamic(() => import('react-simplemde-editor'), { ssr: false })
