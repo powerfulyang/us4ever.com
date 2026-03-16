@@ -10,12 +10,9 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.url(),
     JWT_SECRET: z.string().default(process.env.hostname || 'localhost'),
     AMAP_KEY: z.string().optional(),
-    GEMINI_API_KEY: z.string().optional(),
-    TENCENT_CLOUD_SECRET_ID: z.string().optional(),
-    TENCENT_CLOUD_SECRET_KEY: z.string().optional(),
     TELEGRAM_API_ENDPOINT: z.string().default('http://api.telegram:8000'),
   },
 
@@ -37,9 +34,6 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     JWT_SECRET: process.env.JWT_SECRET,
     AMAP_KEY: process.env.AMAP_KEY,
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-    TENCENT_CLOUD_SECRET_ID: process.env.TENCENT_CLOUD_SECRET_ID,
-    TENCENT_CLOUD_SECRET_KEY: process.env.TENCENT_CLOUD_SECRET_KEY,
     TELEGRAM_API_ENDPOINT: process.env.TELEGRAM_API_ENDPOINT,
   },
   /**
