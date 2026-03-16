@@ -45,9 +45,9 @@ export default function UserIcon({ onLogoutAction }: Props) {
 
   if (isPending) {
     return (
-      <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted">
-        <div className="w-8 h-8 rounded-full bg-muted-foreground/20 animate-pulse" />
-        <div className="w-20 h-4 bg-muted-foreground/20 animate-pulse rounded" />
+      <div className="flex items-center gap-2 px-3 py-1.5">
+        <div className="w-7 h-7 rounded-full bg-muted-foreground/20 animate-pulse" />
+        <div className="hidden sm:block w-16 h-3.5 bg-muted-foreground/20 animate-pulse rounded" />
       </div>
     )
   }

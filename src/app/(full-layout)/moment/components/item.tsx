@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { Globe, Lock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { PhotoProvider, PhotoView } from 'react-photo-view'
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
 import { MdRender } from '@/components/md-render'
@@ -24,6 +24,8 @@ interface MomentItemProps {
 
 export function MomentItem({ moment }: MomentItemProps) {
   const [showConfirm, setShowConfirm] = useState(false)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const previewOpenedRef = useRef(false)
   const utils = api.useUtils()
 
   const { mutate: deleteMoment, isPending } = api.moment.delete.useMutation({
@@ -32,6 +34,43 @@ export function MomentItem({ moment }: MomentItemProps) {
       return utils.moment.fetchByCursor.invalidate()
     },
   })
+
+  // 处理预览状态变化
+  const handleVisibleChange = useCallback((visible: boolean) => {
+    setIsPreviewOpen(visible)
+
+    if (visible) {
+      // 预览打开时，添加历史记录状态
+      if (!previewOpenedRef.current) {
+        previewOpenedRef.current = true
+        history.pushState({ photoPreview: true }, '', location.href)
+      }
+    }
+    else {
+      // 预览关闭时，如果是通过其他方式关闭（非返回键），需要清理历史记录
+      if (previewOpenedRef.current && history.state?.photoPreview) {
+        previewOpenedRef.current = false
+        history.back()
+      }
+      else {
+        previewOpenedRef.current = false
+      }
+    }
+  }, [])
+
+  // 监听浏览器返回事件
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isPreviewOpen) {
+        // 如果预览是打开的，关闭它
+        setIsPreviewOpen(false)
+        previewOpenedRef.current = false
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [isPreviewOpen])
 
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation()
@@ -86,10 +125,10 @@ export function MomentItem({ moment }: MomentItemProps) {
 
             {/* 图片/视频 */}
             {!!(moment.images.length || moment.videos.length) && (
-              <PhotoProvider maskOpacity={0.8}>
+              <PhotoProvider maskOpacity={0.8} onVisibleChange={handleVisibleChange}>
                 <div className="flex flex-col gap-2" onClick={stopPropagation}>
                   {moment.images.length === 1 && moment.images[0] && (
-                    <PhotoView src={moment.images[0].compressed_url}>
+                    <PhotoView src={moment.images[0].original_url}>
                       <div className="rounded-md overflow-hidden cursor-pointer">
                         <AssetImageWithData
                           image={moment.images[0] as ImageResponse}
@@ -103,7 +142,7 @@ export function MomentItem({ moment }: MomentItemProps) {
                   {moment.images.length > 1 && (
                     <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
                       {moment.images.map(image => (
-                        <PhotoView key={image.id} src={image.compressed_url}>
+                        <PhotoView key={image.id} src={image.original_url}>
                           <div
                             className="aspect-square overflow-hidden bg-secondary cursor-pointer"
                           >
