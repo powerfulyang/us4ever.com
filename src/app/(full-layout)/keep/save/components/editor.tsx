@@ -20,19 +20,20 @@ import {
   Sparkles,
   Strikethrough,
 } from 'lucide-react'
-import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
+import Prism from 'prismjs'
 import * as React from 'react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import Editor from 'react-simple-code-editor'
 import { Markdown } from '@/components/md-render'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
 import { api } from '@/trpc/react'
-import './editor.css'
 
-const SimpleMDE = dynamic(() => import('react-simplemde-editor'), { ssr: false })
+import 'prismjs/components/prism-markdown'
+import 'prismjs/themes/prism.css'
 
 interface KeepEditorProps {
   keep?: Keep | null
@@ -46,11 +47,28 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
   const [content, setContent] = useState(keep?.content ?? '')
   const [isPublic, setIsPublic] = useState(keep?.isPublic ?? false)
   const [viewMode, setViewMode] = useState<ViewMode>('split')
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const editorRef = useRef<any>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
+
+  // 同步滚动
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (viewMode !== 'split')
+      return
+    const container = e.currentTarget
+    const preview = previewRef.current
+    if (!container || !preview)
+      return
+
+    const percentage = container.scrollTop / (container.scrollHeight - container.clientHeight)
+    if (!Number.isNaN(percentage)) {
+      preview.scrollTop = percentage * (preview.scrollHeight - preview.clientHeight)
+    }
+  }, [viewMode])
 
   // 插入文本到光标位置
   const insertText = useCallback((text: string) => {
-    const textarea = textareaRef.current
+    const textarea = editorRef.current?._input
     if (!textarea) {
       setContent(prev => prev + text)
       return
@@ -69,7 +87,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
 
   // 包装选中文本
   const wrapSelection = useCallback((before: string, after: string = before) => {
-    const textarea = textareaRef.current
+    const textarea = editorRef.current?._input
     if (!textarea)
       return
 
@@ -106,17 +124,68 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
 
   const isPending = isCreatePending || isUpdatePending
 
+  const handleSave = useCallback(() => {
+    if (!content.trim())
+      return
+
+    if (id) {
+      updateMutate({ id, content, isPublic })
+    }
+    else {
+      createMutate({ content, isPublic })
+    }
+  }, [content, createMutate, id, isPublic, updateMutate])
+
   // 工具栏操作
-  const toolbarActions = {
+  const toolbarActions = useMemo(() => ({
     bold: () => wrapSelection('**'),
     italic: () => wrapSelection('*'),
     strikethrough: () => wrapSelection('~~'),
-    heading: () => insertText('\n## '),
+    heading: () => {
+      const textarea = editorRef.current?._input
+      if (!textarea)
+        return
+
+      const start = textarea.selectionStart
+      // Find the start of the current line
+      const lineStart = content.lastIndexOf('\n', start - 1) + 1
+      const beforeCursor = content.substring(0, lineStart)
+      const afterCursor = content.substring(lineStart)
+
+      setContent(`${beforeCursor}## ${afterCursor}`)
+      setTimeout(() => {
+        textarea.focus()
+        textarea.setSelectionRange(start + 3, start + 3)
+      }, 0)
+    },
     quote: () => insertText('\n> '),
     unorderedList: () => insertText('\n- '),
     orderedList: () => insertText('\n1. '),
     horizontalRule: () => insertText('\n---\n'),
-  }
+  }), [content, insertText, wrapSelection])
+
+  // 快捷键和缩进处理
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // 处理 Tab 键
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      insertText('  ')
+    }
+    // 处理 Ctrl/Cmd + S
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault()
+      handleSave()
+    }
+    // 快捷键支持
+    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+      e.preventDefault()
+      toolbarActions.bold()
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+      e.preventDefault()
+      toolbarActions.italic()
+    }
+  }, [insertText, handleSave, toolbarActions])
 
   // 处理图片粘贴
   const handlePaste = useCallback(async (e: React.ClipboardEvent) => {
@@ -140,23 +209,11 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
     }
   }, [uploadImage])
 
-  const handleSave = () => {
-    if (!content.trim())
-      return
-
-    if (id) {
-      updateMutate({ id, content, isPublic })
-    }
-    else {
-      createMutate({ content, isPublic })
-    }
-  }
-
   const wordCount = content.length
   const lineCount = content.split('\n').length
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 h-full flex flex-col">
+    <div className="max-w-7xl mx-auto space-y-4 flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -294,7 +351,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
               size="sm"
               onClick={toolbarActions.bold}
               className="h-8 w-8 p-0"
-              title="加粗"
+              title="加粗 (Ctrl+B)"
             >
               <Bold className="w-4 h-4" />
             </Button>
@@ -303,7 +360,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
               size="sm"
               onClick={toolbarActions.italic}
               className="h-8 w-8 p-0"
-              title="斜体"
+              title="斜体 (Ctrl+I)"
             >
               <Italic className="w-4 h-4" />
             </Button>
@@ -378,39 +435,39 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
             )}
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               <ImageIcon className="w-3 h-3" />
-              Ctrl+V 粘贴图片
+              Ctrl+V 粘贴图片 | Ctrl+S 保存
             </span>
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 min-h-0 flex">
+          <div className="flex-1 min-h-0 flex bg-background">
             {/* 编辑区 */}
             <div
+              onScroll={handleScroll}
               className={cn(
-                'h-full overflow-hidden',
-                viewMode === 'edit' && 'flex-1',
-                viewMode === 'split' && 'flex-1 w-1/2',
+                'flex-1 overflow-y-auto bg-background relative',
+                viewMode === 'split' && 'w-1/2',
                 viewMode === 'preview' && 'hidden',
               )}
-              onPaste={handlePaste}
             >
-              <SimpleMDE
-                value={content}
-                onChange={setContent}
-                options={{
-                  autofocus: false,
-                  spellChecker: false,
-                  status: false,
-                  toolbar: false,
-                  placeholder: '开始输入内容...',
-                }}
-                getMdeInstance={(instance) => {
-                  // 获取底层 textarea 用于操作
-                  const textarea = (instance as any).element as HTMLTextAreaElement
-                  textareaRef.current = textarea
-                }}
-                className="h-full custom-mde"
-              />
+              <div className="min-h-full">
+                <Editor
+                  ref={editorRef}
+                  value={content}
+                  onValueChange={code => setContent(code)}
+                  highlight={code => Prism.highlight(code, Prism.languages.markdown!, 'markdown')}
+                  padding={24}
+                  placeholder="开始输入 Markdown 内容..."
+                  className="font-mono text-[15px] leading-relaxed text-foreground min-h-full"
+                  textareaClassName="outline-none focus:ring-0 shadow-none border-none resize-none caret-primary"
+                  preClassName="whitespace-pre-wrap break-all pointer-events-none"
+                  style={{
+                    fontFamily: '\'Fira Code\', \'JetBrains Mono\', Consolas, Monaco, monospace, \'LXGW\'',
+                  }}
+                  onKeyDown={handleKeyDown as any}
+                  onPaste={handlePaste as any}
+                />
+              </div>
             </div>
 
             {/* 分割线 */}
@@ -418,16 +475,17 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
               <div className="w-px bg-border shrink-0" />
             )}
 
-            {/* 预览区 - 使用项目自己的 Markdown 渲染 */}
+            {/* 预览区 */}
             <div
+              ref={previewRef}
               className={cn(
-                'h-full overflow-auto bg-background',
+                'h-full overflow-auto bg-muted/10',
                 viewMode === 'edit' && 'hidden',
                 viewMode === 'split' && 'flex-1 w-1/2',
                 viewMode === 'preview' && 'flex-1',
               )}
             >
-              <div className="p-6">
+              <div className="p-6 h-full">
                 {content.trim()
                   ? (
                       <Markdown className="prose prose-sm max-w-none dark:prose-invert">
@@ -435,8 +493,8 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
                       </Markdown>
                     )
                   : (
-                      <div className="text-muted-foreground text-sm text-center py-20">
-                        预览区域，开始输入内容查看效果...
+                      <div className="text-muted-foreground/60 text-sm h-full flex items-center justify-center">
+                        在此区域查看 Markdown 实时渲染预览...
                       </div>
                     )}
               </div>

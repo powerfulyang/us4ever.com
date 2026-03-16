@@ -125,7 +125,9 @@ export function MomentItem({ moment }: MomentItemProps) {
 
             {/* 图片/视频 */}
             {!!(moment.images.length || moment.videos.length) && (
-              <PhotoProvider maskOpacity={0.8} onVisibleChange={handleVisibleChange}>
+              // eslint-disable-next-line ts/ban-ts-comment
+              // @ts-expect-error
+              <PhotoProvider maskOpacity={0.8} visible={isPreviewOpen} onVisibleChange={handleVisibleChange}>
                 <div className="flex flex-col gap-2" onClick={stopPropagation}>
                   {moment.images.length === 1 && moment.images[0] && (
                     <PhotoView src={moment.images[0].original_url}>
