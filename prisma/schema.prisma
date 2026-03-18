@@ -8,7 +8,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // 从环境变量中读取数据库连接 URL
 }
 
 enum Provider {
@@ -171,6 +170,9 @@ model Keep {
   createdAt DateTime @default(now()) // 创建时间
   updatedAt DateTime @updatedAt // 更新时间，自动更新
 
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([content(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([summary(ops: raw("gin_trgm_ops"))], type: Gin)
   @@map("keeps")
 }
 

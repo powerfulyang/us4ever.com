@@ -1,11 +1,11 @@
-import type { Prisma } from '@prisma/client'
 import type { CreateKeepDTO, QueryKeepDTO, UpdateKeepDTO } from '@/dto/keep.dto'
+import { Prisma } from '@prisma/client'
 import { HTTPException } from 'hono/http-exception'
-import { map } from 'lodash-es'
 import { after } from 'next/server'
-import { SEARCH_ENDPOINT } from '@/lib/constants'
 import { db } from '@/server/db'
+import { generateKeepEmbeddings } from '@/service/embedding.service'
 import { getCursor } from '@/service/index'
+import { hybridRankFusion, semanticSearchKeeps } from '@/service/vector-search.service'
 
 /**
  * 笔记查询时包含的关联数据
@@ -35,7 +35,7 @@ export async function createKeep(input: CreateKeepDTO, ownerId: string) {
     category = 'default',
   } = input
 
-  return db.keep.create({
+  const keep = await db.keep.create({
     include: keepInclude,
     data: {
       content,
@@ -45,6 +45,11 @@ export async function createKeep(input: CreateKeepDTO, ownerId: string) {
       ownerId,
     },
   })
+
+  // 异步生成向量，不阻塞主请求
+  after(updateKeepVectors(keep.id, { content }))
+
+  return keep
 }
 
 /**
@@ -64,7 +69,7 @@ export async function updateKeep(input: UpdateKeepDTO, id: string, ownerId: stri
     category,
   } = input
 
-  return db.keep.update({
+  const keep = await db.keep.update({
     include: keepInclude,
     where: {
       id,
@@ -79,6 +84,17 @@ export async function updateKeep(input: UpdateKeepDTO, id: string, ownerId: stri
       category,
     },
   })
+
+  // 当文本内容发生变化时，异步重新生成向量
+  if (title !== undefined || content !== undefined || summary !== undefined) {
+    after(updateKeepVectors(id, {
+      title: keep.title,
+      content: keep.content,
+      summary: keep.summary,
+    }))
+  }
+
+  return keep
 }
 
 /**
@@ -314,16 +330,61 @@ export interface Total {
 }
 
 /**
- * 调用外部搜索服务搜索笔记
+ * 使用 Postgres 原生全文检索搜索笔记
  * @param searchTerm 搜索关键词
- * @returns 搜索结果
+ * @returns 搜索结果（保持原有 SearchResult 格式以兼容现有代码）
  */
 async function searchKeeps(searchTerm: string): Promise<SearchResult> {
-  const response = await fetch(`${SEARCH_ENDPOINT}/keeps?q=${encodeURIComponent(searchTerm)}`)
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+  const query = searchTerm.trim()
+  if (!query) {
+    return { hits: { total: { value: 0, relation: 'eq' }, hits: [] } }
   }
-  return await response.json()
+
+  // 使用 PostgreSQL pg_trgm 进行相似度搜索，对模糊搜索和中文搜索更友好
+  const results = await db.$queryRaw<any[]>(Prisma.sql`
+    SELECT
+      id, title, content, summary, "isPublic", category,
+      "createdAt", "updatedAt",
+      (
+        word_similarity(${query}, COALESCE(title, '')) * 1.5 +
+        word_similarity(${query}, COALESCE(summary, '')) * 1.2 +
+        word_similarity(${query}, COALESCE(content, '')) * 1.0
+      ) as score,
+      ts_headline('simple', COALESCE(title, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_title,
+      ts_headline('simple', COALESCE(summary, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_summary,
+      ts_headline('simple', COALESCE(content, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_content
+    FROM keeps
+    WHERE
+      (${query} <% (COALESCE(title, '') || ' ' || COALESCE(summary, '') || ' ' || COALESCE(content, '')))
+      OR (COALESCE(title, '') || ' ' || COALESCE(summary, '') || ' ' || COALESCE(content, '') ILIKE ${`%${query}%`})
+    ORDER BY score DESC
+    LIMIT 50
+  `)
+
+  return {
+    hits: {
+      total: { value: results.length, relation: 'eq' },
+      hits: results.map(r => ({
+        _index: 'keeps',
+        _id: r.id,
+        _score: Number(r.score),
+        _source: {
+          title: r.title,
+          content: r.content,
+          summary: r.summary,
+          isPublic: r.isPublic,
+          category: r.category,
+          createdAt: r.createdAt.toISOString(),
+          updatedAt: r.updatedAt.toISOString(),
+        },
+        highlight: {
+          title: r.highlight_title ? [r.highlight_title] : undefined,
+          summary: r.highlight_summary ? [r.highlight_summary] : undefined,
+          content: r.highlight_content ? [r.highlight_content] : undefined,
+        },
+      })),
+    },
+  }
 }
 
 /**
@@ -335,7 +396,7 @@ async function searchKeeps(searchTerm: string): Promise<SearchResult> {
 async function searchKeepsWithAccess(query: string, userIds: string[]) {
   const result = await searchKeeps(query)
   const resultList = result.hits.hits
-  const ids = map(resultList, '_id')
+  const ids = resultList.map((hit: any) => hit._id)
 
   const accessibleKeeps = await db.keep.findMany({
     where: {
@@ -399,6 +460,139 @@ async function getCategories(userIds: string[]) {
   return categories.map(category => category.category)
 }
 
+/**
+ * 为指定 Keep 生成并更新向量
+ * @param keepId Keep ID
+ * @param data 包含 title、content、summary 的文本数据
+ * @param data.title 笔记标题
+ * @param data.content 笔记内容
+ * @param data.summary 笔记摘要
+ */
+async function updateKeepVectors(
+  keepId: string,
+  data: { title?: string, content: string, summary?: string },
+) {
+  try {
+    const vectors = await generateKeepEmbeddings(data)
+    await db.keep.update({
+      where: { id: keepId },
+      data: {
+        title_vector: vectors.title_vector ?? undefined,
+        content_vector: vectors.content_vector,
+        summary_vector: vectors.summary_vector ?? undefined,
+      },
+    })
+    console.log(`[RAG] Vectors updated for Keep ${keepId}`)
+  }
+  catch (error) {
+    // 向量生成失败不应影响主流程
+    console.error(`[RAG] Failed to update vectors for Keep ${keepId}:`, error)
+  }
+}
+
+/**
+ * 语义搜索 Keep
+ * @param query 搜索查询文本
+ * @param userIds 可访问的用户 ID 列表
+ * @param topK 返回结果数
+ */
+async function semanticSearch(query: string, userIds: string[], topK = 10) {
+  return semanticSearchKeeps(query, userIds, topK)
+}
+
+/**
+ * 混合搜索：关键词搜索 + 语义搜索，使用 RRF 融合排序
+ * @param query 搜索查询文本
+ * @param userIds 可访问的用户 ID 列表
+ */
+async function hybridSearch(query: string, userIds: string[]) {
+  // 并发执行关键词搜索和语义搜索
+  const [keywordResult, semanticResults] = await Promise.all([
+    searchKeeps(query).catch(() => ({ hits: { hits: [], total: { value: 0, relation: '' } } })),
+    semanticSearchKeeps(query, userIds, 20).catch(() => []),
+  ])
+
+  // 关键词搜索结果 -> 权限过滤
+  const keywordHits = keywordResult.hits.hits
+  const keywordIds = keywordHits.map((hit: any) => hit._id)
+
+  let accessibleKeywordItems: Array<{ id: string, score: number }> = []
+  if (keywordIds.length > 0) {
+    const accessibleKeeps = await db.keep.findMany({
+      where: {
+        id: { in: keywordIds },
+        OR: [
+          { ownerId: { in: userIds } },
+          { isPublic: true },
+        ],
+      },
+      select: { id: true },
+    })
+    const accessibleSet = new Set(accessibleKeeps.map(k => k.id))
+    accessibleKeywordItems = keywordHits
+      .filter(hit => accessibleSet.has(hit._id))
+      .map(hit => ({ id: hit._id, score: hit._score }))
+  }
+
+  // RRF 融合排序
+  const fusedResults = hybridRankFusion(accessibleKeywordItems, semanticResults.map(r => ({ ...r, id: r.id })))
+
+  return {
+    results: fusedResults,
+    keywordCount: accessibleKeywordItems.length,
+    semanticCount: semanticResults.length,
+    totalCount: fusedResults.length,
+  }
+}
+
+/**
+ * 批量回填向量（管理员使用）
+ * 为所有没有向量的 Keep 生成向量
+ * @param batchSize 每批处理数量
+ */
+async function backfillVectors(batchSize = 10) {
+  const keeps = await db.keep.findMany({
+    where: {
+      content_vector: { equals: Prisma.DbNull },
+    },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      summary: true,
+    },
+    take: batchSize,
+  })
+
+  if (keeps.length === 0) {
+    return { processed: 0, remaining: 0 }
+  }
+
+  let processed = 0
+  for (const keep of keeps) {
+    try {
+      await updateKeepVectors(keep.id, {
+        title: keep.title,
+        content: keep.content,
+        summary: keep.summary,
+      })
+      processed++
+    }
+    catch (error) {
+      console.error(`[RAG] Backfill failed for Keep ${keep.id}:`, error)
+    }
+  }
+
+  // 查询剩余未处理数量
+  const remaining = await db.keep.count({
+    where: {
+      content_vector: { equals: Prisma.DbNull },
+    },
+  })
+
+  return { processed, remaining }
+}
+
 export const keepService = {
   findAccessibleList,
   findAccessiblePage,
@@ -410,4 +604,7 @@ export const keepService = {
   incrementKeepViews,
   searchKeepsWithAccess,
   getCategories,
+  semanticSearch,
+  hybridSearch,
+  backfillVectors,
 }
