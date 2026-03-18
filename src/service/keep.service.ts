@@ -47,7 +47,7 @@ export async function createKeep(input: CreateKeepDTO, ownerId: string) {
   })
 
   // 异步生成向量，不阻塞主请求
-  after(updateKeepVectors(keep.id, { content }))
+  // after(updateKeepVectors(keep.id, { content }))
 
   return keep
 }
@@ -86,13 +86,13 @@ export async function updateKeep(input: UpdateKeepDTO, id: string, ownerId: stri
   })
 
   // 当文本内容发生变化时，异步重新生成向量
-  if (title !== undefined || content !== undefined || summary !== undefined) {
-    after(updateKeepVectors(id, {
-      title: keep.title,
-      content: keep.content,
-      summary: keep.summary,
-    }))
-  }
+  // if (title !== undefined || content !== undefined || summary !== undefined) {
+  //   after(updateKeepVectors(id, {
+  //     title: keep.title,
+  //     content: keep.content,
+  //     summary: keep.summary,
+  //   }))
+  // }
 
   return keep
 }
@@ -290,55 +290,34 @@ async function findAccessiblePage(
   }
 }
 
-// 搜索结果接口定义
-export interface SearchResult {
-  hits: Hits
-}
-
-export interface Hits {
-  total: Total
-  hits: Hit[]
-}
-
-export interface Hit {
-  _index: string
-  _id: string
-  _score: number
-  _source: Source
-  highlight?: Highlight
-}
-
-export interface Source {
+/**
+ * 关键词搜索单条结果
+ */
+export interface KeywordSearchHit {
+  id: string
+  score: number
+  title: string | null
   content: string
-  summary: string
-  title: string
+  summary: string | null
   isPublic: boolean
   category: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface Highlight {
-  summary?: string[]
-  title?: string[]
-  content?: string[]
-}
-
-export interface Total {
-  value: number
-  relation: string
+  createdAt: Date
+  updatedAt: Date
+  highlight_title?: string
+  highlight_summary?: string
+  highlight_content?: string
 }
 
 /**
  * 使用 Postgres 原生全文检索搜索笔记
  * @param searchTerm 搜索关键词
- * @returns 搜索结果（保持原有 SearchResult 格式以兼容现有代码）
+ * @param topK 返回结果数
+ * @returns 平铺的搜索结果列表
  */
-async function searchKeeps(searchTerm: string): Promise<SearchResult> {
+async function searchKeeps(searchTerm: string, topK = 10): Promise<KeywordSearchHit[]> {
   const query = searchTerm.trim()
-  if (!query) {
-    return { hits: { total: { value: 0, relation: 'eq' }, hits: [] } }
-  }
+  if (!query)
+    return []
 
   // 使用 PostgreSQL pg_trgm 进行相似度搜索，对模糊搜索和中文搜索更友好
   const results = await db.$queryRaw<any[]>(Prisma.sql`
@@ -346,45 +325,35 @@ async function searchKeeps(searchTerm: string): Promise<SearchResult> {
       id, title, content, summary, "isPublic", category,
       "createdAt", "updatedAt",
       (
-        word_similarity(${query}, COALESCE(title, '')) * 1.5 +
-        word_similarity(${query}, COALESCE(summary, '')) * 1.2 +
-        word_similarity(${query}, COALESCE(content, '')) * 1.0
+        word_similarity(${query}::text, COALESCE(title, '')) * 1.5 +
+        word_similarity(${query}::text, COALESCE(summary, '')) * 1.2 +
+        word_similarity(${query}::text, COALESCE(content, '')) * 1.0
       ) as score,
       ts_headline('simple', COALESCE(title, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_title,
       ts_headline('simple', COALESCE(summary, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_summary,
       ts_headline('simple', COALESCE(content, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_content
     FROM keeps
     WHERE
-      (${query} <% (COALESCE(title, '') || ' ' || COALESCE(summary, '') || ' ' || COALESCE(content, '')))
+      (${query}::text <% (COALESCE(title, '') || ' ' || COALESCE(summary, '') || ' ' || COALESCE(content, '')))
       OR (COALESCE(title, '') || ' ' || COALESCE(summary, '') || ' ' || COALESCE(content, '') ILIKE ${`%${query}%`})
     ORDER BY score DESC
-    LIMIT 50
+    LIMIT ${topK}
   `)
 
-  return {
-    hits: {
-      total: { value: results.length, relation: 'eq' },
-      hits: results.map(r => ({
-        _index: 'keeps',
-        _id: r.id,
-        _score: Number(r.score),
-        _source: {
-          title: r.title,
-          content: r.content,
-          summary: r.summary,
-          isPublic: r.isPublic,
-          category: r.category,
-          createdAt: r.createdAt.toISOString(),
-          updatedAt: r.updatedAt.toISOString(),
-        },
-        highlight: {
-          title: r.highlight_title ? [r.highlight_title] : undefined,
-          summary: r.highlight_summary ? [r.highlight_summary] : undefined,
-          content: r.highlight_content ? [r.highlight_content] : undefined,
-        },
-      })),
-    },
-  }
+  return results.map(r => ({
+    id: r.id,
+    score: Number(r.score),
+    title: r.title,
+    content: r.content,
+    summary: r.summary,
+    isPublic: r.isPublic,
+    category: r.category,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+    highlight_title: r.highlight_title || undefined,
+    highlight_summary: r.highlight_summary || undefined,
+    highlight_content: r.highlight_content || undefined,
+  }))
 }
 
 /**
@@ -393,22 +362,18 @@ async function searchKeeps(searchTerm: string): Promise<SearchResult> {
  * @param userIds 用户ID列表
  * @returns 过滤后的搜索结果
  */
-async function searchKeepsWithAccess(query: string, userIds: string[]) {
-  const result = await searchKeeps(query)
-  const resultList = result.hits.hits
-  const ids = resultList.map((hit: any) => hit._id)
+async function searchKeepsWithAccess(query: string, userIds: string[], topK = 10) {
+  const hits = await searchKeeps(query, topK)
+  const ids = hits.map(h => h.id)
+
+  if (ids.length === 0)
+    return []
 
   const accessibleKeeps = await db.keep.findMany({
     where: {
-      id: {
-        in: ids,
-      },
+      id: { in: ids },
       OR: [
-        {
-          ownerId: {
-            in: userIds,
-          },
-        },
+        { ownerId: { in: userIds } },
         { isPublic: true },
       ],
     },
@@ -421,27 +386,20 @@ async function searchKeepsWithAccess(query: string, userIds: string[]) {
     },
   })
 
-  // 创建一个 map 方便查找
   const keepsMap = new Map(accessibleKeeps.map(k => [k.id, k]))
 
-  // 合并数据库数据到搜索结果
-  const mergedResults = resultList
-    .filter(hit => keepsMap.has(hit._id))
-    .map((hit) => {
-      const keepData = keepsMap.get(hit._id)!
+  return hits
+    .filter(h => keepsMap.has(h.id))
+    .map((h) => {
+      const k = keepsMap.get(h.id)!
       return {
-        ...hit,
-        _source: {
-          ...hit._source,
-          isPublic: keepData.isPublic,
-          category: keepData.category,
-          createdAt: keepData.createdAt.toISOString(),
-          updatedAt: keepData.updatedAt.toISOString(),
-        },
+        ...h,
+        isPublic: k.isPublic,
+        category: k.category,
+        createdAt: k.createdAt,
+        updatedAt: k.updatedAt,
       }
     })
-
-  return mergedResults
 }
 
 async function getCategories(userIds: string[]) {
@@ -505,16 +463,15 @@ async function semanticSearch(query: string, userIds: string[], topK = 10) {
  * @param query 搜索查询文本
  * @param userIds 可访问的用户 ID 列表
  */
-async function hybridSearch(query: string, userIds: string[]) {
+async function hybridSearch(query: string, userIds: string[], topK = 10) {
   // 并发执行关键词搜索和语义搜索
-  const [keywordResult, semanticResults] = await Promise.all([
-    searchKeeps(query).catch(() => ({ hits: { hits: [], total: { value: 0, relation: '' } } })),
-    semanticSearchKeeps(query, userIds, 20).catch(() => []),
+  const [keywordHits, semanticResults] = await Promise.all([
+    searchKeeps(query, topK).catch(() => [] as KeywordSearchHit[]),
+    semanticSearchKeeps(query, userIds, topK * 2).catch(() => []),
   ])
 
   // 关键词搜索结果 -> 权限过滤
-  const keywordHits = keywordResult.hits.hits
-  const keywordIds = keywordHits.map((hit: any) => hit._id)
+  const keywordIds = keywordHits.map(h => h.id)
 
   let accessibleKeywordItems: Array<{ id: string, score: number }> = []
   if (keywordIds.length > 0) {
@@ -530,12 +487,11 @@ async function hybridSearch(query: string, userIds: string[]) {
     })
     const accessibleSet = new Set(accessibleKeeps.map(k => k.id))
     accessibleKeywordItems = keywordHits
-      .filter(hit => accessibleSet.has(hit._id))
-      .map(hit => ({ id: hit._id, score: hit._score }))
+      .filter(h => accessibleSet.has(h.id))
   }
 
   // RRF 融合排序
-  const fusedResults = hybridRankFusion(accessibleKeywordItems, semanticResults.map(r => ({ ...r, id: r.id })))
+  const fusedResults = hybridRankFusion(accessibleKeywordItems, semanticResults)
 
   return {
     results: fusedResults,

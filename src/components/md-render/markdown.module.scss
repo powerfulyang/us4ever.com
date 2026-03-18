@@ -253,3 +253,7 @@
   text-decoration: line-through;
   color: var(--vp-c-text-2);
 }
+
+.noMargin :global(p) {
+  margin: 0 !important;
+}

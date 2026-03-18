@@ -18,103 +18,19 @@ import { MomentItem } from '../moment/components/item'
 type FilterType = 'all' | 'keep' | 'moment'
 type SearchMode = 'keyword' | 'semantic' | 'hybrid'
 
-function KeepSearchResultCard({ result }: {
-  result: {
-    _id: string
-    _score: number
-    _source: {
-      title: string
-      summary: string
-      content: string
-      isPublic: boolean
-      category: string
-    }
-    highlight?: {
-      summary?: string[]
-      title?: string[]
-      content?: string[]
-    }
-  }
-}) {
-  return (
-    <Link href={`/keep/${result._id}`}>
-      <Card
-        hoverable
-        className="group relative overflow-hidden rounded-md transition-all duration-300 hover:shadow-md hover:border-primary/30 cursor-pointer"
-      >
-        {/* 左侧色条指示器 */}
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-indigo-500 opacity-60 group-hover:opacity-100 transition-opacity" />
-
-        <div className="pl-5 pr-4 py-4">
-          {/* 标题行 */}
-          <div className="flex items-start justify-between gap-3 mb-2">
-            <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 flex-1">
-              {result._source.title}
-            </h3>
-            <div className="flex items-center gap-2 shrink-0">
-              <Badge
-                variant={result._source.isPublic ? 'success' : 'warning'}
-                className="text-[10px] h-5 px-1.5 flex items-center gap-1 font-semibold uppercase tracking-wider"
-              >
-                {result._source.isPublic
-                  ? <Globe className="w-3 h-3" />
-                  : <Lock className="w-3 h-3" />}
-                {result._source.isPublic ? '公开' : '私密'}
-              </Badge>
-            </div>
-          </div>
-
-          {/* 摘要 */}
-          {result.highlight?.summary
-            ? (
-                <div className="text-sm text-muted-foreground line-clamp-5 mb-4 bg-yellow-500/5 dark:bg-yellow-500/10 rounded-lg px-2 py-1.5 -mx-0.5">
-                  <MdRender className="[&>*]:text-muted-foreground [&>*]:text-sm">
-                    {result.highlight.summary.join('...')}
-                  </MdRender>
-                </div>
-              )
-            : result._source.summary
-              ? (
-                  <p className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed">
-                    {result._source.summary}
-                  </p>
-                )
-              : null}
-
-          {/* 底部元信息 */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-              {result._source.category && (
-                <span className="flex items-center gap-1 text-blue-600/80 dark:text-blue-400/80">
-                  <span className="w-1 h-1 rounded-full bg-current" />
-                  {result._source.category}
-                </span>
-              )}
-            </div>
-
-            {/* 悬停显示箭头 */}
-            <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-              <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </Link>
-  )
-}
-
 function SemanticSearchResultCard({ result }: {
   result: {
     id: string
-    title: string
-    summary: string
-    content: string
+    title?: string
+    summary?: string
+    content?: string
     category: string
     isPublic: boolean
     similarity: number
     matchType?: 'keyword' | 'semantic' | 'both'
+    highlight_title?: string
+    highlight_summary?: string
+    highlight_content?: string
   }
 }) {
   const similarityPercent = Math.round(result.similarity * 100)
@@ -141,7 +57,13 @@ function SemanticSearchResultCard({ result }: {
           {/* 标题行 */}
           <div className="flex items-start justify-between gap-3 mb-2">
             <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 flex-1">
-              {result.title || '无标题'}
+              {result.highlight_title
+                ? (
+                    <MdRender as="span" noMargin className="inline-block p-0 !m-0">{result.highlight_title}</MdRender>
+                  )
+                : (
+                    result.title || '无标题'
+                  )}
             </h3>
             <div className="flex items-center gap-2 shrink-0">
               {/* 相似度徽章 */}
@@ -175,18 +97,29 @@ function SemanticSearchResultCard({ result }: {
           </div>
 
           {/* 摘要 */}
-          {result.summary
+          {result.highlight_summary
             ? (
-                <p className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed">
-                  {result.summary}
-                </p>
+                <MdRender noMargin className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed !m-0">
+                  {result.highlight_summary}
+                </MdRender>
               )
-            : (
-                <p className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed">
-                  {result.content.slice(0, 200)}
-                  {result.content.length > 200 ? '...' : ''}
-                </p>
-              )}
+            : result.highlight_content
+              ? (
+                  <MdRender noMargin className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed !m-0">
+                    {result.highlight_content}
+                  </MdRender>
+                )
+              : result.summary
+                ? (
+                    <p className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed">
+                      {result.summary}
+                    </p>
+                  )
+                : (
+                    <p className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed">
+                      {result.content}
+                    </p>
+                  )}
 
           {/* 底部元信息 */}
           <div className="flex items-center justify-between">
@@ -318,8 +251,8 @@ export default function SearchPage() {
     const keeps = keepData.map(item => ({
       ...item,
       _type: 'keep' as const,
-      _sortTime: item._source.updatedAt || item._source.createdAt,
-      resultId: item._id,
+      _sortTime: item.updatedAt instanceof Date ? item.updatedAt.toISOString() : (item.updatedAt as string),
+      resultId: item.id,
     }))
 
     const moments = momentData.map(item => ({
@@ -549,7 +482,15 @@ export default function SearchPage() {
                             transition={{ delay: index * 0.05 }}
                           >
                             {result._type === 'keep'
-                              ? <KeepSearchResultCard result={result} />
+                              ? (
+                                  <SemanticSearchResultCard result={{
+                                    ...result,
+                                    title: result.title ?? undefined,
+                                    summary: result.summary ?? undefined,
+                                    similarity: result.score ?? 0,
+                                  }}
+                                  />
+                                )
                               : <MomentItem moment={result} />}
                           </motion.div>
                         ))}

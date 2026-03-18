@@ -34,4 +34,5 @@ export const UpdateViewsSchema = z.object({
 
 export const QuerySearchSchema = z.object({
   query: z.string().min(1, 'query不能为空'),
+  topK: z.number().int().min(1).max(50).default(10).optional(),
 })

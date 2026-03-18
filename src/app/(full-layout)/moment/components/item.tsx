@@ -13,10 +13,12 @@ import { MdRender } from '@/components/md-render'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { Confirm } from '@/components/ui/confirm'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Divider } from '@/components/ui/divider'
 import { ItemActions } from '@/components/ui/item-actions'
 import { UserInfo } from '@/components/ui/user-info'
 import { api } from '@/trpc/react'
+import { MomentCreate } from './create'
 
 interface MomentItemProps {
   moment: Moment
@@ -24,6 +26,7 @@ interface MomentItemProps {
 
 export function MomentItem({ moment }: MomentItemProps) {
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const previewOpenedRef = useRef(false)
   const utils = api.useUtils()
@@ -75,6 +78,11 @@ export function MomentItem({ moment }: MomentItemProps) {
   function handleDelete(e: React.MouseEvent) {
     e.stopPropagation()
     setShowConfirm(true)
+  }
+
+  function handleEdit(e: React.MouseEvent) {
+    e.stopPropagation()
+    setShowEdit(true)
   }
 
   const showDelete = moment.category !== 'eleven'
@@ -196,6 +204,7 @@ export function MomentItem({ moment }: MomentItemProps) {
                 likes={moment.likes}
                 ownerId={moment.ownerId}
                 onDelete={showDelete ? handleDelete : undefined}
+                onEdit={handleEdit}
               />
             </div>
           </div>
@@ -211,6 +220,20 @@ export function MomentItem({ moment }: MomentItemProps) {
         title="删除动态"
         content="确定要删除这条动态吗？此操作不可逆"
       />
+
+      {/* 编辑弹窗 */}
+      <Dialog open={showEdit} onOpenChange={setShowEdit}>
+        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
+          <DialogHeader className="px-4 pt-4">
+            <DialogTitle>编辑动态</DialogTitle>
+          </DialogHeader>
+          <MomentCreate
+            initialMoment={moment}
+            onSuccess={() => setShowEdit(false)}
+            onCancel={() => setShowEdit(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

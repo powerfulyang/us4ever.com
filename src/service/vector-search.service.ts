@@ -61,7 +61,7 @@ export async function semanticSearchKeeps(query: string, userIds: string[], topK
  * @param k RRF 常数，默认为 60
  */
 export function hybridRankFusion(
-  keywordResults: { id: string, score: number }[],
+  keywordResults: { id: string, score: number, [key: string]: any }[],
   semanticResults: { id: string, similarity: number, [key: string]: any }[],
   k = 60,
 ) {
@@ -72,6 +72,10 @@ export function hybridRankFusion(
   keywordResults.forEach((res, index) => {
     const score = 1 / (k + index + 1)
     scores.set(res.id, (scores.get(res.id) || 0) + score)
+    // 保存元数据以便返回
+    if (!originalData.has(res.id)) {
+      originalData.set(res.id, res)
+    }
   })
 
   // 处理语义结果

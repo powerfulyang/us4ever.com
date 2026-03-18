@@ -51,12 +51,11 @@ export const keepRouter = createTRPCRouter({
       return keepService.deleteKeep(input.id, ctx.user.id)
     }),
 
-  // 透传到 api.us4ever
+  // 关键词搜索
   search: publicProcedure
     .input(QuerySearchSchema)
     .query(async ({ input, ctx }) => {
-      const userIds = ctx.groupUserIds
-      return keepService.searchKeepsWithAccess(input.query, userIds)
+      return keepService.searchKeepsWithAccess(input.query, ctx.groupUserIds, input.topK)
     }),
 
   getCategories: publicProcedure
@@ -75,7 +74,7 @@ export const keepRouter = createTRPCRouter({
   hybridSearch: publicProcedure
     .input(QuerySearchSchema)
     .query(async ({ input, ctx }) => {
-      return keepService.hybridSearch(input.query, ctx.groupUserIds)
+      return keepService.hybridSearch(input.query, ctx.groupUserIds, input.topK)
     }),
 
   // 管理员：批量回填向量

@@ -1,3 +1,4 @@
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { env } from '@/env'
 
 /**
@@ -56,28 +57,9 @@ export async function getEmbedding(text: string): Promise<number[]> {
     throw new Error('GEMINI_API_KEY is not configured')
   }
 
-  // 使用 Gemini API
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${env.GEMINI_API_KEY}`
+  const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
+  const model = genAI.getGenerativeModel({ model: 'gemini-embedding-2-preview' })
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'models/text-embedding-004',
-      content: {
-        parts: [{ text }],
-      },
-    }),
-  })
-
-  if (!response.ok) {
-    const error = await response.json()
-    console.error('Gemini Embedding Error:', error)
-    throw new Error(`Gemini API error: ${response.statusText}`)
-  }
-
-  const result = await response.json()
+  const result = await model.embedContent(text)
   return result.embedding.values
 }
