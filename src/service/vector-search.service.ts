@@ -18,7 +18,7 @@ export async function semanticSearchKeeps(query: string, userIds: string[], topK
 
     // 使用 PostgreSQL 的 pgvector 进行搜索
     // 我们需要将 JSONB 转换为 vector 类型进行比较
-    // text-embedding-004 的维度是 768
+    // text-embedding-004 的维度是 3072
     const results = await db.$queryRaw<any[]>(Prisma.sql`
       SELECT 
         id, title, content, summary, "isPublic", category,

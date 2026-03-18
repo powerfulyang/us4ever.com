@@ -1,10 +1,11 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
-import { Brain, FileText, Globe, Loader2, Lock, MessageSquare, Search, Sparkles, Zap } from 'lucide-react'
+import { Brain, Database, FileText, Globe, Loader2, Lock, MessageSquare, Search, Sparkles, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
+import { toast } from 'sonner'
 import { Container } from '@/components/layout/Container'
 import { Empty } from '@/components/layout/Empty'
 import { MdRender } from '@/components/md-render'
@@ -152,6 +153,17 @@ export default function SearchPage() {
   const query = searchParams.get('q') || ''
   const filter = (searchParams.get('type') as FilterType) || 'all'
   const searchMode = (searchParams.get('mode') as SearchMode) || 'hybrid'
+  const { data: user } = api.user.current.useQuery()
+
+  // 回填向量 Mutation
+  const backfillMutation = api.keep.backfillVectors.useMutation({
+    onSuccess: (data) => {
+      toast.success(`回填成功: 处理了 ${data.processed} 条，剩余 ${data.remaining} 条`)
+    },
+    onError: (error) => {
+      toast.error(`回填失败: ${error.message}`)
+    },
+  })
 
   // Keep 关键词搜索（mode=keyword 或 mode=hybrid/all+keep）
   const {
@@ -293,6 +305,22 @@ export default function SearchPage() {
     <Container
       title="搜索"
       description="搜索笔记和动态内容"
+      actions={
+        user?.isAdmin && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => backfillMutation.mutate()}
+            disabled={backfillMutation.isPending}
+            className="gap-2"
+          >
+            {backfillMutation.isPending
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <Database className="w-4 h-4" />}
+            回填向量
+          </Button>
+        )
+      }
     >
       <div className="space-y-6">
         {/* 搜索标题 */}

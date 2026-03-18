@@ -108,7 +108,7 @@ model Image {
   // 图片描述
   description        String  @default("")
   // 图片描述向量
-  description_vector Json?
+  description_vector Unsupported("vector(3072)")?
   // 图片标签
   tags               Json    @default("[]")
 
@@ -148,11 +148,11 @@ model Image {
 model Keep {
   id             String  @id @default(uuid()) // 主键，UUID 自动生成
   title          String  @default("") // 笔记标题
-  title_vector   Json? // 笔记标题向量
+  title_vector   Unsupported("vector(3072)")? // 笔记标题向量
   content        String // 笔记内容
-  content_vector Json?
+  content_vector Unsupported("vector(3072)")?
   summary        String  @default("") // 笔记摘要
-  summary_vector Json?
+  summary_vector Unsupported("vector(3072)")?
   isPublic       Boolean @default(false) // 是否公开
   tags           Json    @default("[]") // 笔记标签
 
@@ -228,7 +228,7 @@ model MindMap {
 model Moment {
   id             String  @id @default(uuid())
   content        String  @default("")
-  content_vector Json?
+  content_vector Unsupported("vector(3072)")?
   isPublic       Boolean @default(false)
   tags           Json    @default("[]")
   views          Int     @default(0)
