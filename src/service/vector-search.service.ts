@@ -25,9 +25,12 @@ export async function semanticSearchKeeps(query: string, userIds: string[], topK
         "createdAt", "updatedAt",
         (
           COALESCE(1 - (CAST(title_vector AS vector) <=> CAST(${vectorStr} AS vector)), 0) * 0.3 +
-          COALESCE(1 - (CAST(content_vector AS vector) <=> CAST(${vectorStr} AS vector)), 0) * 0.5 +
-          COALESCE(1 - (CAST(summary_vector AS vector) <=> CAST(${vectorStr} AS vector)), 0) * 0.2
-        ) as similarity
+          COALESCE(1 - (CAST(content_vector AS vector) <=> CAST(${vectorStr} AS vector)), 0) * 0.3 +
+          COALESCE(1 - (CAST(summary_vector AS vector) <=> CAST(${vectorStr} AS vector)), 0) * 0.4
+        ) as similarity,
+        ts_headline('simple', COALESCE(title, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_title,
+        ts_headline('simple', COALESCE(summary, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_summary,
+        ts_headline('simple', COALESCE(content, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_content
       FROM keeps
       WHERE 
         (title_vector IS NOT NULL OR content_vector IS NOT NULL OR summary_vector IS NOT NULL) AND
@@ -46,6 +49,9 @@ export async function semanticSearchKeeps(query: string, userIds: string[], topK
       similarity: Number(r.similarity),
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
+      highlight_title: r.highlight_title || undefined,
+      highlight_summary: r.highlight_summary || undefined,
+      highlight_content: r.highlight_content || undefined,
     }))
   }
   catch (error) {

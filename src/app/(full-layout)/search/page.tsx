@@ -101,25 +101,25 @@ function SemanticSearchResultCard({ result }: {
           {result.highlight_summary
             ? (
                 <MdRender noMargin className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed !m-0">
-                  {result.highlight_summary}
+                  {result.highlight_summary || ''}
                 </MdRender>
               )
             : result.highlight_content
               ? (
                   <MdRender noMargin className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed !m-0">
-                    {result.highlight_content}
+                    {result.highlight_content || ''}
                   </MdRender>
                 )
               : result.summary
                 ? (
-                    <p className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed">
-                      {result.summary}
-                    </p>
+                    <MdRender noMargin className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed !m-0">
+                      {result.summary || ''}
+                    </MdRender>
                   )
                 : (
-                    <p className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed">
-                      {result.content}
-                    </p>
+                    <MdRender noMargin className="text-sm text-muted-foreground line-clamp-5 mb-4 leading-relaxed !m-0">
+                      {result.content || ''}
+                    </MdRender>
                   )}
 
           {/* 底部元信息 */}
