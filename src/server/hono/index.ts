@@ -6,6 +6,7 @@ import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
 import { env } from '@/env'
+import { loadInternalRouter } from '@/server/hono/routes/internal'
 import { loadLpRouter } from '@/server/hono/routes/lp'
 import { loadSyncTelegramRouter } from '@/server/hono/routes/telegram'
 import { loadTtsRouter } from '@/server/hono/routes/tts'
@@ -51,10 +52,13 @@ export const auth = createMiddleware(async (ctx, next) => {
 
 // 创建子应用
 export const protectedRoutes = new Hono<AppEnv>().use(auth)
+export const internalRoutes = new Hono()
 
 loadLpRouter()
 loadSyncTelegramRouter()
+loadInternalRouter()
 loadTtsRouter()
 
 // 挂载子应用
 app.route('/sync', protectedRoutes)
+app.route('/internal', internalRoutes)
