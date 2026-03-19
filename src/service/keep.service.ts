@@ -435,14 +435,21 @@ async function updateKeepVectors(
 ) {
   try {
     const vectors = await generateKeepEmbeddings(data)
-    await db.keep.update({
-      where: { id: keepId },
-      data: {
-        title_vector: vectors.title_vector ?? undefined,
-        content_vector: vectors.content_vector,
-        summary_vector: vectors.summary_vector ?? undefined,
-      },
-    })
+
+    // 由于 vector 是 Unsupported 类型，必须使用原生 SQL 更新
+    const contentVector = `[${vectors.content_vector.join(',')}]`
+    const titleVector = vectors.title_vector ? `[${vectors.title_vector.join(',')}]` : null
+    const summaryVector = vectors.summary_vector ? `[${vectors.summary_vector.join(',')}]` : null
+
+    await db.$executeRaw(Prisma.sql`
+      UPDATE keeps 
+      SET 
+        title_vector = ${titleVector}::vector,
+        content_vector = ${contentVector}::vector,
+        summary_vector = ${summaryVector}::vector
+      WHERE id = ${keepId}
+    `)
+
     console.log(`[RAG] Vectors updated for Keep ${keepId}`)
   }
   catch (error) {
@@ -511,25 +518,20 @@ async function hybridSearch(query: string, userIds: string[], topK = 10) {
  * @param batchSize 每批处理数量
  */
 async function backfillVectors(batchSize = 10) {
-  const keeps = await db.keep.findMany({
-    where: {
-      content_vector: { equals: Prisma.DbNull },
-    },
-    select: {
-      id: true,
-      title: true,
-      content: true,
-      summary: true,
-    },
-    take: batchSize,
-  })
+  // 由于 content_vector 是 Unsupported 类型，无法直接在 findMany 中使用 where
+  // 使用 $queryRaw 先获取待处理的数据
+  const pendingKeeps = await db.$queryRaw<any[]>(Prisma.sql`
+    SELECT id, title, content, summary FROM keeps 
+    WHERE content_vector IS NULL 
+    LIMIT ${batchSize}
+  `)
 
-  if (keeps.length === 0) {
+  if (pendingKeeps.length === 0) {
     return { processed: 0, remaining: 0 }
   }
 
   let processed = 0
-  for (const keep of keeps) {
+  for (const keep of pendingKeeps) {
     try {
       await updateKeepVectors(keep.id, {
         title: keep.title,
@@ -544,11 +546,10 @@ async function backfillVectors(batchSize = 10) {
   }
 
   // 查询剩余未处理数量
-  const remaining = await db.keep.count({
-    where: {
-      content_vector: { equals: Prisma.DbNull },
-    },
-  })
+  const countResult = await db.$queryRaw<any[]>(Prisma.sql`
+    SELECT count(*)::int as count FROM keeps WHERE content_vector IS NULL
+  `)
+  const remaining = countResult[0]?.count ?? 0
 
   return { processed, remaining }
 }
