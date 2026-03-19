@@ -1,5 +1,6 @@
 'use client'
 
+import type { Moment as MomentType } from '@/server/api/routers/moment'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Brain, Database, FileText, Globe, Loader2, Lock, MessageSquare, Search, Sparkles, Zap } from 'lucide-react'
 import Link from 'next/link'
@@ -18,6 +19,36 @@ import { MomentItem } from '../moment/components/item'
 
 type FilterType = 'all' | 'keep' | 'moment'
 type SearchMode = 'keyword' | 'semantic' | 'hybrid'
+
+/**
+ * 统一的搜索结果项接口
+ */
+interface UnifiedResultBase {
+  _type: 'keep' | 'moment'
+  id: string
+  similarity?: number
+  score?: number
+  matchType?: 'keyword' | 'semantic' | 'both'
+  _sortTime?: string
+}
+
+interface KeepResult extends UnifiedResultBase {
+  _type: 'keep'
+  title: string | null
+  summary: string | null
+  content: string | null
+  category: string
+  isPublic: boolean
+  highlight_title?: string
+  highlight_summary?: string
+  highlight_content?: string
+}
+
+interface MomentResult extends UnifiedResultBase, MomentType {
+  _type: 'moment'
+}
+
+type UnifiedResult = KeepResult | MomentResult
 
 function SemanticSearchResultCard({ result }: {
   result: {
@@ -156,14 +187,22 @@ export default function SearchPage() {
   const { data: user } = api.user.current.useQuery()
 
   // 回填向量 Mutation
-  const backfillMutation = api.keep.backfillVectors.useMutation({
+  const backfillKeepMutation = api.keep.backfillVectors.useMutation({
     onSuccess: (data) => {
-      toast.success(`回填成功: 处理了 ${data.processed} 条，剩余 ${data.remaining} 条`)
-    },
-    onError: (error) => {
-      toast.error(`回填失败: ${error.message}`)
+      toast.success(`笔记回填成功: 处理了 ${data.processed} 条，剩余 ${data.remaining} 条`)
     },
   })
+
+  const backfillMomentMutation = api.moment.backfillVectors.useMutation({
+    onSuccess: (data) => {
+      toast.success(`动态回填成功: 处理了 ${data.processed} 条，剩余 ${data.remaining} 条`)
+    },
+  })
+
+  const handleBackfill = () => {
+    backfillKeepMutation.mutate()
+    backfillMomentMutation.mutate()
+  }
 
   // Keep 关键词搜索（mode=keyword 或 mode=hybrid/all+keep）
   const {
@@ -172,7 +211,7 @@ export default function SearchPage() {
     error: keepError,
     isSuccess: keepSuccess,
   } = api.keep.search.useQuery({ query }, {
-    enabled: !!query && searchMode === 'keyword' && (filter === 'all' || filter === 'keep'),
+    enabled: !!query && searchMode === 'keyword',
   })
 
   // Moment 搜索（只在关键词模式下使用）
@@ -182,30 +221,48 @@ export default function SearchPage() {
     error: momentError,
     isSuccess: momentSuccess,
   } = api.moment.search.useQuery({ query }, {
-    enabled: !!query && searchMode === 'keyword' && (filter === 'all' || filter === 'moment'),
+    enabled: !!query && searchMode === 'keyword',
   })
 
   // 语义搜索
   const {
-    isFetching: semanticFetching,
-    data: semanticData = [],
-    error: semanticError,
-    isSuccess: semanticSuccess,
+    isFetching: keepSemanticFetching,
+    data: keepSemanticData = [],
+    error: keepSemanticError,
+    isSuccess: keepSemanticSuccess,
   } = api.keep.semanticSearch.useQuery({ query, topK: 20 }, {
+    enabled: !!query && searchMode === 'semantic',
+  })
+
+  const {
+    isFetching: momentSemanticFetching,
+    data: momentSemanticData = [],
+    error: momentSemanticError,
+    isSuccess: momentSemanticSuccess,
+  } = api.moment.semanticSearch.useQuery({ query, topK: 20 }, {
     enabled: !!query && searchMode === 'semantic',
   })
 
   // 混合搜索
   const {
-    isFetching: hybridFetching,
-    data: hybridData,
-    error: hybridError,
-    isSuccess: hybridSuccess,
+    isFetching: keepHybridFetching,
+    data: keepHybridData,
+    error: keepHybridError,
+    isSuccess: keepHybridSuccess,
   } = api.keep.hybridSearch.useQuery({ query }, {
     enabled: !!query && searchMode === 'hybrid',
   })
 
-  const onSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  const {
+    isFetching: momentHybridFetching,
+    data: momentHybridData,
+    error: momentHybridError,
+    isSuccess: momentHybridSuccess,
+  } = api.moment.hybridSearch.useQuery({ query }, {
+    enabled: !!query && searchMode === 'hybrid',
+  })
+
+  const onSearch = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const newQuery = (formData.get('query') as string).trim()
@@ -219,6 +276,7 @@ export default function SearchPage() {
     }
 
     router.push(`${pathname}?${newSearchParams.toString()}`)
+    router.refresh()
   }
 
   const handleFilterChange = (newFilter: FilterType) => {
@@ -230,6 +288,7 @@ export default function SearchPage() {
       newSearchParams.set('type', newFilter)
     }
     router.push(`${pathname}?${newSearchParams.toString()}`)
+    router.refresh()
   }
 
   const handleModeChange = (newMode: SearchMode) => {
@@ -243,10 +302,11 @@ export default function SearchPage() {
     // 切换模式时重置类型过滤
     newSearchParams.delete('type')
     router.push(`${pathname}?${newSearchParams.toString()}`)
+    router.refresh()
   }
 
-  const isLoading = keepFetching || momentFetching || semanticFetching || hybridFetching
-  const hasError = keepError || momentError || semanticError || hybridError
+  const isLoading = keepFetching || momentFetching || keepSemanticFetching || momentSemanticFetching || keepHybridFetching || momentHybridFetching
+  const hasError = keepError || momentError || keepSemanticError || momentSemanticError || keepHybridError || momentHybridError
 
   // 搜索模式按钮配置
   const modeButtons: { mode: SearchMode, label: string, icon: React.ReactNode, description: string }[] = [
@@ -260,18 +320,18 @@ export default function SearchPage() {
     if (!query || searchMode !== 'keyword')
       return []
 
-    const keeps = keepData.map(item => ({
+    const keeps: UnifiedResult[] = keepData.map(item => ({
       ...item,
       _type: 'keep' as const,
       _sortTime: item.updatedAt instanceof Date ? item.updatedAt.toISOString() : (item.updatedAt as string),
       resultId: item.id,
     }))
 
-    const moments = momentData.map(item => ({
+    const moments: UnifiedResult[] = momentData.map(item => ({
       ...item,
       _type: 'moment' as const,
-      _sortTime: item.updatedAt || item.createdAt,
-      resultId: item.id,
+      _sortTime: (item as any).updatedAt || (item as any).createdAt,
+      resultId: (item as any).id,
     }))
 
     let results = [...keeps, ...moments]
@@ -282,24 +342,91 @@ export default function SearchPage() {
     else if (filter === 'moment') {
       results = results.filter(item => item._type === 'moment')
     }
-
-    return results.sort(
-      (a, b) => new Date(b._sortTime).getTime() - new Date(a._sortTime).getTime(),
+    return (results as UnifiedResult[]).sort(
+      (a, b) => new Date(b._sortTime || 0).getTime() - new Date(a._sortTime || 0).getTime(),
     )
   }, [keepData, momentData, query, filter, searchMode])
 
-  const totalCount = searchMode === 'keyword'
-    ? keepData.length + momentData.length
-    : searchMode === 'semantic'
-      ? semanticData.length
-      : hybridData?.totalCount ?? 0
+  // 语义模式下的合并结果
+  const combinedSemanticResults = React.useMemo(() => {
+    if (!query || searchMode !== 'semantic')
+      return []
 
-  // 筛选按钮（仅关键词模式才有类型过滤）
-  const filterButtons: { type: FilterType, label: string, icon: React.ReactNode, count: number }[] = [
-    { type: 'all', label: '全部', icon: <Search className="w-4 h-4" />, count: keepData.length + momentData.length },
-    { type: 'keep', label: '笔记', icon: <FileText className="w-4 h-4" />, count: keepData.length },
-    { type: 'moment', label: '动态', icon: <MessageSquare className="w-4 h-4" />, count: momentData.length },
-  ]
+    const keeps: UnifiedResult[] = keepSemanticData.map(item => ({
+      ...item,
+      _type: 'keep' as const,
+    }))
+
+    const moments: UnifiedResult[] = momentSemanticData.map(item => ({
+      ...item,
+      _type: 'moment' as const,
+    }))
+
+    let results = [...keeps, ...moments]
+    if (filter === 'keep') {
+      results = results.filter(item => item._type === 'keep')
+    }
+    else if (filter === 'moment') {
+      results = results.filter(item => item._type === 'moment')
+    }
+    return results.sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0))
+  }, [keepSemanticData, momentSemanticData, query, searchMode, filter])
+
+  // 混合模式下的合并结果
+  const combinedHybridResults = React.useMemo(() => {
+    if (!query || searchMode !== 'hybrid')
+      return []
+
+    const keeps: UnifiedResult[] = (keepHybridData?.results ?? []).map(item => ({
+      ...item,
+      _type: 'keep' as const,
+    }))
+
+    const moments: UnifiedResult[] = (momentHybridData?.results ?? []).map(item => ({
+      ...item,
+      _type: 'moment' as const,
+    }))
+
+    let results = [...keeps, ...moments]
+    if (filter === 'keep') {
+      results = results.filter(item => item._type === 'keep')
+    }
+    else if (filter === 'moment') {
+      results = results.filter(item => item._type === 'moment')
+    }
+
+    return results.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+  }, [keepHybridData, momentHybridData, query, searchMode, filter])
+
+  // 筛选按钮
+  const filterButtons = React.useMemo(() => {
+    let keepCount = 0
+    let momentCount = 0
+
+    if (searchMode === 'keyword') {
+      keepCount = keepData.length
+      momentCount = momentData.length
+    }
+    else if (searchMode === 'semantic') {
+      keepCount = keepSemanticData.length
+      momentCount = momentSemanticData.length
+    }
+    else if (searchMode === 'hybrid') {
+      keepCount = (keepHybridData?.totalCount ?? 0)
+      momentCount = (momentHybridData?.totalCount ?? 0)
+    }
+
+    return [
+      { type: 'all' as const, label: '全部', icon: <Search className="w-4 h-4" />, count: keepCount + momentCount },
+      { type: 'keep' as const, label: '笔记', icon: <FileText className="w-4 h-4" />, count: keepCount },
+      { type: 'moment' as const, label: '动态', icon: <MessageSquare className="w-4 h-4" />, count: momentCount },
+    ]
+  }, [searchMode, keepData.length, momentData.length, keepSemanticData.length, momentSemanticData.length, keepHybridData?.totalCount, momentHybridData?.totalCount])
+
+  const totalCount = React.useMemo(() => {
+    const btn = filterButtons.find(b => b.type === filter)
+    return btn?.count ?? 0
+  }, [filterButtons, filter])
 
   return (
     <Container
@@ -310,11 +437,11 @@ export default function SearchPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => backfillMutation.mutate()}
-            disabled={backfillMutation.isPending}
+            onClick={handleBackfill}
+            disabled={backfillKeepMutation.isPending || backfillMomentMutation.isPending}
             className="gap-2"
           >
-            {backfillMutation.isPending
+            {backfillKeepMutation.isPending || backfillMomentMutation.isPending
               ? <Loader2 className="w-4 h-4 animate-spin" />
               : <Database className="w-4 h-4" />}
             回填向量
@@ -372,7 +499,7 @@ export default function SearchPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-10 px-6 rounded-xl"
+              className="absolute right-2 top-2 h-10 px-6 rounded-xl"
             >
               {isLoading
                 ? (
@@ -388,8 +515,8 @@ export default function SearchPage() {
           </div>
         </motion.form>
 
-        {/* 筛选标签（仅关键词模式） */}
-        {query && searchMode === 'keyword' && (
+        {/* 筛选标签 */}
+        {query && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -424,7 +551,12 @@ export default function SearchPage() {
           >
             <p>
               搜索出错：
-              {keepError?.message || momentError?.message || semanticError?.message || hybridError?.message}
+              {keepError?.message
+                || momentError?.message
+                || keepSemanticError?.message
+                || momentSemanticError?.message
+                || keepHybridError?.message
+                || momentHybridError?.message}
             </p>
           </motion.div>
         )}
@@ -463,23 +595,25 @@ export default function SearchPage() {
                   {' '}
                   个结果
                 </span>
-                {searchMode === 'hybrid' && hybridData && (
+                {searchMode === 'hybrid' && (
                   <span className="flex items-center gap-4">
                     <span className="flex items-center gap-1">
                       <Search className="w-4 h-4" />
                       关键词
                       {' '}
-                      {hybridData.keywordCount}
+                      {(filter === 'all' || filter === 'keep' ? (keepHybridData?.keywordCount ?? 0) : 0)
+                        + (filter === 'all' || filter === 'moment' ? (momentHybridData?.keywordCount ?? 0) : 0)}
                     </span>
                     <span className="flex items-center gap-1">
                       <Brain className="w-4 h-4" />
                       语义
                       {' '}
-                      {hybridData.semanticCount}
+                      {(filter === 'all' || filter === 'keep' ? (keepHybridData?.semanticCount ?? 0) : 0)
+                        + (filter === 'all' || filter === 'moment' ? (momentHybridData?.semanticCount ?? 0) : 0)}
                     </span>
                   </span>
                 )}
-                {searchMode === 'keyword' && totalCount > 0 && (
+                {searchMode === 'keyword' && totalCount > 0 && filter === 'all' && (
                   <span className="flex items-center gap-4">
                     <span className="flex items-center gap-1">
                       <FileText className="w-4 h-4" />
@@ -504,7 +638,7 @@ export default function SearchPage() {
                       <div className="space-y-3">
                         {combinedKeywordResults.map((result, index) => (
                           <motion.div
-                            key={`${result._type}-${result.resultId}`}
+                            key={`${result._type}-${result.id}`}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
@@ -515,8 +649,9 @@ export default function SearchPage() {
                                     ...result,
                                     title: result.title ?? undefined,
                                     summary: result.summary ?? undefined,
+                                    content: result.content ?? undefined,
                                     similarity: result.similarity ?? 0,
-                                  }}
+                                  } as any}
                                   />
                                 )
                               : <MomentItem moment={result} />}
@@ -537,26 +672,37 @@ export default function SearchPage() {
 
               {/* 语义搜索结果 */}
               {searchMode === 'semantic' && (
-                semanticData.length > 0
+                combinedSemanticResults.length > 0
                   ? (
                       <div className="space-y-3">
-                        {semanticData.map((result, index) => (
+                        {combinedSemanticResults.map((result, index) => (
                           <motion.div
                             key={result.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
                           >
-                            <SemanticSearchResultCard result={result} />
+                            {result._type === 'keep'
+                              ? (
+                                  <SemanticSearchResultCard result={{
+                                    ...result,
+                                    title: result.title ?? undefined,
+                                    summary: result.summary ?? undefined,
+                                    content: result.content ?? undefined,
+                                    similarity: result.similarity ?? 0,
+                                  } as any}
+                                  />
+                                )
+                              : <MomentItem moment={result} />}
                           </motion.div>
                         ))}
                       </div>
                     )
                   : (
-                      !hasError && semanticSuccess && (
+                      !hasError && (keepSemanticSuccess || momentSemanticSuccess) && (
                         <Empty
                           title="未找到语义相关结果"
-                          description={`没有找到与"${query}"语义相关的笔记。请尝试用不同的方式描述。`}
+                          description={`没有找到与"${query}"语义相关的内容。请尝试用不同的方式描述。`}
                           className="py-12"
                         />
                       )
@@ -565,23 +711,34 @@ export default function SearchPage() {
 
               {/* 混合搜索结果 */}
               {searchMode === 'hybrid' && (
-                hybridData && hybridData.results.length > 0
+                combinedHybridResults.length > 0
                   ? (
                       <div className="space-y-3">
-                        {hybridData.results.map((result, index) => (
+                        {combinedHybridResults.map((result, index) => (
                           <motion.div
                             key={result.id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.05 }}
                           >
-                            <SemanticSearchResultCard result={result} />
+                            {result._type === 'keep'
+                              ? (
+                                  <SemanticSearchResultCard result={{
+                                    ...result,
+                                    title: result.title ?? undefined,
+                                    summary: result.summary ?? undefined,
+                                    content: result.content ?? undefined,
+                                    similarity: result.similarity ?? 0,
+                                  } as any}
+                                  />
+                                )
+                              : <MomentItem moment={result} />}
                           </motion.div>
                         ))}
                       </div>
                     )
                   : (
-                      !hasError && hybridSuccess && (
+                      !hasError && (keepHybridSuccess || momentHybridSuccess) && (
                         <Empty
                           title="未找到结果"
                           description={`没有找到与"${query}"相关的内容。尝试换个说法？`}

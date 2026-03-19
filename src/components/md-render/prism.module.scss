@@ -1,5 +1,6 @@
 .pre {
-  @apply relative mb-4 overflow-hidden rounded-lg;
+  @apply relative mb-4 overflow-hidden rounded-xl border shadow-2xl;
+  border-color: hsl(var(--border) / 0.5);
 
   div {
     &:nth-child(2)::-webkit-scrollbar-thumb {
@@ -12,7 +13,7 @@
   }
 
   :has(> span) {
-    @apply mb-4;
+    // @apply mb-4;
     white-space: normal;
   }
 
@@ -25,69 +26,26 @@
 }
 
 .toolbar {
-  position: relative;
-  height: 2rem;
-  width: 100%;
-  background: linear-gradient(180deg, #3c3c3c 0%, #2a2a2a 100%);
-  border-bottom: 1px solid #1a1a1a;
-  @apply flex align-middle;
+  @apply relative flex h-8 w-full items-center px-4 backdrop-blur-md;
+  background-color: hsl(var(--muted) / 0.6);
+  border-bottom: 1px solid hsl(var(--border) / 0.3);
+
+  // Traffic lights
+  &::before {
+    @apply h-2.5 w-2.5 rounded-full;
+    background: #ff5f56;
+    box-shadow:
+      18px 0 0 #ffbd2e,
+      36px 0 0 #27c93f;
+    content: '';
+  }
 
   .toolbarLanguage {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    cursor: text;
-    color: #a8a8a8;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    @apply absolute left-1/2 -translate-x-1/2 font-mono text-[14px] text-muted-foreground/80 lowercase tracking-wider;
+    pointer-events: none;
   }
 
   .toolbarAction {
-    margin-left: auto;
-    line-height: 2rem;
-    color: hsl(var(--muted-foreground));
-    @apply mr-2;
-    font-size: 0.75rem;
-
-    &:hover {
-      color: hsl(var(--primary));
-      background: transparent;
-    }
-  }
-
-  &::before {
-    position: absolute;
-    top: 50%;
-    left: 12px;
-    width: 11px;
-    height: 11px;
-    background: #fc625d;
-    border-radius: 50%;
-    box-shadow:
-      20px 0 #fdbc40,
-      40px 0 #35cd4b;
-    transform: translateY(-50%);
-    content: ' ';
-  }
-
-  // 亮色主题
-  :global(.light) & {
-    background: linear-gradient(180deg, #f5f5f5 0%, #ebebeb 100%);
-    border-bottom-color: #ddd;
-
-    .toolbarLanguage {
-      color: #555;
-    }
-
-    .toolbarAction {
-      color: #555;
-
-      &:hover {
-        color: hsl(var(--primary));
-      }
-    }
+    @apply absolute right-4 flex items-center;
   }
 }

@@ -61,6 +61,51 @@ export async function semanticSearchKeeps(query: string, userIds: string[], topK
 }
 
 /**
+ * 语义搜索 Moment
+ * @param query 搜索关键词
+ * @param userIds 可访问的用户 ID 列表
+ * @param topK 返回结果数
+ */
+export async function semanticSearchMoments(query: string, userIds: string[], topK = 10) {
+  if (userIds.length === 0)
+    return []
+
+  try {
+    const embedding = await getEmbedding(query)
+    const vectorStr = `[${embedding.join(',')}]`
+
+    const results = await db.$queryRaw<any[]>(Prisma.sql`
+      SELECT 
+        id, content, "isPublic", category,
+        "createdAt", "updatedAt",
+        (1 - (CAST(content_vector AS vector) <=> CAST(${vectorStr} AS vector))) as similarity,
+        ts_headline('simple', COALESCE(content, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_content
+      FROM moments
+      WHERE 
+        content_vector IS NOT NULL AND
+        ("isPublic" = true OR "ownerId" IN (${Prisma.join(userIds)}))
+      ORDER BY similarity DESC
+      LIMIT ${topK}
+    `)
+
+    return results.map(r => ({
+      id: r.id,
+      content: r.content,
+      category: r.category,
+      isPublic: r.isPublic,
+      similarity: Number(r.similarity),
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      highlight_content: r.highlight_content || undefined,
+    }))
+  }
+  catch (error) {
+    console.error('[Vector Search Moments] Failed:', error)
+    return []
+  }
+}
+
+/**
  * RRF (Reciprocal Rank Fusion) 融合排序
  * @param keywordResults 关键词搜索结果记录
  * @param semanticResults 语义搜索结果记录

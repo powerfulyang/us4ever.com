@@ -1,12 +1,12 @@
-import type { Prisma } from '@prisma/client'
 import type { BaseListFilter } from '@/types/common'
+import { Prisma } from '@prisma/client'
 import { TRPCError } from '@trpc/server'
-import { map } from 'lodash-es'
 import { after } from 'next/server'
 import { imageInclude, transformImageToResponse, transformVideoToResponse, videoInclude } from 'src/service/asset.service'
-import { SEARCH_ENDPOINT } from '@/lib/constants'
 import { db } from '@/server/db'
 import { getCursor } from '@/service'
+import { getEmbedding } from './embedding.service'
+import { hybridRankFusion, semanticSearchMoments } from './vector-search.service'
 
 /**
  * 动态图片关联接口
@@ -287,7 +287,7 @@ export async function createMoment(input: CreateMomentInput, ownerId: string) {
   } = input
 
   // 使用事务确保原子性操作
-  return await db.$transaction(async (tx) => {
+  const moment = await db.$transaction(async (tx) => {
     return tx.moment.create({
       data: {
         category,
@@ -323,6 +323,11 @@ export async function createMoment(input: CreateMomentInput, ownerId: string) {
       },
     })
   })
+
+  // 异步生成向量
+  after(updateMomentVectors(moment.id, content ?? ''))
+
+  return moment
 }
 
 /**
@@ -333,7 +338,7 @@ export async function updateMoment(input: UpdateMomentInput, ownerId: string) {
   const { id, content, category, images = [], videos = [] } = input
 
   // 使用事务确保原子性操作
-  return db.$transaction(async (tx) => {
+  const moment = await db.$transaction(async (tx) => {
     // 删除旧的图片关联
     await tx.momentImages.deleteMany({
       where: {
@@ -391,6 +396,11 @@ export async function updateMoment(input: UpdateMomentInput, ownerId: string) {
       },
     })
   })
+
+  // 异步生成向量
+  after(updateMomentVectors(id, content ?? ''))
+
+  return moment
 }
 
 /**
@@ -608,47 +618,58 @@ export async function getMomentById(id: string, userIds: string[]) {
   }
 }
 
-export interface SearchResult {
-  hits: Hits
-}
-
-export interface Hits {
-  total: Total
-  hits: Hit[]
-}
-
-export interface Hit {
-  _index: string
-  _id: string
-  _score: number
-  _source: Source
-  highlight?: Highlight
-}
-
-export interface Source {
+/**
+ * Moment 关键词搜索命中项
+ */
+export interface MomentSearchHit {
+  id: string
+  score: number
+  similarity?: number
   content: string
-}
-
-export interface Highlight {
-  content?: string[]
-}
-
-export interface Total {
-  value: number
-  relation: string
+  isPublic: boolean
+  category: string
+  createdAt: Date
+  updatedAt: Date
+  highlight_content?: string
+  [key: string]: any
 }
 
 /**
  * 搜索动态
  * @param searchTerm 搜索关键词
- * @returns 搜索结果
+ * @returns 搜索结果列表
  */
-export async function searchMoments(searchTerm: string): Promise<SearchResult> {
-  const response = await fetch(`${SEARCH_ENDPOINT}/moments?q=${encodeURIComponent(searchTerm)}`)
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`)
+export async function searchMoments(searchTerm: string, topK = 100): Promise<MomentSearchHit[]> {
+  const query = searchTerm.trim()
+  if (!query) {
+    return []
   }
-  return await response.json()
+
+  // 使用 PostgreSQL pg_trgm 进行相似度搜索
+  const results = await db.$queryRaw<any[]>(Prisma.sql`
+    SELECT
+      id, content, "isPublic", category, "createdAt", "updatedAt",
+      (word_similarity(${query}::text, COALESCE(content, ''))) as score,
+      ts_headline('simple', COALESCE(content, ''), websearch_to_tsquery('simple', ${query}), 'StartSel=<mark>, StopSel=</mark>') as highlight_content
+    FROM moments
+    WHERE
+      (${query}::text <% COALESCE(content, ''))
+      OR (COALESCE(content, '') ILIKE ${`%${query}%`})
+    ORDER BY score DESC
+    LIMIT ${topK}
+  `)
+
+  return results.map(r => ({
+    id: r.id,
+    score: Number(r.score),
+    similarity: Number(r.score),
+    content: r.content,
+    isPublic: r.isPublic,
+    category: r.category,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+    highlight_content: r.highlight_content || undefined,
+  }))
 }
 
 /**
@@ -662,9 +683,8 @@ export async function searchAndFetchMoments(query: string, userIds: string[]) {
     return []
   }
 
-  const result = await searchMoments(query)
-  const resultList = result.hits.hits
-  const ids = map(resultList, '_id')
+  const resultList = await searchMoments(query)
+  const ids = resultList.map(hit => hit.id)
 
   const list = await db.moment.findMany({
     include: {
@@ -712,7 +732,7 @@ export async function searchAndFetchMoments(query: string, userIds: string[]) {
         moment.id,
         {
           ...moment,
-          content: resultList.find(hit => hit._id === moment.id)?.highlight?.content?.[0] || moment.content,
+          content: resultList.find(hit => hit.id === moment.id)?.highlight_content || moment.content,
           images: moment.images.map(({ image }) => transformImageToResponse(image)),
           videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
         },
@@ -776,6 +796,160 @@ export async function getCategories(userIds: string[]) {
   return categories.map(category => category.category)
 }
 
+/**
+ * 为指定 Moment 生成并更新向量
+ * @param momentId Moment ID
+ * @param content 动态内容
+ */
+export async function updateMomentVectors(momentId: string, content: string) {
+  try {
+    const vector = await getEmbedding(content)
+    const vectorStr = `[${vector.join(',')}]`
+
+    await db.$executeRaw(Prisma.sql`
+      UPDATE moments
+      SET content_vector = ${vectorStr}::vector
+      WHERE id = ${momentId}
+    `)
+
+    console.log(`[RAG] Vector updated for Moment ${momentId}`)
+  }
+  catch (error) {
+    console.error(`[RAG] Failed to update vector for Moment ${momentId}:`, error)
+  }
+}
+
+/**
+ * 为搜索命中的 ID 列表填充完整动态数据
+ */
+async function enrichSearchHits(hits: MomentSearchHit[], userIds: string[]) {
+  const ids = hits.map(h => h.id)
+  if (ids.length === 0)
+    return []
+
+  const list = await db.moment.findMany({
+    include: {
+      images: {
+        include: {
+          image: {
+            include: imageInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      videos: {
+        include: {
+          video: {
+            include: videoInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      owner: true,
+    },
+    where: {
+      id: { in: ids },
+      OR: [
+        { ownerId: { in: userIds } },
+        { isPublic: true },
+      ],
+    },
+  })
+
+  // 转换为Map以便按命中结果的顺序排序
+  const momentsMap = new Map(
+    list.map(
+      moment => [
+        moment.id,
+        {
+          ...moment,
+          images: moment.images.map(({ image }) => transformImageToResponse(image)),
+          videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
+        },
+      ],
+    ),
+  )
+
+  // 按照原始搜索命中的顺序返回，并保留原有的 hit 信息（如 similarity, matchType, score 等）
+  return hits
+    .filter(h => momentsMap.has(h.id))
+    .map(h => ({
+      ...momentsMap.get(h.id)!,
+      ...h,
+    }))
+}
+
+/**
+ * 语义搜索 Moment
+ */
+async function semanticSearch(query: string, userIds: string[], topK = 10) {
+  const hitsRaw = await semanticSearchMoments(query, userIds, topK)
+  const hits = hitsRaw.map(h => ({ ...h, score: h.similarity }))
+  return enrichSearchHits(hits, userIds)
+}
+
+/**
+ * 混合搜索 Moment
+ */
+async function hybridSearch(query: string, userIds: string[], topK = 10) {
+  const [keywordHits, semanticHitsRaw] = await Promise.all([
+    searchMoments(query, topK).catch(() => [] as MomentSearchHit[]),
+    semanticSearchMoments(query, userIds, topK * 2).catch(() => []),
+  ])
+
+  // Ensure semantic hits have a score for compatibility
+  const semanticHits = semanticHitsRaw.map(h => ({ ...h, score: h.similarity }))
+
+  const fusedHits = hybridRankFusion(keywordHits, semanticHits)
+
+  // 为融合后的 ID 填充完整数据
+  const enrichedResults = await enrichSearchHits(fusedHits, userIds)
+
+  return {
+    results: enrichedResults,
+    keywordCount: keywordHits.length,
+    semanticCount: semanticHits.length,
+    totalCount: enrichedResults.length,
+  }
+}
+
+/**
+ * 批量回填向量
+ */
+async function backfillVectors(batchSize = 20) {
+  const pendingMoments = await db.$queryRaw<{ id: string, content: string }[]>(Prisma.sql`
+    SELECT id, content FROM moments
+    WHERE content_vector IS NULL
+    LIMIT ${batchSize}
+  `)
+
+  if (pendingMoments.length === 0) {
+    return { processed: 0, remaining: 0 }
+  }
+
+  let processed = 0
+  for (const moment of pendingMoments) {
+    try {
+      await updateMomentVectors(moment.id, moment.content)
+      processed++
+    }
+    catch (error) {
+      console.error(`[RAG] Backfill failed for Moment ${moment.id}:`, error)
+    }
+  }
+
+  const countResult = await db.$queryRaw<any[]>(Prisma.sql`
+    SELECT count(*)::int as count FROM moments WHERE content_vector IS NULL
+  `)
+  const remaining = countResult[0]?.count ?? 0
+
+  return { processed, remaining }
+}
+
 export const momentService = {
   listMoments,
   findMomentsByCursor,
@@ -791,4 +965,7 @@ export const momentService = {
   fetchPublicItems,
   incrementMomentViews,
   getCategories,
+  semanticSearch,
+  hybridSearch,
+  backfillVectors,
 }

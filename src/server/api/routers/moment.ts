@@ -113,4 +113,22 @@ export const momentRouter = createTRPCRouter({
     .query(async ({ ctx }) => {
       return momentService.getCategories(ctx.groupUserIds)
     }),
+
+  semanticSearch: publicProcedure.input(QuerySearchSchema).query(
+    async ({ input, ctx }) => {
+      const userIds = ctx.groupUserIds
+      return momentService.semanticSearch(input.query, userIds)
+    },
+  ),
+
+  hybridSearch: publicProcedure.input(QuerySearchSchema).query(
+    async ({ input, ctx }) => {
+      const userIds = ctx.groupUserIds
+      return momentService.hybridSearch(input.query, userIds)
+    },
+  ),
+
+  backfillVectors: protectedProcedure.mutation(async () => {
+    return momentService.backfillVectors()
+  }),
 })
