@@ -14,6 +14,7 @@ export const env = createEnv({
     JWT_SECRET: z.string().default(process.env.hostname || 'localhost'),
     AMAP_KEY: z.string().optional(),
     TELEGRAM_API_ENDPOINT: z.string().default('http://api.telegram:8000'),
+    GEMINI_API_KEY: z.string().optional(),
   },
 
   /**
@@ -35,6 +36,7 @@ export const env = createEnv({
     JWT_SECRET: process.env.JWT_SECRET,
     AMAP_KEY: process.env.AMAP_KEY,
     TELEGRAM_API_ENDPOINT: process.env.TELEGRAM_API_ENDPOINT,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -1,6 +1,6 @@
 import { BasePrimaryKeySchema, QuerySearchSchema, UpdateViewsSchema } from '@/dto/base.dto'
-import { createKeepSchema, queryKeepPageSchema, queryKeepSchema, updateKeepSchema } from '@/dto/keep.dto'
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { createKeepSchema, queryKeepPageSchema, queryKeepSchema, semanticSearchSchema, updateKeepSchema } from '@/dto/keep.dto'
+import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { keepService } from '@/service/keep.service'
 
 export const keepRouter = createTRPCRouter({
@@ -51,16 +51,35 @@ export const keepRouter = createTRPCRouter({
       return keepService.deleteKeep(input.id, ctx.user.id)
     }),
 
-  // 透传到 api.us4ever
+  // 关键词搜索
   search: publicProcedure
     .input(QuerySearchSchema)
     .query(async ({ input, ctx }) => {
-      const userIds = ctx.groupUserIds
-      return keepService.searchKeepsWithAccess(input.query, userIds)
+      return keepService.searchKeepsWithAccess(input.query, ctx.groupUserIds, input.topK)
     }),
 
   getCategories: publicProcedure
     .query(async ({ ctx }) => {
       return keepService.getCategories(ctx.groupUserIds)
+    }),
+
+  // RAG 语义搜索
+  semanticSearch: publicProcedure
+    .input(semanticSearchSchema)
+    .query(async ({ input, ctx }) => {
+      return keepService.semanticSearch(input.query, ctx.groupUserIds, input.topK)
+    }),
+
+  // 混合搜索：关键词 + 语义
+  hybridSearch: publicProcedure
+    .input(QuerySearchSchema)
+    .query(async ({ input, ctx }) => {
+      return keepService.hybridSearch(input.query, ctx.groupUserIds, input.topK)
+    }),
+
+  // 管理员：批量回填向量
+  backfillVectors: adminProcedure
+    .mutation(async () => {
+      return keepService.backfillVectors()
     }),
 })

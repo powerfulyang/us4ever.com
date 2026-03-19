@@ -37,7 +37,7 @@ export default async function ImagePage({
       >
         <div className="max-w-5xl mx-auto">
           <ImageUpload />
-          <ImageCategoryServer currentCategory={category} />
+          <ImageCategoryServer currentCategory={category} basePath="/image" />
           <ImagePaginationClient category={category} initialPage={Math.max(1, page)} />
         </div>
       </Container>

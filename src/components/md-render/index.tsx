@@ -20,6 +20,10 @@ interface MarkdownProps {
   className?: string
   /** 是否启用 Mermaid 图表支持 */
   enableMermaid?: boolean
+  /** 根标签，默认为 div */
+  as?: 'div' | 'span'
+  /** 是否移除段落默认边距 */
+  noMargin?: boolean
 }
 
 // 自定义允许的标签
@@ -75,7 +79,7 @@ function rehypeFixParagraphs() {
  * Markdown 渲染组件 - VitePress 风格
  * 支持亮暗主题切换，代码高亮使用 Shiki
  */
-export const Markdown: FC<MarkdownProps> = ({ children, className }) => {
+export const Markdown: FC<MarkdownProps> = ({ children, className, as: RootTag = 'div', noMargin }) => {
   const { resolvedTheme } = useTheme()
 
   const components = useMemo(() => ({
@@ -109,6 +113,13 @@ export const Markdown: FC<MarkdownProps> = ({ children, className }) => {
         {children}
       </a>
     ),
+    // 段落 - 如果 as="span"，则渲染为 span 避免 HTML nesting 错误
+    p: ({ children }: any) => {
+      if (RootTag === 'span') {
+        return <span className={noMargin ? 'm-0' : 'm-[1em_0] block'}>{children}</span>
+      }
+      return <p className={noMargin ? 'm-0' : ''}>{children}</p>
+    },
     // 图片
     img: ({ src, alt }: any) => (
       <figure className={styles.figure}>
@@ -122,10 +133,16 @@ export const Markdown: FC<MarkdownProps> = ({ children, className }) => {
         <table>{children}</table>
       </div>
     ),
-  }), [])
+  }), [RootTag, noMargin])
 
   return (
-    <div className={cn(styles.markdown, resolvedTheme === 'dark' && styles.dark, className)}>
+    <RootTag className={cn(
+      styles.markdown,
+      resolvedTheme === 'dark' && styles.dark,
+      noMargin && styles.noMargin,
+      className,
+    )}
+    >
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[
@@ -138,7 +155,7 @@ export const Markdown: FC<MarkdownProps> = ({ children, className }) => {
       >
         {children}
       </ReactMarkdown>
-    </div>
+    </RootTag>
   )
 }
 

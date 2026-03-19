@@ -88,3 +88,11 @@ export const keepPageResponseSchema = z.object({
 })
 
 export type KeepPageResponseDTO = z.infer<typeof keepPageResponseSchema>
+
+// 语义搜索 DTO
+export const semanticSearchSchema = z.object({
+  query: z.string().min(1, 'query不能为空'),
+  topK: z.number().int().min(1).max(50).default(10),
+})
+
+export type SemanticSearchDTO = z.infer<typeof semanticSearchSchema>
