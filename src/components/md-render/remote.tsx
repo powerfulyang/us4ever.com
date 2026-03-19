@@ -28,7 +28,7 @@ function PreComponent({ children }: any) {
     )
   }
 
-  return <PrismCode language={language} maxHeight={500}>{value}</PrismCode>
+  return <PrismCode language={language}>{value}</PrismCode>
 }
 
 function LinkComponent({ href, children }: any) {

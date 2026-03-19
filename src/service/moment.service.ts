@@ -920,7 +920,7 @@ async function hybridSearch(query: string, userIds: string[], topK = 10) {
 /**
  * 批量回填向量
  */
-async function backfillVectors(batchSize = 20) {
+async function backfillVectors(batchSize = 50) {
   const pendingMoments = await db.$queryRaw<{ id: string, content: string }[]>(Prisma.sql`
     SELECT id, content FROM moments
     WHERE content_vector IS NULL

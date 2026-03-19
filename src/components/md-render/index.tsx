@@ -98,7 +98,7 @@ export const Markdown: FC<MarkdownProps> = ({ children, className, as: RootTag =
       const match = LANGUAGE_REGEX.exec(codeClassName || '')
       const language = match?.[1] || 'text'
       return (
-        <PrismCode language={language} maxHeight={500}>
+        <PrismCode language={language}>
           {String(codeChildren).replace(NEWLINE_REGEX, '')}
         </PrismCode>
       )

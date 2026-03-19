@@ -442,8 +442,8 @@ async function updateKeepVectors(
     const summaryVector = vectors.summary_vector ? `[${vectors.summary_vector.join(',')}]` : null
 
     await db.$executeRaw(Prisma.sql`
-      UPDATE keeps 
-      SET 
+      UPDATE keeps
+      SET
         title_vector = ${titleVector}::vector,
         content_vector = ${contentVector}::vector,
         summary_vector = ${summaryVector}::vector
@@ -517,12 +517,12 @@ async function hybridSearch(query: string, userIds: string[], topK = 10) {
  * 为所有没有向量的 Keep 生成向量
  * @param batchSize 每批处理数量
  */
-async function backfillVectors(batchSize = 10) {
+async function backfillVectors(batchSize = 50) {
   // 由于 content_vector 是 Unsupported 类型，无法直接在 findMany 中使用 where
   // 使用 $queryRaw 先获取待处理的数据
   const pendingKeeps = await db.$queryRaw<any[]>(Prisma.sql`
-    SELECT id, title, content, summary FROM keeps 
-    WHERE content_vector IS NULL 
+    SELECT id, title, content, summary FROM keeps
+    WHERE content_vector IS NULL
     LIMIT ${batchSize}
   `)
 

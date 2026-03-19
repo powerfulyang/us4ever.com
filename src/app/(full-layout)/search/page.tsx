@@ -6,7 +6,7 @@ import { Brain, Database, FileText, Globe, Loader2, Lock, MessageSquare, Search,
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
-import { toast } from 'sonner'
+import { toast } from 'react-toastify'
 import { Container } from '@/components/layout/Container'
 import { Empty } from '@/components/layout/Empty'
 import { MdRender } from '@/components/md-render'

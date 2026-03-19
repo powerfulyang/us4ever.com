@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from 'react-toastify'
 import PushNotificationManager from '@/components/pwa/PushNotificationManager'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'

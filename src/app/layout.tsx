@@ -6,7 +6,6 @@ import { UserProvider } from '@/components/auth/user-provider'
 import { PageProgress } from '@/components/page-progress'
 import ServiceWorkerRegister from '@/components/pwa/Register'
 import { ThemeProvider } from '@/components/theme-provider'
-import { Toaster } from '@/components/ui/sonner'
 import { BASE_URL } from '@/lib/constants'
 
 import { TRPCReactProvider } from '@/trpc/react'
@@ -67,7 +66,6 @@ export default async function RootLayout({ children }: Props) {
             <UserProvider user={user} />
             <PageProgress />
             {children}
-            <Toaster />
           </TRPCReactProvider>
         </ThemeProvider>
       </body>
