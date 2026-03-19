@@ -17,7 +17,6 @@
     "db:studio": "dotenv -e .env -- prisma studio",
     "db:push": "dotenv -e .env -- prisma db push",
     "dev": "next dev --port 12345 --turbopack",
-    "dev:turbopack": "next dev --turbopack",
     "postinstall": "dotenv -e .env -- prisma generate && npx simple-git-hooks",
     "lint": "eslint . --fix",
     "lint:fix": "eslint src --fix",

@@ -80,7 +80,7 @@ export function hybridRankFusion(
     scores.set(res.id, (scores.get(res.id) || 0) + score)
     // 保存元数据以便返回
     if (!originalData.has(res.id)) {
-      originalData.set(res.id, res)
+      originalData.set(res.id, { ...res })
     }
   })
 
@@ -88,9 +88,12 @@ export function hybridRankFusion(
   semanticResults.forEach((res, index) => {
     const score = 1 / (k + index + 1)
     scores.set(res.id, (scores.get(res.id) || 0) + score)
-    // 保存元数据以便返回
+    // 保存元数据以便返回，如果已存在则合并新技术（如 similarity）
     if (!originalData.has(res.id)) {
-      originalData.set(res.id, res)
+      originalData.set(res.id, { ...res })
+    }
+    else {
+      originalData.set(res.id, { ...originalData.get(res.id), ...res })
     }
   })
 

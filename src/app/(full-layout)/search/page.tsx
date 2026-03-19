@@ -34,7 +34,7 @@ function SemanticSearchResultCard({ result }: {
     highlight_content?: string
   }
 }) {
-  const similarityPercent = Math.round(result.similarity * 100)
+  const similarityPercent = Math.round((result.similarity || 0) * 100)
 
   return (
     <Link href={`/keep/${result.id}`}>
@@ -515,7 +515,7 @@ export default function SearchPage() {
                                     ...result,
                                     title: result.title ?? undefined,
                                     summary: result.summary ?? undefined,
-                                    similarity: result.score ?? 0,
+                                    similarity: result.similarity ?? 0,
                                   }}
                                   />
                                 )

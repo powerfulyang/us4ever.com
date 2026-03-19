@@ -296,6 +296,7 @@ async function findAccessiblePage(
 export interface KeywordSearchHit {
   id: string
   score: number
+  similarity?: number
   title: string | null
   content: string
   summary: string | null
@@ -343,6 +344,7 @@ async function searchKeeps(searchTerm: string, topK = 10): Promise<KeywordSearch
   return results.map(r => ({
     id: r.id,
     score: Number(r.score),
+    similarity: Number(r.score) / 3.7, // 归一化相似度 (max 3.7)
     title: r.title,
     content: r.content,
     summary: r.summary,
@@ -360,6 +362,7 @@ async function searchKeeps(searchTerm: string, topK = 10): Promise<KeywordSearch
  * 搜索笔记并过滤出用户有权访问的内容
  * @param query 搜索关键词
  * @param userIds 用户ID列表
+ * @param topK
  * @returns 过滤后的搜索结果
  */
 async function searchKeepsWithAccess(query: string, userIds: string[], topK = 10) {
@@ -462,6 +465,7 @@ async function semanticSearch(query: string, userIds: string[], topK = 10) {
  * 混合搜索：关键词搜索 + 语义搜索，使用 RRF 融合排序
  * @param query 搜索查询文本
  * @param userIds 可访问的用户 ID 列表
+ * @param topK
  */
 async function hybridSearch(query: string, userIds: string[], topK = 10) {
   // 并发执行关键词搜索和语义搜索
@@ -557,7 +561,6 @@ export const keepService = {
   updateKeep,
   getKeepById,
   deleteKeep,
-  incrementKeepViews,
   searchKeepsWithAccess,
   getCategories,
   semanticSearch,
