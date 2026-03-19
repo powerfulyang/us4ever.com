@@ -10,19 +10,6 @@ function createPrismaClient() {
     {
       adapter,
       log: env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-      omit: {
-        moment: {
-          content_vector: true,
-        },
-        keep: {
-          content_vector: true,
-          summary_vector: true,
-          title_vector: true,
-        },
-        image: {
-          description_vector: true,
-        },
-      },
     },
   )
 }

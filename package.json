@@ -11,7 +11,8 @@
   },
   "scripts": {
     "build": "cross-env SKIP_ENV_VALIDATION=true next build",
-    "db:generate": "dotenv -e .env -- prisma generate",
+    "db:migrate:dev": "dotenv -e .env -- prisma migrate dev",
+    "db:migrate:reset": "dotenv -e .env -- prisma migrate reset",
     "db:migrate": "dotenv -e .env -- prisma migrate deploy",
     "db:seed": "dotenv -e .env -- prisma db seed",
     "db:studio": "dotenv -e .env -- prisma studio",
