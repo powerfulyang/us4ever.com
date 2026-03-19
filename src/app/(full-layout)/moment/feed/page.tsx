@@ -32,7 +32,7 @@ export default async function MomentFeedPage({
       >
         <div className="max-w-2xl mx-auto space-y-4">
           <MomentCreate />
-          <MomentCategoryServer currentCategory={category} />
+          <MomentCategoryServer currentCategory={category} basePath="/moment/feed" />
           <MomentList category={category} />
         </div>
       </Container>

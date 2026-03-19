@@ -56,7 +56,7 @@ export default async function KeepPage({
           </AuthenticatedOnly>
         )}
       >
-        <KeepCategoryServer currentCategory={category} />
+        <KeepCategoryServer currentCategory={category} basePath="/keep" />
         <KeepPaginationClient category={category} initialPage={Math.max(1, page)} />
       </Container>
     </HydrateClient>

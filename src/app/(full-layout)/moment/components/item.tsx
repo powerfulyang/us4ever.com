@@ -138,7 +138,7 @@ export function MomentItem({ moment }: MomentItemProps) {
               <PhotoProvider maskOpacity={0.8} visible={isPreviewOpen} onVisibleChange={handleVisibleChange}>
                 <div className="flex flex-col gap-2" onClick={stopPropagation}>
                   {moment.images.length === 1 && moment.images[0] && (
-                    <PhotoView src={moment.images[0].original_url}>
+                    <PhotoView src={moment.images[0].compressed_url}>
                       <div className="rounded-md overflow-hidden cursor-pointer">
                         <AssetImageWithData
                           image={moment.images[0] as ImageResponse}
@@ -152,7 +152,7 @@ export function MomentItem({ moment }: MomentItemProps) {
                   {moment.images.length > 1 && (
                     <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
                       {moment.images.map(image => (
-                        <PhotoView key={image.id} src={image.original_url}>
+                        <PhotoView key={image.id} src={image.compressed_url}>
                           <div
                             className="aspect-square overflow-hidden bg-secondary cursor-pointer"
                           >

@@ -51,7 +51,7 @@ export default async function KeepFeedPage({
           </AuthenticatedOnly>
         )}
       >
-        <KeepCategoryServer currentCategory={category} />
+        <KeepCategoryServer currentCategory={category} basePath="/keep/feed" />
         <KeepList category={category} />
       </Container>
     </HydrateClient>

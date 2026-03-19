@@ -224,7 +224,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push('/keep')}
+            onClick={() => router.back()}
             className="gap-2"
           >
             <ArrowLeft className="w-4 h-4" />

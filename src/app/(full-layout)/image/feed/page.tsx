@@ -32,7 +32,7 @@ export default async function ImageFeedPage({
       >
         <div className="max-w-5xl mx-auto">
           <ImageUpload />
-          <ImageCategoryServer currentCategory={category} />
+          <ImageCategoryServer currentCategory={category} basePath="/image/feed" />
           <ImageList category={category} />
         </div>
       </Container>
