@@ -4,6 +4,7 @@ import { bufferTime, catchError, concatMap, distinct, EMPTY, from, mergeMap, Sub
 import { handleFile, sync_telegram } from '@/lib/telegram'
 import { db } from '@/server/db'
 import { protectedRoutes } from '@/server/hono'
+import { logger } from '@/server/logger'
 import { createMoment } from '@/service/moment.service'
 
 export interface TelegramSyncItem {
@@ -29,6 +30,8 @@ const syncProcessor$ = telegramSync$.pipe(
     }
     const createdAt = new Date(item.createdAt * 1000)
 
+    logger.telegram.debug('Processing Telegram message', { id: item.id, category })
+
     const exist = await db.moment.findFirst({
       where: {
         category,
@@ -40,6 +43,7 @@ const syncProcessor$ = telegramSync$.pipe(
     })
     if (exist) {
       if (!force) {
+        logger.telegram.debug('Moment already exists, skipping', { id: item.id })
         return 'Moment already exists'
       }
       await db.moment.update({
@@ -52,13 +56,14 @@ const syncProcessor$ = telegramSync$.pipe(
           createdAt,
         },
       })
+      logger.telegram.info('Moment updated', { id: exist.id })
       return 'Update moment'
     }
 
     const { imageList, videoList, needCreateMoment } = await handleFile(value)
 
     if (needCreateMoment) {
-      await createMoment(
+      const moment = await createMoment(
         {
           content,
           isPublic: true,
@@ -74,17 +79,19 @@ const syncProcessor$ = telegramSync$.pipe(
         },
         item.ownerId,
       )
+      logger.telegram.info('New moment created from Telegram', { id: moment.id, messageId: item.id })
       return 'Create new moment'
     }
     else {
+      logger.telegram.debug('Grouped moment, skipped', { id: item.id })
       return 'Grouped moment'
     }
   }),
   tap((result) => {
-    console.log('Sync result:', result)
+    logger.telegram.info('Sync result:', result)
   }),
   catchError((error) => {
-    console.error('Error processing telegram sync:', error)
+    logger.telegram.error('Error processing telegram sync:', error)
     return EMPTY
   }),
 )
@@ -98,7 +105,11 @@ export async function handleSyncTelegram(
   if (!telegramSync$.observed) {
     // 启动处理器
     syncProcessor$.subscribe()
+    logger.telegram.startup('Telegram sync processor started')
   }
+
+  logger.telegram.info('Starting Telegram sync', { channel: channel_name, category, force })
+
   // 查询数据库中最新的 id
   const latestItem = await db.moment.findFirst({
     where: {
@@ -126,6 +137,8 @@ export async function handleSyncTelegram(
   let currentLastId = 0
   const limit = 100
 
+  logger.telegram.info('Fetching Telegram messages', { latestId, limit })
+
   while (hasMoreData) {
     const posts = await sync_telegram(
       currentLastId,
@@ -146,18 +159,13 @@ export async function handleSyncTelegram(
       currentLastId = currentLastId - limit
     }
 
-    console.log('currentLastId', currentLastId, 'latestId', latestId)
+    logger.telegram.debug('Fetched posts', { currentLastId, latestId, batchSize: filteredPosts.length })
 
     allPosts = [...allPosts, ...filteredPosts]
 
     if (currentLastId <= latestId) {
       hasMoreData = false
     }
-
-    // 如果返回的数据量小于 limit，说明没有更多数据了
-    // if (filteredPosts.length < limit) {
-    //   hasMoreData = false
-    // }
   }
 
   // 将新的同步数据推送到 Subject
@@ -171,6 +179,8 @@ export async function handleSyncTelegram(
       category,
     })
   })
+
+  logger.telegram.info('Telegram sync completed', { count: allPosts.length, channel: channel_name })
   return allPosts
 }
 
@@ -181,8 +191,15 @@ export function loadSyncTelegramRouter() {
 
     const user = ctx.get('user')
     const force = ctx.req.query('force') !== undefined
+
+    logger.telegram.apiCall('GET', `/api/sync/telegram/${channel_name}`, { userId: user.id, force })
+
     const allItems = await handleSyncTelegram(category, force, channel_name, user.id)
+
+    logger.telegram.apiResponse('GET', `/api/sync/telegram/${channel_name}`, 0, 200)
 
     return ctx.json({ success: true, count: allItems.length })
   })
+
+  logger.telegram.startup('Telegram router loaded')
 }
