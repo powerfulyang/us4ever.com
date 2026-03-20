@@ -31,6 +31,7 @@
     "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": false,
     "noEmit": true,
+    "sourceMap": true,
     /* Base Options: */
     "esModuleInterop": true,
     "isolatedModules": true,

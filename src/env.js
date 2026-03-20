@@ -15,6 +15,7 @@ export const env = createEnv({
     AMAP_KEY: z.string().optional(),
     TELEGRAM_API_ENDPOINT: z.string().default('http://api.telegram:8000'),
     GEMINI_API_KEY: z.string().optional(),
+    LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
   },
 
   /**
@@ -37,6 +38,7 @@ export const env = createEnv({
     AMAP_KEY: process.env.AMAP_KEY,
     TELEGRAM_API_ENDPOINT: process.env.TELEGRAM_API_ENDPOINT,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    LOG_LEVEL: process.env.LOG_LEVEL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

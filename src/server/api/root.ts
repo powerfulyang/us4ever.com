@@ -4,6 +4,7 @@ import { mindMapRouter } from '@/server/api/routers/mindmap'
 import { momentRouter } from '@/server/api/routers/moment'
 import { userRouter } from '@/server/api/routers/user'
 import { createCallerFactory, createTRPCRouter } from '@/server/api/trpc'
+import { logger } from '@/server/logger'
 import { todoRouter } from './routers/todo'
 
 /**
@@ -28,3 +29,6 @@ export type AppRouter = typeof appRouter
  * @example
  */
 export const createCaller = createCallerFactory(appRouter)
+
+// 记录路由注册完成
+logger.trpc.startup('tRPC router initialized with modules: asset, user, keep, todo, mindMap, moment')
