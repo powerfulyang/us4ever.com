@@ -177,11 +177,11 @@ export function MomentItem({ moment }: MomentItemProps) {
                   )}
 
                   {moment.videos.length > 1 && (
-                    <div className="grid grid-cols-3 gap-1 rounded-md overflow-hidden">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 rounded-md overflow-hidden">
                       {moment.videos.map(video => (
                         <div
                           key={video.id}
-                          className="aspect-square overflow-hidden bg-secondary"
+                          className="aspect-[9/16] overflow-hidden bg-secondary"
                         >
                           <video
                             src={video.file_url}

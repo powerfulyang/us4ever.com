@@ -36,7 +36,7 @@ export default async function MomentPage({
         actions={<ViewToggle category={category} />}
       >
         <div className="max-w-2xl mx-auto space-y-4">
-          <MomentCreate />
+          <MomentCreate category={category} />
           <MomentCategoryServer currentCategory={category} basePath="/moment" />
           <MomentPaginationClient category={category} initialPage={Math.max(1, page)} />
         </div>

@@ -31,7 +31,7 @@ export default async function MomentFeedPage({
         actions={<ViewToggle category={category} />}
       >
         <div className="max-w-2xl mx-auto space-y-4">
-          <MomentCreate />
+          <MomentCreate category={category} />
           <MomentCategoryServer currentCategory={category} basePath="/moment/feed" />
           <MomentList category={category} />
         </div>

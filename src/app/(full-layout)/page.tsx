@@ -136,7 +136,7 @@ const toolLinks: LinkProps[] = [
   {
     title: 'Uptime Kuma',
     description: '简单的服务器监控工具',
-    href: 'https://uptime.us4ever.com/status/up',
+    href: 'https://uptime.us4ever.com/status/umami',
     target: '_blank',
     icon: <CheckCircle className="w-6 h-6" />,
   },

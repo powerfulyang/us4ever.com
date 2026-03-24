@@ -94,7 +94,7 @@ export function VideoList() {
         </div>
 
         {/* 视频网格 - 马卡龙风格 */}
-        <div className="grid grid-cols-3 gap-5 p-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 p-2">
           {allVideos.map(video => (
             <div
               key={video.id}

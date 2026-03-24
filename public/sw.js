@@ -1,37 +1,17 @@
-const FONT_CACHE_NAME = 'resource-hub-fonts-v1';
+const HELP_CENTER_CACHE_NAME = 'help-center-v1';
 
 /** @type {ServiceWorkerGlobalScope} */
 // @ts-ignore
 const globalSelf = self;
 
 /** @type {Clients} */
-// @ts-ignore
 const clients = globalSelf.clients;
 
-// 需要缓存的字体资源
-const fontUrlsToCache = [
-  'https://help.littleeleven.com/font.css',
-  'https://help.littleeleven.com/FiraCode/FiraCode-Regular.ttf',
-  'https://help.littleeleven.com/FiraCode/FiraCode-Bold.ttf',
-  'https://help.littleeleven.com/FiraCode/FiraCode-Medium.ttf',
-  'https://help.littleeleven.com/FiraCode/FiraCode-Light.ttf',
-  'https://help.littleeleven.com/FiraCode/FiraCode-SemiBold.ttf',
-  'https://help.littleeleven.com/LXGW-WENKAI/LXGWWenKaiLite-Light.ttf',
-  'https://help.littleeleven.com/LXGW-WENKAI/LXGWWenKaiLite-Regular.ttf',
-  'https://help.littleeleven.com/LXGW-WENKAI/LXGWWenKaiLite-Medium.ttf',
-];
+
 
 // 安装 Service Worker
-globalSelf.addEventListener('install', (event) => {
-  event.waitUntil(
-    Promise.all([
-      // 缓存字体资源
-      caches.open(FONT_CACHE_NAME)
-        .then((cache) => {
-          return cache.addAll(fontUrlsToCache);
-        })
-    ])
-  );
+globalSelf.addEventListener('install', () => {
+  globalSelf.skipWaiting();
 });
 
 // 激活 Service Worker
@@ -40,7 +20,7 @@ globalSelf.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== FONT_CACHE_NAME) {
+          if (cacheName !== HELP_CENTER_CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
@@ -81,10 +61,10 @@ globalSelf.addEventListener('notificationclick', (event) => {
 globalSelf.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 处理字体资源请求
-  if (url.origin === 'https://help.littleeleven.com') {
+  // 处理帮助中心域名下的所有 GET 请求
+  if (url.origin === 'https://help.littleeleven.com' && event.request.method === 'GET') {
     event.respondWith(
-      caches.open(FONT_CACHE_NAME)
+      caches.open(HELP_CENTER_CACHE_NAME)
         .then((cache) => {
           return cache.match(event.request)
             .then((response) => {
@@ -99,6 +79,13 @@ globalSelf.addEventListener('fetch', (event) => {
                     cache.put(event.request, networkResponse.clone());
                   }
                   return networkResponse;
+                })
+                .catch(() => {
+                  // 网络请求失败的处理
+                  return new Response('Network error occurred', {
+                    status: 408,
+                    headers: { 'Content-Type': 'text/plain' }
+                  });
                 });
             });
         })
