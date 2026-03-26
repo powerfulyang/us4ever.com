@@ -46,11 +46,11 @@ export default async function RootLayout({ children }: Props) {
           {metadata.title as string}
         </title>
         <Script
+          id="umami"
           defer
           src="https://umami.us4ever.com/script.js"
           data-website-id="650103e6-dc4e-4c71-902d-110fdc3fc4e6"
-        >
-        </Script>
+        />
         <link rel="stylesheet" href="https://help.littleeleven.com/font.css" />
       </head>
       <body>

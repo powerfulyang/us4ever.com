@@ -30,5 +30,18 @@ export function loadInternalRouter() {
     return ctx.json({ success: true, count: allItems.length })
   })
 
+  internalRoutes.get('/generate/tags/batch', async (ctx) => {
+    const { updateAllMomentsTags, updateAllKeepsTags } = await import('@/service/tag.service')
+
+    logger.internal.info('Internal batch tag generation request starting')
+
+    const momentCount = await updateAllMomentsTags()
+    const keepCount = await updateAllKeepsTags()
+
+    logger.internal.info('Internal batch tag generation completed', { momentCount, keepCount })
+
+    return ctx.json({ success: true, momentCount, keepCount })
+  })
+
   logger.internal.startup('Internal router loaded')
 }

@@ -11,6 +11,7 @@ export default antfu(
       '**/*.md',
     ],
     react: true,
+    nextjs: true,
     formatters: {
       /**
        * Format CSS, LESS, SCSS files, also the `<style>` blocks in Vue
