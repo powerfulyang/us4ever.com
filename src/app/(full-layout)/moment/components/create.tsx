@@ -108,13 +108,13 @@ export function MomentCreate({ category, initialMoment, onSuccess, onCancel, cla
   }
 
   const contentElement = (
-    <div className="space-y-4">
+    <div>
       <TextareaAutosize
         value={content}
         onChange={e => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="分享此刻的想法..."
-        className="w-full bg-transparent border-none focus:outline-none resize-none text-foreground placeholder:text-muted-foreground caret-primary"
+        className="w-full rounded p-4 border-none focus:outline-none resize-none text-foreground placeholder:text-muted-foreground caret-primary transition-colors"
         minRows={3}
         autoFocus={isEditing}
       />
@@ -127,7 +127,7 @@ export function MomentCreate({ category, initialMoment, onSuccess, onCancel, cla
         onUploadingChange={setIsUploading}
       />
 
-      <div className="flex items-center justify-end gap-4">
+      <div className="flex items-center justify-end mt-2 gap-4">
         {onCancel && (
           <Button variant="ghost" onClick={onCancel} disabled={isPending}>
             取消

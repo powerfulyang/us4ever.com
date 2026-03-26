@@ -1,11 +1,12 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useRouter } from 'next/navigation'
+import { Globe, Lock, Trash2 } from 'lucide-react'
+import Link from 'next/link'
 import * as React from 'react'
 import { useState } from 'react'
+import { OwnerOnly } from '@/components/auth/owner-only'
 import { Confirm } from '@/components/ui/confirm'
-import { ContentCard } from '@/components/ui/content-card'
 import { api } from '@/trpc/react'
 
 interface Keep {
@@ -21,6 +22,11 @@ interface Keep {
   ownerId: string
   createdAt: Date
   updatedAt: Date
+  owner?: {
+    id: string
+    nickname: string | null
+    avatar: string | null
+  }
 }
 
 interface KeepCardProps {
@@ -29,7 +35,6 @@ interface KeepCardProps {
 }
 
 export function KeepCard({ keep, onDelete }: KeepCardProps) {
-  const router = useRouter()
   const [showConfirm, setShowConfirm] = useState(false)
   const utils = api.useUtils()
   const { mutate, isPending } = api.keep.delete.useMutation({
@@ -44,14 +49,12 @@ export function KeepCard({ keep, onDelete }: KeepCardProps) {
     },
   })
 
+  const tags = (keep.tags as string[]) || []
+
   const handleDelete = (e?: React.MouseEvent) => {
     e?.preventDefault()
     e?.stopPropagation()
     setShowConfirm(true)
-  }
-
-  const handleCardClick = () => {
-    router.push(`/keep/${keep.id}`)
   }
 
   return (
@@ -62,21 +65,88 @@ export function KeepCard({ keep, onDelete }: KeepCardProps) {
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
     >
-      <ContentCard
-        title={keep.title}
-        status={{
-          label: keep.isPublic ? '公开' : '私密',
-          type: keep.isPublic ? 'success' : 'warning',
-        }}
-        content={keep.summary}
-        createdAt={keep.createdAt}
-        views={keep.views}
-        likes={keep.likes}
-        ownerId={keep.ownerId}
-        onDelete={handleDelete}
-        onClick={handleCardClick}
-        className="cursor-pointer"
-      />
+      <div
+        className="group relative flex flex-col p-4 rounded-lg border border-border/50 bg-background/50 hover:bg-background transition-all h-full cursor-pointer"
+      >
+        {/* 头部 */}
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="font-medium text-foreground line-clamp-1 flex-1">
+            <Link href={`/keep/${keep.id}`} className="hover:underline before:absolute before:inset-0">
+              {keep.title || '无标题'}
+            </Link>
+          </h3>
+          <div className="flex items-center gap-1 shrink-0 relative z-10">
+            {keep.isPublic
+              ? (
+                  <Globe className="w-4 h-4 text-green-600" />
+                )
+              : (
+                  <Lock className="w-4 h-4 text-amber-600" />
+                )}
+            <OwnerOnly ownerId={keep.ownerId}>
+              <button
+                onClick={handleDelete}
+                className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                title="删除"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </OwnerOnly>
+          </div>
+        </div>
+
+        {/* 摘要 */}
+        {keep.summary && (
+          <p className="text-sm text-muted-foreground line-clamp-3 mb-3 flex-1">
+            {keep.summary}
+          </p>
+        )}
+
+        {/* 标签 */}
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3 relative z-10">
+            {tags.map((tag: string) => (
+              <Link
+                key={tag}
+                href={`/tag/${encodeURIComponent(tag)}`}
+                onClick={e => e.stopPropagation()}
+                className="px-2 py-0.5 text-xs rounded-full bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+              >
+                {tag}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* 底部信息 */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground mt-auto pt-3 border-t border-border/30">
+          <div className="flex items-center gap-2">
+            {keep.owner && (
+              <>
+                <span className="font-medium">{keep.owner.nickname || '匿名'}</span>
+                <span>·</span>
+              </>
+            )}
+            <span>{new Date(keep.createdAt).toLocaleDateString('zh-CN')}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            {keep.views > 0 && (
+              <span>
+                {keep.views}
+                {' '}
+                浏览
+              </span>
+            )}
+            {keep.likes > 0 && (
+              <span>
+                {keep.likes}
+                {' '}
+                点赞
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
       <Confirm
         isOpen={showConfirm}
         onCloseAction={() => setShowConfirm(false)}

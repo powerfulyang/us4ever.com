@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Container } from '@/components/layout/Container'
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api, HydrateClient } from '@/trpc/server'
 import { ImageCategoryServer } from './components/category'
 import { ImagePaginationClient } from './components/pagination-client'
@@ -24,7 +25,7 @@ export default async function ImagePage({
 
   await api.asset.fetchImagesByPage.prefetch({
     page: Math.max(1, page),
-    pageSize: 6,
+    pageSize: DEFAULT_PAGE_SIZE,
     category,
   })
 

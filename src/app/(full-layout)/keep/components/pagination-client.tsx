@@ -5,10 +5,11 @@ import { PaginationList } from '@/app/(full-layout)/keep/components/pagination-l
 
 interface KeepPaginationClientProps {
   category?: string
+  visibility?: 'all' | 'public' | 'private'
   initialPage: number
 }
 
-export function KeepPaginationClient({ category, initialPage }: KeepPaginationClientProps) {
+export function KeepPaginationClient({ category, visibility = 'all', initialPage }: KeepPaginationClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -31,6 +32,7 @@ export function KeepPaginationClient({ category, initialPage }: KeepPaginationCl
   return (
     <PaginationList
       category={category}
+      visibility={visibility}
       page={initialPage}
       onPageChange={handlePageChange}
     />

@@ -27,7 +27,7 @@ export const PrismCode: React.FC<Props> = ({ language, children, maxHeight, clas
   const [copied, setCopied] = React.useState(false)
 
   const style = isDark ? atomDark : materialLight
-  const backgroundColor = isDark ? 'rgba(0, 0, 0, 0.8)' : 'hsl(var(--secondary))'
+  const backgroundColor = isDark ? 'hsl(222 15% 10%)' : 'hsl(210 20% 98%)'
 
   const onCopy = async () => {
     try {

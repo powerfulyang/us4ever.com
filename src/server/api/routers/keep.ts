@@ -1,6 +1,8 @@
+import { z } from 'zod'
 import { BasePrimaryKeySchema, QuerySearchSchema, UpdateViewsSchema } from '@/dto/base.dto'
 import { createKeepSchema, queryKeepPageSchema, queryKeepSchema, semanticSearchSchema, updateKeepSchema } from '@/dto/keep.dto'
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { db } from '@/server/db'
 import { logger } from '@/server/logger'
 import { keepService } from '@/service/keep.service'
 
@@ -84,9 +86,12 @@ export const keepRouter = createTRPCRouter({
     }),
 
   getCategories: publicProcedure
-    .query(async ({ ctx }) => {
-      logger.keep.info('Fetching keep categories')
-      const result = await keepService.getCategories(ctx.groupUserIds)
+    .input(z.object({
+      visibility: z.enum(['all', 'public', 'private']).default('all').optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      logger.keep.info('Fetching keep categories', { visibility: input.visibility })
+      const result = await keepService.getCategories(ctx.groupUserIds, input.visibility)
       logger.keep.info(`Found ${result.length} categories`)
       return result
     }),
@@ -109,6 +114,62 @@ export const keepRouter = createTRPCRouter({
       const result = await keepService.hybridSearch(input.query, ctx.groupUserIds, input.topK)
       logger.keep.info(`Found ${result.totalCount} hybrid search results`)
       return result
+    }),
+
+  // 根据标签查询
+  fetchByTag: publicProcedure
+    .input(z.object({
+      tag: z.string(),
+      page: z.number().int().min(1).default(1),
+      pageSize: z.number().int().min(1).max(50).default(10),
+      onlyPublic: z.boolean().default(false),
+    }))
+    .query(async ({ input, ctx }) => {
+      const userIds = ctx.groupUserIds
+      logger.keep.info('Fetching keeps by tag', { tag: input.tag, page: input.page })
+      const result = await keepService.findByTag(input.tag, userIds, {
+        page: input.page,
+        pageSize: input.pageSize,
+        onlyPublic: input.onlyPublic,
+      })
+      logger.keep.info(`Found ${result.items.length} keeps by tag`, { tag: input.tag, total: result.total })
+      return result
+    }),
+
+  // 获取所有标签（带统计）
+  getTags: publicProcedure
+    .query(async ({ ctx }) => {
+      const userIds = ctx.groupUserIds
+      logger.keep.info('Fetching keep tags')
+
+      // 查询所有不同的标签
+      const keeps = await db.keep.findMany({
+        where: {
+          OR: [
+            { ownerId: { in: userIds } },
+            { isPublic: true },
+          ],
+        },
+        select: {
+          tags: true,
+        },
+      })
+
+      // 统计标签使用次数
+      const tagCount = new Map<string, number>()
+      keeps.forEach((keep) => {
+        const tags = keep.tags as string[]
+        tags.forEach((tag) => {
+          tagCount.set(tag, (tagCount.get(tag) || 0) + 1)
+        })
+      })
+
+      const tags = Array.from(tagCount.entries())
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+
+      logger.keep.info(`Found ${tags.length} unique tags`)
+      return tags
     }),
 
   // 管理员：批量回填向量

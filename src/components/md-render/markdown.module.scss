@@ -21,6 +21,11 @@
   color: var(--vp-c-text-1);
   line-height: 1.7;
   font-size: 0.9375rem;
+  word-break: break-all;
+
+  p {
+    white-space: pre-wrap;
+  }
 }
 
 /* 暗色主题 - 使用 :global 包裹 */

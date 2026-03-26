@@ -98,7 +98,7 @@ const toyLinks: LinkProps[] = [
   {
     title: '图片管理',
     description: '便捷的图片上传与管理工具',
-    href: '/image',
+    href: '/image/feed',
     target: '_blank',
     icon: <Image className="w-6 h-6" />,
   },
@@ -183,7 +183,7 @@ function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
             <LinkComponent
               key={link.title}
               {...linkProps}
-              className="group flex items-center gap-4 p-4 rounded-lg bg-card/50 dark:bg-card/30 backdrop-blur-md border border-border/30 hover:border-primary/50 transition-all active:scale-[0.98]"
+              className="group flex items-center gap-4 p-4 rounded-lg bg-card/50 dark:bg-card/30 backdrop-blur-md transition-all active:scale-[0.98]"
             >
               <div className="p-2.5 bg-primary/10 text-primary rounded-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                 {link.icon}

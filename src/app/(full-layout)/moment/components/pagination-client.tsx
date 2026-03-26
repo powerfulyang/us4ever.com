@@ -5,10 +5,11 @@ import { MomentPaginationList } from '@/app/(full-layout)/moment/components/pagi
 
 interface MomentPaginationClientProps {
   category?: string
+  visibility?: 'all' | 'public' | 'private'
   initialPage: number
 }
 
-export function MomentPaginationClient({ category, initialPage }: MomentPaginationClientProps) {
+export function MomentPaginationClient({ category, visibility, initialPage }: MomentPaginationClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -31,6 +32,7 @@ export function MomentPaginationClient({ category, initialPage }: MomentPaginati
   return (
     <MomentPaginationList
       category={category}
+      visibility={visibility}
       page={initialPage}
       onPageChange={handlePageChange}
     />

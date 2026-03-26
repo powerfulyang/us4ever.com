@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { env } from '@/env'
 import { db } from '@/server/db'
 import { logger } from '@/server/logger'
+import { imageInclude, transformImageToResponse, transformVideoToResponse, videoInclude } from '@/service/asset.service'
 
 const TAG_SEPARATOR_REGEX = /[,\uFF0C]/
 
@@ -16,7 +17,7 @@ export async function generateTags(content: string): Promise<string[]> {
 
   const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-3-flash-preview',
     generationConfig: {
       temperature: 0.7,
     },
@@ -46,8 +47,217 @@ ${content}`
 }
 
 /**
- * 更新所有 Moment 的标签
+ * 获取所有标签及其使用统计
+ * @param options 筛选选项
+ * @param options.filter 筛选类型: 'all' | 'public' | 'private'
+ * @param options.userIds 用户ID列表（用于权限筛选）
  */
+export async function getAllTags(options: { filter?: 'all' | 'public' | 'private', userIds?: string[] } = {}) {
+  const { filter = 'all', userIds = [] } = options
+
+  // 构建 where 条件
+  const buildWhereClause = () => {
+    if (filter === 'public') {
+      return { isPublic: true }
+    }
+    else if (filter === 'private') {
+      if (userIds.length > 0) {
+        return {
+          isPublic: false,
+          ownerId: { in: userIds },
+        }
+      }
+      return { isPublic: false }
+    }
+    else if (userIds.length > 0) {
+      return {
+        OR: [
+          { ownerId: { in: userIds } },
+          { isPublic: true },
+        ],
+      }
+    }
+    return {}
+  }
+
+  // 从 Keep 获取标签
+  const keeps = await db.keep.findMany({
+    where: buildWhereClause(),
+    select: {
+      tags: true,
+    },
+  })
+
+  // 从 Moment 获取标签
+  const moments = await db.moment.findMany({
+    where: buildWhereClause(),
+    select: {
+      tags: true,
+    },
+  })
+
+  // 统计标签使用次数
+  const tagMap = new Map<string, { keepCount: number, momentCount: number, total: number }>()
+
+  keeps.forEach((keep) => {
+    const tags = keep.tags as string[]
+    tags.forEach((tag) => {
+      const existing = tagMap.get(tag) || { keepCount: 0, momentCount: 0, total: 0 }
+      tagMap.set(tag, {
+        ...existing,
+        keepCount: existing.keepCount + 1,
+        total: existing.total + 1,
+      })
+    })
+  })
+
+  moments.forEach((moment) => {
+    const tags = moment.tags as string[]
+    tags.forEach((tag) => {
+      const existing = tagMap.get(tag) || { keepCount: 0, momentCount: 0, total: 0 }
+      tagMap.set(tag, {
+        ...existing,
+        momentCount: existing.momentCount + 1,
+        total: existing.total + 1,
+      })
+    })
+  })
+
+  // 转换为数组并按使用次数排序
+  const tags = Array.from(tagMap.entries())
+    .map(([name, stats]) => ({
+      name,
+      ...stats,
+    }))
+    .sort((a, b) => b.total - a.total)
+
+  logger.internal.info(`Retrieved ${tags.length} unique tags`)
+  return tags
+}
+
+/**
+ * 根据标签获取内容（Keep 和 Moment）
+ * @param tag 标签名称
+ * @param options 筛选选项
+ * @param options.filter 筛选类型: 'all' | 'public' | 'private'
+ * @param options.userIds 用户ID列表
+ * @param options.limit 限制数量
+ */
+export async function getContentByTag(
+  tag: string,
+  options: { filter?: 'all' | 'public' | 'private', userIds?: string[], limit?: number } = {},
+) {
+  const { filter = 'all', userIds = [], limit = 50 } = options
+
+  // 构建 where 条件
+  const buildWhereClause = () => {
+    const baseCondition = {
+      tags: {
+        array_contains: [tag],
+      },
+    }
+
+    if (filter === 'public') {
+      return {
+        ...baseCondition,
+        isPublic: true,
+      }
+    }
+    else if (filter === 'private') {
+      if (userIds.length > 0) {
+        return {
+          ...baseCondition,
+          isPublic: false,
+          ownerId: { in: userIds },
+        }
+      }
+      return {
+        ...baseCondition,
+        isPublic: false,
+      }
+    }
+    else if (userIds.length > 0) {
+      return {
+        ...baseCondition,
+        OR: [
+          { ownerId: { in: userIds } },
+          { isPublic: true },
+        ],
+      }
+    }
+    return baseCondition
+  }
+
+  try {
+    // 获取匹配的 Keep
+    const keeps = await db.keep.findMany({
+      where: buildWhereClause(),
+      include: {
+        owner: {
+          select: {
+            id: true,
+            nickname: true,
+            avatar: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+
+    // 获取匹配的 Moment
+    const moments = await db.moment.findMany({
+      where: buildWhereClause(),
+      include: {
+        owner: true,
+        images: {
+          include: {
+            image: {
+              include: imageInclude,
+            },
+          },
+          orderBy: {
+            sort: 'asc',
+          },
+        },
+        videos: {
+          include: {
+            video: {
+              include: videoInclude,
+            },
+          },
+          orderBy: {
+            sort: 'asc',
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    })
+
+    logger.internal.info(`Retrieved content for tag "${tag}"`, {
+      keepCount: keeps.length,
+      momentCount: moments.length,
+    })
+
+    // 转换 moments 的数据
+    const transformedMoments = moments.map(moment => ({
+      ...moment,
+      images: moment.images.map(({ image }) => transformImageToResponse(image as any)),
+      videos: moment.videos.map(({ video }) => transformVideoToResponse(video as any)),
+    }))
+
+    return {
+      keeps,
+      moments: transformedMoments,
+      total: keeps.length + moments.length,
+    }
+  }
+  catch (error) {
+    logger.internal.error(`Failed to get content for tag "${tag}"`, { error })
+    return { keeps: [], moments: [], total: 0 }
+  }
+}
 export async function updateAllMomentsTags() {
   const moments = await db.moment.findMany({
     where: {

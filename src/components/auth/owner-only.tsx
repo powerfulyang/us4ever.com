@@ -1,7 +1,8 @@
 'use client'
 
-import type { ReactElement, ReactNode } from 'react'
+import type { MouseEvent, ReactElement, ReactNode } from 'react'
 import { createElement, isValidElement } from 'react'
+import { toast } from 'react-toastify'
 import { useUserStore } from '@/store/user'
 
 interface OwnerOnlyProps {
@@ -29,7 +30,14 @@ export function AuthenticatedOnly({
   if (!isAuthenticated) {
     if (disableChildren) {
       return isValidElement(children)
-        ? createElement(children.type, { ...children.props, title: '请先登录', disabled: true })
+        ? createElement(children.type, {
+            ...children.props,
+            onClickCapture: (e: MouseEvent) => {
+              e.preventDefault()
+              e.stopPropagation()
+              toast.warn('请先登录')
+            },
+          })
         : children
     }
     return null

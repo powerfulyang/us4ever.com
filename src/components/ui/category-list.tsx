@@ -7,6 +7,7 @@ interface CategoryListProps {
   basePath: string
   currentCategory?: string
   linkType?: 'path' | 'query'
+  extraQueryParams?: Record<string, string | null | undefined>
 }
 
 export function CategoryList({
@@ -15,8 +16,30 @@ export function CategoryList({
   basePath,
   currentCategory,
   linkType = 'path',
+  extraQueryParams,
 }: CategoryListProps) {
   const activeCategory = currentCategory
+
+  const buildHref = (category?: string) => {
+    const params = new URLSearchParams()
+    if (extraQueryParams) {
+      Object.entries(extraQueryParams).forEach(([key, value]) => {
+        if (value)
+          params.set(key, value)
+      })
+    }
+
+    if (linkType === 'query') {
+      if (category)
+        params.set('category', category)
+      const query = params.toString()
+      return query ? `${basePath}?${query}` : basePath
+    }
+
+    const query = params.toString()
+    const path = category ? `${basePath}/category/${category}` : basePath
+    return query ? `${path}?${query}` : path
+  }
 
   return (
     <div className="my-6">
@@ -27,7 +50,7 @@ export function CategoryList({
       )}
       <div className="flex flex-wrap gap-1.5">
         <Link
-          href={basePath}
+          href={buildHref()}
           className={cn(
             'inline-flex items-center rounded-md text-xs font-medium transition-all px-3 py-1.5 border',
             !activeCategory
@@ -40,7 +63,7 @@ export function CategoryList({
         {categories.map(category => (
           <Link
             key={category}
-            href={linkType === 'query' ? `${basePath}?category=${category}` : `${basePath}/category/${category}`}
+            href={buildHref(category)}
             className={cn(
               'inline-flex items-center rounded-md text-xs font-medium transition-all px-3 py-1.5 border',
               activeCategory === category

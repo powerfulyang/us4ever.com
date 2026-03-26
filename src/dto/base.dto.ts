@@ -16,6 +16,7 @@ export const BaseQuerySchema = z.object({
   limit: z.number().int().min(1).max(100).default(9),
   cursor: z.string().optional().transform(val => !val ? undefined : val),
   category: BaseCategoryField,
+  visibility: z.enum(['all', 'public', 'private']).default('all').optional(),
 })
 
 export const BasePageQuerySchema = z.object({

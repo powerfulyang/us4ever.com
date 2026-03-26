@@ -5,6 +5,7 @@ import { Empty } from '@/components/layout/Empty'
 import { Confirm } from '@/components/ui/confirm'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Pagination } from '@/components/ui/pagination'
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api } from '@/trpc/react'
 import { ImageCard } from './image-card'
 
@@ -13,8 +14,6 @@ interface PaginationListProps {
   page?: number
   onPageChange?: (page: number) => void
 }
-
-const PAGE_SIZE = 6
 
 export function ImagePaginationList({ category, page = 1, onPageChange }: PaginationListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -32,7 +31,7 @@ export function ImagePaginationList({ category, page = 1, onPageChange }: Pagina
 
   const { data, isLoading, error } = api.asset.fetchImagesByPage.useQuery({
     page: currentPage,
-    pageSize: PAGE_SIZE,
+    pageSize: DEFAULT_PAGE_SIZE,
     category,
   }, {
     staleTime: 5 * 60 * 1000,
@@ -97,7 +96,7 @@ export function ImagePaginationList({ category, page = 1, onPageChange }: Pagina
           currentPage={data.currentPage}
           totalPages={data.totalPages}
           total={data.total}
-          pageSize={PAGE_SIZE}
+          pageSize={DEFAULT_PAGE_SIZE}
           onPageChange={handlePageChange}
         />
       </div>

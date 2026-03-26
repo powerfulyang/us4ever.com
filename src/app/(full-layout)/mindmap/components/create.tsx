@@ -53,7 +53,7 @@ export function MindMapImport() {
     <div className="flex items-center justify-end gap-4 flex-wrap w-full">
       <label
         htmlFor="xmind-upload"
-        className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-gray-300 hover:text-white text-xs"
+        className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-full bg-white/5 hover:bg-white/50 transition-colors text-xs"
       >
         <Upload className="w-4 h-4" />
         <span className="truncate flex-1">

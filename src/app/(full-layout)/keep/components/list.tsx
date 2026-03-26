@@ -9,9 +9,10 @@ import { api } from '@/trpc/react'
 
 interface KeepListProps {
   category?: string
+  visibility?: 'all' | 'public' | 'private'
 }
 
-export function KeepList({ category }: KeepListProps) {
+export function KeepList({ category, visibility = 'all' }: KeepListProps) {
   const {
     data,
     fetchNextPage,
@@ -20,7 +21,7 @@ export function KeepList({ category }: KeepListProps) {
     isLoading,
     error,
   } = api.keep.fetchByCursor.useInfiniteQuery(
-    { category },
+    { category, visibility },
     {
       getNextPageParam: lastPage => lastPage.nextCursor,
     },

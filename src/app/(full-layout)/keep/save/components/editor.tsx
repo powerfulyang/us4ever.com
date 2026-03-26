@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Bold,
   Eye,
-  FileText,
   Globe,
   Heading,
   Image as ImageIcon,
@@ -23,8 +22,9 @@ import {
 import { useRouter } from 'next/navigation'
 import Prism from 'prismjs'
 import * as React from 'react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Editor from 'react-simple-code-editor'
+import { useMediaQuery } from 'usehooks-ts'
 import { Markdown } from '@/components/md-render'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -46,7 +46,16 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
   const router = useRouter()
   const [content, setContent] = useState(keep?.content ?? '')
   const [isPublic, setIsPublic] = useState(keep?.isPublic ?? false)
-  const [viewMode, setViewMode] = useState<ViewMode>('split')
+  const [viewMode, setViewMode] = useState<ViewMode>('edit')
+
+  const isMobile = useMediaQuery('(max-width: 768px)', {
+    initializeWithValue: false,
+    defaultValue: true,
+  })
+
+  useEffect(() => {
+    setViewMode(prev => (isMobile ? 'edit' : prev))
+  }, [isMobile])
 
   const editorRef = useRef<any>(null)
   const previewRef = useRef<HTMLDivElement>(null)
@@ -232,7 +241,6 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
           </Button>
           <div className="h-4 w-px bg-border" />
           <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-primary" />
             <h1 className="text-xl font-semibold">
               {id ? '编辑笔记' : '新建笔记'}
             </h1>

@@ -21,7 +21,7 @@ export default async function ImageFeedPage({
 }) {
   const { category } = await searchParams
 
-  await api.asset.fetchImagesByCursor.prefetch({ category })
+  await api.asset.fetchImagesByCursor.prefetchInfinite({ category })
 
   return (
     <HydrateClient>

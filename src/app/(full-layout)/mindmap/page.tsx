@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { MindMapPaginationClient } from '@/app/(full-layout)/mindmap/components/pagination-client'
 import { ViewToggle } from '@/app/(full-layout)/mindmap/components/view-toggle'
 import { Container } from '@/components/layout/Container'
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api, HydrateClient } from '@/trpc/server'
 import { MindMapImport } from './components/create'
 
@@ -23,7 +24,7 @@ export default async function MindMapPage({
 
   await api.mindMap.fetchByPage.prefetch({
     page: Math.max(1, page),
-    pageSize: 6,
+    pageSize: DEFAULT_PAGE_SIZE,
   })
 
   return (

@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api } from '@/trpc/react'
 
 export default function AdminUsersPage() {
@@ -18,7 +19,7 @@ export default function AdminUsersPage() {
 
   const { data, isLoading, isError } = api.user.list.useQuery({
     page,
-    pageSize: 10,
+    pageSize: DEFAULT_PAGE_SIZE,
   })
 
   if (isError) {

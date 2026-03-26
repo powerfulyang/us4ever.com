@@ -3,6 +3,7 @@ import { TodoPaginationClient } from '@/app/(full-layout)/todo/components/pagina
 import { TodoForm } from '@/app/(full-layout)/todo/components/TodoForm'
 import { ViewToggle } from '@/app/(full-layout)/todo/components/view-toggle'
 import { Container } from '@/components/layout/Container'
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api, HydrateClient } from '@/trpc/server'
 
 export const metadata: Metadata = {
@@ -23,7 +24,7 @@ export default async function TodoPage({
 
   await api.todo.fetchByPage.prefetch({
     page: Math.max(1, page),
-    pageSize: 6,
+    pageSize: DEFAULT_PAGE_SIZE,
   })
 
   return (

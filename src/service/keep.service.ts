@@ -162,6 +162,49 @@ export async function deleteKeep(id: string, ownerId: string) {
   })
 }
 
+/**
+ * 构建 Keep 的查询 where 条件
+ * @param userIds 用户ID列表
+ * @param query 包含 category 和 visibility 的查询参数
+ * @returns Prisma Where 条件
+ */
+export function buildKeepWhereClause({
+  userIds,
+  category,
+  visibility = 'all',
+}: {
+  userIds: string[]
+  category?: string
+  visibility?: 'all' | 'public' | 'private'
+}): Prisma.KeepWhereInput {
+  const baseCondition: Prisma.KeepWhereInput = {
+    category,
+  }
+
+  // 处理 visibility 筛选
+  if (visibility === 'public') {
+    return {
+      ...baseCondition,
+      isPublic: true,
+    }
+  }
+  if (visibility === 'private') {
+    return {
+      ...baseCondition,
+      isPublic: false,
+      ownerId: { in: userIds },
+    }
+  }
+  // visibility === 'all' 时，使用权限逻辑
+  return {
+    ...baseCondition,
+    OR: [
+      { ownerId: { in: userIds } },
+      { isPublic: true },
+    ],
+  }
+}
+
 async function findPublicList() {
   return db.keep.findMany({
     where: {
@@ -179,23 +222,11 @@ async function findPublicList() {
 
 // 查找用户可访问的列表
 async function findAccessibleList(query: QueryKeepDTO, userIds: string[]) {
-  const { limit = 10, cursor, category } = query
+  const { limit = 10, cursor, category, visibility = 'all' } = query
 
   const items = await db.keep.findMany({
     take: limit + 1,
-    where: {
-      category,
-      OR: [
-        {
-          ownerId: {
-            in: userIds,
-          },
-        },
-        {
-          isPublic: true,
-        },
-      ],
-    },
+    where: buildKeepWhereClause({ userIds, category, visibility }),
     cursor: getCursor(cursor),
     orderBy: {
       createdAt: 'desc',
@@ -225,7 +256,7 @@ async function findAccessibleList(query: QueryKeepDTO, userIds: string[]) {
 
 // 分页查找用户可访问的列表
 async function findAccessiblePage(
-  query: { page: number, pageSize: number, category?: string },
+  query: { page: number, pageSize: number, category?: string, visibility?: 'all' | 'public' | 'private' },
   userIds: string[],
 ): Promise<{
   items: KeepWithIncludes[]
@@ -235,43 +266,19 @@ async function findAccessiblePage(
   hasNextPage: boolean
   hasPrevPage: boolean
 }> {
-  const { page, pageSize, category } = query
+  const { page, pageSize, category, visibility = 'all' } = query
   const skip = (page - 1) * pageSize
 
   // 获取总数
   const total = await db.keep.count({
-    where: {
-      category,
-      OR: [
-        {
-          ownerId: {
-            in: userIds,
-          },
-        },
-        {
-          isPublic: true,
-        },
-      ],
-    },
+    where: buildKeepWhereClause({ userIds, category, visibility }),
   })
 
   // 获取分页数据
   const items = await db.keep.findMany({
     skip,
     take: pageSize,
-    where: {
-      category,
-      OR: [
-        {
-          ownerId: {
-            in: userIds,
-          },
-        },
-        {
-          isPublic: true,
-        },
-      ],
-    },
+    where: buildKeepWhereClause({ userIds, category, visibility }),
     orderBy: {
       createdAt: 'desc',
     },
@@ -405,17 +412,18 @@ async function searchKeepsWithAccess(query: string, userIds: string[], topK = 10
     })
 }
 
-async function getCategories(userIds: string[]) {
+/**
+ * 获取笔记分类列表
+ * @param userIds 用户ID列表
+ * @param visibility 可见性筛选
+ * @returns 分类列表
+ */
+async function getCategories(userIds: string[], visibility: 'all' | 'public' | 'private' = 'all') {
   const categories = await db.keep.findMany({
     select: {
       category: true,
     },
-    where: {
-      OR: [
-        { ownerId: { in: userIds } },
-        { isPublic: true },
-      ],
-    },
+    where: buildKeepWhereClause({ userIds, visibility }),
     distinct: ['category'],
   })
   return categories.map(category => category.category)
@@ -554,6 +562,57 @@ async function backfillVectors(batchSize = 50) {
   return { processed, remaining }
 }
 
+async function findByTag(
+  tag: string,
+  userIds: string[],
+  options: { page?: number, pageSize?: number, onlyPublic?: boolean } = {},
+) {
+  const { page = 1, pageSize = 10, onlyPublic = false } = options
+  const skip = (page - 1) * pageSize
+
+  // 构建 where 条件
+  const whereClause: Prisma.KeepWhereInput = {
+    tags: {
+      array_contains: [tag],
+    },
+    ...(onlyPublic
+      ? { isPublic: true }
+      : {
+          OR: [
+            { ownerId: { in: userIds } },
+            { isPublic: true },
+          ],
+        }),
+  }
+
+  // 获取总数
+  const total = await db.keep.count({
+    where: whereClause,
+  })
+
+  // 获取分页数据
+  const items = await db.keep.findMany({
+    skip,
+    take: pageSize,
+    where: whereClause,
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: keepInclude,
+  })
+
+  const totalPages = Math.ceil(total / pageSize)
+
+  return {
+    items,
+    total,
+    totalPages,
+    currentPage: page,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  }
+}
+
 export const keepService = {
   findAccessibleList,
   findAccessiblePage,
@@ -567,4 +626,5 @@ export const keepService = {
   semanticSearch,
   hybridSearch,
   backfillVectors,
+  findByTag,
 }

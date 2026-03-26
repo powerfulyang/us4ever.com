@@ -1,5 +1,5 @@
 .pre {
-  @apply relative mb-4 overflow-hidden rounded-xl border shadow-2xl;
+  @apply relative mb-4 overflow-hidden rounded-xl border;
   border-color: hsl(var(--border) / 0.5);
 
   div {

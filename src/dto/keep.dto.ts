@@ -24,7 +24,9 @@ export const updateKeepSchema = z.object({
 export type UpdateKeepDTO = z.infer<typeof updateKeepSchema>
 
 // 查询 Keep 的 DTO
-export const queryKeepSchema = BaseQuerySchema
+export const queryKeepSchema = BaseQuerySchema.extend({
+  visibility: z.enum(['all', 'public', 'private']).default('all'),
+})
 
 export type QueryKeepDTO = z.infer<typeof queryKeepSchema>
 
@@ -55,6 +57,7 @@ export const queryKeepPageSchema = z.object({
   page: z.number().int().min(1).default(1),
   pageSize: z.number().int().min(1).max(50).default(10),
   category: BaseCategoryField,
+  visibility: z.enum(['all', 'public', 'private']).default('all'),
 })
 
 export type QueryKeepPageDTO = z.infer<typeof queryKeepPageSchema>

@@ -11,10 +11,6 @@ export const MomentCategoryMap = {
     title: 'prompt 收藏',
     description: '收藏有趣的 prompt',
   },
-  'keyword2blog': {
-    title: 'keyword to blog',
-    description: '有请 deepseek 老师给我们讲课',
-  },
   'telegram:emt_channel': {
     title: 'Telegram EMT Channel',
     description: 'Telegram EMT Channel',
@@ -29,8 +25,6 @@ export function getTitle(category: keyof typeof MomentCategoryMap | string) {
       return MomentCategoryMap.eleven.title
     case 'prompt':
       return MomentCategoryMap.prompt.title
-    case 'keyword2blog':
-      return MomentCategoryMap.keyword2blog.title
     case 'telegram:emt_channel':
       return MomentCategoryMap['telegram:emt_channel'].title
     default:
@@ -46,8 +40,6 @@ export function getDescription(category: keyof typeof MomentCategoryMap | string
       return MomentCategoryMap.eleven.description
     case 'prompt':
       return MomentCategoryMap.prompt.description
-    case 'keyword2blog':
-      return MomentCategoryMap.keyword2blog.description
     case 'telegram:emt_channel':
       return MomentCategoryMap['telegram:emt_channel'].description
     default:

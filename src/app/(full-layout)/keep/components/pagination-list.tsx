@@ -6,23 +6,24 @@ import { KeepCard } from '@/app/(full-layout)/keep/components/keep-card'
 import { Empty } from '@/components/layout/Empty'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Pagination } from '@/components/ui/pagination'
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api } from '@/trpc/react'
 
 interface PaginationListProps {
   category?: string
+  visibility?: 'all' | 'public' | 'private'
   page?: number
   onPageChange?: (page: number) => void
 }
 
-const PAGE_SIZE = 6
-
-export function PaginationList({ category, page = 1, onPageChange }: PaginationListProps) {
+export function PaginationList({ category, visibility = 'all', page = 1, onPageChange }: PaginationListProps) {
   const currentPage = page
 
   const { data, isLoading, error } = api.keep.fetchByPage.useQuery({
     page: currentPage,
-    pageSize: PAGE_SIZE,
+    pageSize: DEFAULT_PAGE_SIZE,
     category,
+    visibility,
   }, {
     staleTime: 5 * 60 * 1000, // 5分钟缓存
   })
@@ -84,7 +85,7 @@ export function PaginationList({ category, page = 1, onPageChange }: PaginationL
         currentPage={data.currentPage}
         totalPages={data.totalPages}
         total={data.total}
-        pageSize={PAGE_SIZE}
+        pageSize={DEFAULT_PAGE_SIZE}
         onPageChange={handlePageChange}
       />
     </div>

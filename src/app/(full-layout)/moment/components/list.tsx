@@ -9,9 +9,10 @@ import { MomentItem } from './item'
 
 interface Props {
   category?: string
+  visibility?: 'all' | 'public' | 'private'
 }
 
-export function MomentList({ category }: Props) {
+export function MomentList({ category, visibility }: Props) {
   const {
     data,
     isLoading,
@@ -22,6 +23,7 @@ export function MomentList({ category }: Props) {
   } = api.moment.fetchByCursor.useInfiniteQuery(
     {
       category,
+      visibility,
     },
     {
       getNextPageParam: lastPage => lastPage.nextCursor,

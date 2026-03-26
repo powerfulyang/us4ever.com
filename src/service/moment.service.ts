@@ -54,6 +54,7 @@ interface FindMomentsByCursorInput {
   limit: number
   cursor?: string
   category?: string
+  visibility?: 'all' | 'public' | 'private'
 }
 
 /**
@@ -122,9 +123,17 @@ export async function listMoments({ userIds, category, take, cursor }: ListMomen
  * @param params.limit 每页数量
  * @param params.cursor 游标ID
  * @param params.category 动态分类
+ * @param params.visibility 可见性筛选
  * @returns 动态列表和下一页游标
  */
-export async function findMomentsByCursor({ userIds, limit, cursor, category }: FindMomentsByCursorInput) {
+export async function findMomentsByCursor({
+  userIds,
+  limit,
+  cursor,
+  category,
+  visibility = 'all',
+}: FindMomentsByCursorInput) {
+  const where = buildMomentWhereClause({ userIds, category, visibility })
   const items = await db.moment.findMany({
     include: {
       images: {
@@ -149,17 +158,7 @@ export async function findMomentsByCursor({ userIds, limit, cursor, category }: 
       },
       owner: true,
     },
-    where: {
-      category,
-      OR: [
-        {
-          ownerId: {
-            in: userIds,
-          },
-        },
-        { isPublic: true },
-      ],
-    },
+    where,
     orderBy: {
       createdAt: 'desc',
     },
@@ -183,6 +182,41 @@ export async function findMomentsByCursor({ userIds, limit, cursor, category }: 
   }
 }
 
+export function buildMomentWhereClause({
+  userIds,
+  category,
+  visibility = 'all',
+}: {
+  userIds: string[]
+  category?: string
+  visibility?: 'all' | 'public' | 'private'
+}): Prisma.MomentWhereInput {
+  const baseCondition: Prisma.MomentWhereInput = {
+    category,
+  }
+
+  if (visibility === 'public') {
+    return {
+      ...baseCondition,
+      isPublic: true,
+    }
+  }
+  if (visibility === 'private') {
+    return {
+      ...baseCondition,
+      isPublic: false,
+      ownerId: { in: userIds },
+    }
+  }
+  return {
+    ...baseCondition,
+    OR: [
+      { ownerId: { in: userIds } },
+      { isPublic: true },
+    ],
+  }
+}
+
 /**
  * 使用页码分页查询动态列表
  * @param params 查询参数
@@ -190,6 +224,7 @@ export async function findMomentsByCursor({ userIds, limit, cursor, category }: 
  * @param params.page 页码
  * @param params.pageSize 每页数量
  * @param params.category 动态分类
+ * @param params.visibility 可见性筛选
  * @returns 动态列表和分页信息
  */
 export async function findMomentsByPage({
@@ -197,23 +232,20 @@ export async function findMomentsByPage({
   page,
   pageSize,
   category,
+  visibility = 'all',
 }: {
   userIds: string[]
   page: number
   pageSize: number
   category?: string
+  visibility?: 'all' | 'public' | 'private'
 }) {
   const skip = (page - 1) * pageSize
+  const where = buildMomentWhereClause({ userIds, category, visibility })
 
   // 获取总数
   const total = await db.moment.count({
-    where: {
-      category,
-      OR: [
-        { ownerId: { in: userIds } },
-        { isPublic: true },
-      ],
-    },
+    where,
   })
 
   // 获取分页数据
@@ -241,13 +273,7 @@ export async function findMomentsByPage({
       },
       owner: true,
     },
-    where: {
-      category,
-      OR: [
-        { ownerId: { in: userIds } },
-        { isPublic: true },
-      ],
-    },
+    where,
     orderBy: {
       createdAt: 'desc',
     },
@@ -778,19 +804,15 @@ export async function incrementMomentViews(id: string) {
 /**
  * 获取动态分类列表
  * @param userIds 用户ID列表
+ * @param visibility 可见性筛选
  * @returns 分类列表
  */
-export async function getCategories(userIds: string[]) {
+export async function getCategories(userIds: string[], visibility: 'all' | 'public' | 'private' = 'all') {
   const categories = await db.moment.findMany({
     select: {
       category: true,
     },
-    where: {
-      OR: [
-        { ownerId: { in: userIds } },
-        { isPublic: true },
-      ],
-    },
+    where: buildMomentWhereClause({ userIds, visibility }),
     distinct: ['category'],
   })
   return categories.map(category => category.category)
@@ -950,6 +972,83 @@ async function backfillVectors(batchSize = 50) {
   return { processed, remaining }
 }
 
+async function findByTag(
+  tag: string,
+  userIds: string[],
+  options: { page?: number, pageSize?: number, onlyPublic?: boolean } = {},
+) {
+  const { page = 1, pageSize = 10, onlyPublic = false } = options
+  const skip = (page - 1) * pageSize
+
+  // 构建 where 条件
+  const whereClause: Prisma.MomentWhereInput = {
+    tags: {
+      array_contains: [tag],
+    },
+    ...(onlyPublic
+      ? { isPublic: true }
+      : {
+          OR: [
+            { ownerId: { in: userIds } },
+            { isPublic: true },
+          ],
+        }),
+  }
+
+  // 获取总数
+  const total = await db.moment.count({
+    where: whereClause,
+  })
+
+  // 获取分页数据
+  const items = await db.moment.findMany({
+    skip,
+    take: pageSize,
+    where: whereClause,
+    orderBy: {
+      createdAt: 'desc',
+    },
+    include: {
+      images: {
+        include: {
+          image: {
+            include: imageInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      videos: {
+        include: {
+          video: {
+            include: videoInclude,
+          },
+        },
+        orderBy: {
+          sort: 'asc',
+        },
+      },
+      owner: true,
+    },
+  })
+
+  const totalPages = Math.ceil(total / pageSize)
+
+  return {
+    items: items.map(moment => ({
+      ...moment,
+      images: moment.images.map(({ image }) => transformImageToResponse(image)),
+      videos: moment.videos.map(({ video }) => transformVideoToResponse(video)),
+    })),
+    total,
+    totalPages,
+    currentPage: page,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  }
+}
+
 export const momentService = {
   listMoments,
   findMomentsByCursor,
@@ -968,4 +1067,5 @@ export const momentService = {
   semanticSearch,
   hybridSearch,
   backfillVectors,
+  findByTag,
 }

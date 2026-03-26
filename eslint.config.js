@@ -9,6 +9,7 @@ export default antfu(
       'next.config.js',
       'README.md',
       '**/*.md',
+      '*.md',
     ],
     react: true,
     nextjs: true,

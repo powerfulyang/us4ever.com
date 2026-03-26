@@ -4,6 +4,7 @@ import type { Image as ImageResponse } from '@/server/api/routers/asset'
 import type { Moment } from '@/server/api/routers/moment'
 import { motion } from 'framer-motion'
 import { Globe, Lock } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -22,19 +23,25 @@ import { MomentCreate } from './create'
 
 interface MomentItemProps {
   moment: Moment
+  onDeleteSuccess?: () => void
 }
 
-export function MomentItem({ moment }: MomentItemProps) {
+export function MomentItem({ moment, onDeleteSuccess }: MomentItemProps) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const previewOpenedRef = useRef(false)
   const utils = api.useUtils()
+  const router = useRouter()
 
   const { mutate: deleteMoment, isPending } = api.moment.delete.useMutation({
     onSuccess: () => {
       setShowConfirm(false)
-      return utils.moment.fetchByCursor.invalidate()
+      if (onDeleteSuccess) {
+        onDeleteSuccess()
+      }
+      void utils.moment.fetchByCursor.invalidate()
+      router.refresh()
     },
   })
 
@@ -86,7 +93,6 @@ export function MomentItem({ moment }: MomentItemProps) {
   }
 
   const showDelete = moment.category !== 'eleven'
-  const router = useRouter()
 
   function gotoDetail() {
     router.push(`/moment/${moment.id}`)
@@ -114,13 +120,15 @@ export function MomentItem({ moment }: MomentItemProps) {
               user={moment.owner}
               createdAt={moment.createdAt}
               rightArea={(
-                <Badge
-                  variant={moment.isPublic ? 'success' : 'warning'}
-                  className="text-[10px] h-5 px-1.5 flex items-center gap-1 font-semibold uppercase tracking-wider"
-                >
-                  {moment.isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
-                  {moment.isPublic ? '公开' : '私密'}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={moment.isPublic ? 'success' : 'warning'}
+                    className="text-[10px] h-5 px-1.5 flex items-center gap-1 font-semibold uppercase tracking-wider"
+                  >
+                    {moment.isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+                    {moment.isPublic ? '公开' : '私密'}
+                  </Badge>
+                </div>
               )}
             />
 
@@ -194,6 +202,22 @@ export function MomentItem({ moment }: MomentItemProps) {
                   )}
                 </div>
               </PhotoProvider>
+            )}
+
+            {/* 标签 */}
+            {moment.tags && (moment.tags as string[]).length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1" onClick={stopPropagation}>
+                {(moment.tags as string[]).map(tag => (
+                  <Link
+                    key={tag}
+                    href={`/tag/${encodeURIComponent(tag)}`}
+                    className="px-2 py-0.5 text-[14px] rounded-full bg-muted text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+                  >
+                    #
+                    {tag}
+                  </Link>
+                ))}
+              </div>
             )}
 
             {/* 底部操作栏 */}

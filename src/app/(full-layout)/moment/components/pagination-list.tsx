@@ -5,24 +5,25 @@ import * as React from 'react'
 import { Empty } from '@/components/layout/Empty'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Pagination } from '@/components/ui/pagination'
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api } from '@/trpc/react'
 import { MomentItem } from './item'
 
 interface PaginationListProps {
   category?: string
   page?: number
+  visibility?: 'all' | 'public' | 'private'
   onPageChange?: (page: number) => void
 }
 
-const PAGE_SIZE = 6
-
-export function MomentPaginationList({ category, page = 1, onPageChange }: PaginationListProps) {
+export function MomentPaginationList({ category, page = 1, visibility = 'all', onPageChange }: PaginationListProps) {
   const currentPage = page
 
   const { data, isLoading, error } = api.moment.fetchByPage.useQuery({
     page: currentPage,
-    pageSize: PAGE_SIZE,
+    pageSize: DEFAULT_PAGE_SIZE,
     category,
+    visibility,
   }, {
     staleTime: 5 * 60 * 1000,
   })
@@ -81,7 +82,7 @@ export function MomentPaginationList({ category, page = 1, onPageChange }: Pagin
         currentPage={data.currentPage}
         totalPages={data.totalPages}
         total={data.total}
-        pageSize={PAGE_SIZE}
+        pageSize={DEFAULT_PAGE_SIZE}
         onPageChange={handlePageChange}
       />
     </div>

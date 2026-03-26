@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 export default async function TodoFeedPage() {
-  await api.todo.fetchByCursor.prefetch({})
+  await api.todo.fetchByCursor.prefetchInfinite({})
 
   return (
     <HydrateClient>

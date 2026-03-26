@@ -62,12 +62,5 @@ export function Waline(props: WalineOptions) {
     }
   }, [pathname, resolvedTheme, props])
 
-  useEffect(() => {
-    return () => {
-      walineInstanceRef.current?.destroy()
-      walineInstanceRef.current = null
-    }
-  }, [])
-
   return <div ref={containerRef} />
 }

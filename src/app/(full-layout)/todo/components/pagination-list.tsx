@@ -5,6 +5,7 @@ import * as React from 'react'
 import { Empty } from '@/components/layout/Empty'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Pagination } from '@/components/ui/pagination'
+import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api } from '@/trpc/react'
 import { TodoItem } from './TodoItem'
 
@@ -13,14 +14,12 @@ interface PaginationListProps {
   onPageChange?: (page: number) => void
 }
 
-const PAGE_SIZE = 6
-
 export function TodoPaginationList({ page = 1, onPageChange }: PaginationListProps) {
   const currentPage = page
 
   const { data, isLoading, error } = api.todo.fetchByPage.useQuery({
     page: currentPage,
-    pageSize: PAGE_SIZE,
+    pageSize: DEFAULT_PAGE_SIZE,
   }, {
     staleTime: 5 * 60 * 1000,
   })
@@ -79,7 +78,7 @@ export function TodoPaginationList({ page = 1, onPageChange }: PaginationListPro
         currentPage={data.currentPage}
         totalPages={data.totalPages}
         total={data.total}
-        pageSize={PAGE_SIZE}
+        pageSize={DEFAULT_PAGE_SIZE}
         onPageChange={handlePageChange}
       />
     </div>

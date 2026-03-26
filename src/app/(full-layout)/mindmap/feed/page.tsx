@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 export default async function MindMapFeedPage() {
-  await api.mindMap.fetchByCursor.prefetch({})
+  await api.mindMap.fetchByCursor.prefetchInfinite({})
 
   return (
     <HydrateClient>
@@ -22,7 +22,7 @@ export default async function MindMapFeedPage() {
         title="思维导图"
         description="记录和分享你的思维导图"
         actions={(
-          <div className="flex items-center gap-2">
+          <div className="flex items-start gap-2">
             <ViewToggle />
             <MindMapImport />
           </div>

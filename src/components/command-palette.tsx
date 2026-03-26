@@ -11,6 +11,7 @@ import {
   Network,
   Search,
   Sun,
+  Tag,
 } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
@@ -37,6 +38,7 @@ const navigationItems: CommandItem[] = [
   { id: 'moment', title: '动态', icon: MessageCircle, href: '/moment', keywords: ['moment', 'dynamic', '动态'] },
   { id: 'mindmap', title: '思维导图', icon: Network, href: '/mindmap', keywords: ['mindmap', 'mind', '思维导图'] },
   { id: 'image', title: '图片管理', icon: FileImage, href: '/image', keywords: ['image', 'photo', '图片'] },
+  { id: 'tag', title: '标签', icon: Tag, href: '/tag', keywords: ['tag', 'label', '标签'] },
 ]
 
 interface CommandPaletteProps {
