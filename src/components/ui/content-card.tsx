@@ -1,8 +1,8 @@
-import dayjs from 'dayjs'
 import { Globe, Lock } from 'lucide-react'
 import { MdRender } from '@/components/md-render'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { FormattedTime } from '@/components/ui/formatted-time'
 import { ItemActions } from '@/components/ui/item-actions'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
@@ -68,9 +68,11 @@ export function ContentCard({
               {status.label}
             </Badge>
           )}
-          <time className="text-xs text-muted-foreground/60 font-medium">
-            {dayjs(createdAt).format('YYYY-MM-DD HH:mm')}
-          </time>
+          <FormattedTime
+            date={createdAt}
+            format="YYYY-MM-DD HH:mm"
+            className="text-xs text-muted-foreground/60 font-medium"
+          />
         </div>
       </div>
 

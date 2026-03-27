@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import dayjs from 'dayjs'
 import * as React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { FormattedTime } from '@/components/ui/formatted-time'
 import { cn } from '@/lib/utils'
 
 interface UserInfoProps {
@@ -43,9 +43,11 @@ export function UserInfo({
             {user?.nickname ?? '匿名'}
           </span>
         </div>
-        <time className="text-[11px] text-muted-foreground/60 font-medium tabular-nums">
-          {dayjs(createdAt).format('YYYY-MM-DD HH:mm')}
-        </time>
+        <FormattedTime
+          date={createdAt}
+          format="YYYY-MM-DD HH:mm"
+          className="text-[11px] text-muted-foreground/60 font-medium tabular-nums"
+        />
       </div>
 
       {rightArea && (

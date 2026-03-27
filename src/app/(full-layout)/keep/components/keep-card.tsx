@@ -7,6 +7,7 @@ import * as React from 'react'
 import { useState } from 'react'
 import { OwnerOnly } from '@/components/auth/owner-only'
 import { Confirm } from '@/components/ui/confirm'
+import { FormattedTime } from '@/components/ui/formatted-time'
 import { api } from '@/trpc/react'
 
 interface Keep {
@@ -127,7 +128,7 @@ export function KeepCard({ keep, onDelete }: KeepCardProps) {
                 <span>·</span>
               </>
             )}
-            <span>{new Date(keep.createdAt).toLocaleDateString('zh-CN')}</span>
+            <FormattedTime date={keep.createdAt} format="YYYY/MM/DD" />
           </div>
           <div className="flex items-center gap-3">
             {keep.views > 0 && (

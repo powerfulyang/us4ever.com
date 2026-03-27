@@ -30,8 +30,11 @@ COPY . .
 ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=BPUhsOEg_zvQTcBDLIYOctcye7iuSgF4q0gI-Q1_DnaWjD9FcvYVnJlTfsrCcD995RkbeSV0Pxi9h5t2ayRb-yA
 
 # 构建
+ARG COMMIT_ID
 RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
-    SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) pnpm run build
+    SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) \
+    SENTRY_RELEASE=$COMMIT_ID \
+    pnpm run build
 
 # 生产阶段
 FROM builder AS production
@@ -41,6 +44,8 @@ WORKDIR /app
 ENV CI=true
 
 ENV NEXT_TELEMETRY_DISABLED=1
+ARG COMMIT_ID
+ENV SENTRY_RELEASE=$COMMIT_ID
 
 # 安装 ffmpeg（单独一层，便于缓存）
 RUN apk update && apk add --no-cache ffmpeg

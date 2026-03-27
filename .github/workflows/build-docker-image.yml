@@ -45,6 +45,8 @@ jobs:
           context: .
           push: true
           tags: ${{ env.DOCKER_REPOSITORY }}:latest
+          build-args: |
+            COMMIT_ID=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           secrets: |
@@ -75,7 +77,7 @@ jobs:
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          docker build --secret id=SENTRY_AUTH_TOKEN -t ${{ env.DOCKER_REPOSITORY }} .
+          docker build --secret id=SENTRY_AUTH_TOKEN --build-arg COMMIT_ID=${{ github.sha }} -t ${{ env.DOCKER_REPOSITORY }} .
           cd /root/applications
           docker-compose up -d --force-recreate ${{ env.SERVICE_NAME }}
           docker image prune -f

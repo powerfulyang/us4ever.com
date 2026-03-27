@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import dayjs from 'dayjs'
 import { ArrowLeft, Edit, Globe, Lock } from 'lucide-react'
 import Link from 'next/link'
 import { Back } from '@/app/(full-layout)/keep/components/back'
@@ -8,6 +7,7 @@ import RemoteMdx from '@/components/md-render/remote'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { FormattedTime } from '@/components/ui/formatted-time'
 import { Waline } from '@/components/waline'
 import { api } from '@/trpc/server'
 
@@ -65,9 +65,10 @@ export default async function DetailPage({ params }: PageProps) {
             <div className="flex items-center gap-4">
               <div className="flex flex-col">
                 <span className="text-sm text-gray-400">创建于</span>
-                <time className="text-gray-300 font-medium">
-                  {dayjs(keep.createdAt).format('YYYY年MM月DD日 HH:mm')}
-                </time>
+                <FormattedTime
+                  date={keep.createdAt}
+                  className="text-gray-300 font-medium"
+                />
               </div>
               <div className="w-px h-8 bg-white/20" />
               <div className="flex items-center gap-2">
