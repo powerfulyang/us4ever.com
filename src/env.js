@@ -16,6 +16,7 @@ export const env = createEnv({
     TELEGRAM_API_ENDPOINT: z.string().default('http://api.telegram:8000'),
     GEMINI_API_KEY: z.string().optional(),
     LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']).default('info'),
+    VAPID_PRIVATE_KEY: z.string(),
   },
 
   /**
@@ -25,6 +26,7 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string(),
   },
 
   /**
@@ -39,6 +41,8 @@ export const env = createEnv({
     TELEGRAM_API_ENDPOINT: process.env.TELEGRAM_API_ENDPOINT,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     LOG_LEVEL: process.env.LOG_LEVEL,
+    VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

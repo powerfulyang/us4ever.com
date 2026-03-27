@@ -164,8 +164,6 @@ export async function deleteKeep(id: string, ownerId: string) {
 
 /**
  * 构建 Keep 的查询 where 条件
- * @param userIds 用户ID列表
- * @param query 包含 category 和 visibility 的查询参数
  * @returns Prisma Where 条件
  */
 export function buildKeepWhereClause({

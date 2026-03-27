@@ -30,7 +30,8 @@ COPY . .
 ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=BPUhsOEg_zvQTcBDLIYOctcye7iuSgF4q0gI-Q1_DnaWjD9FcvYVnJlTfsrCcD995RkbeSV0Pxi9h5t2ayRb-yA
 
 # 构建
-RUN pnpm run build
+RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN \
+    SENTRY_AUTH_TOKEN=$(cat /run/secrets/SENTRY_AUTH_TOKEN) pnpm run build
 
 # 生产阶段
 FROM builder AS production

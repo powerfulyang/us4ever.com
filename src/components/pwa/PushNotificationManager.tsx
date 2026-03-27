@@ -5,6 +5,7 @@ import { Bell, BellOff, Check, Loader2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { subscribeUser, unsubscribeUser } from '@/app/actions/web-push'
 import { Button } from '@/components/ui/button'
+import { env } from '@/env'
 import { cn } from '@/utils/cn'
 
 interface PushNotificationManagerProps {
@@ -37,7 +38,7 @@ export default function PushNotificationManager({ onSubscribe, onUnsubscribe }: 
 
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+        applicationServerKey: env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
       })
 
       const json = subscription.toJSON() as PushSubscriptionJSON

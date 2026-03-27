@@ -47,6 +47,8 @@ jobs:
           tags: ${{ env.DOCKER_REPOSITORY }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          secrets: |
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
 
   deploy:
     needs: [build-with-github-action]
@@ -69,10 +71,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Build and push Docker image
       - name: Build and push Docker image
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          docker build -t ${{ env.DOCKER_REPOSITORY }} .
+          docker build --secret id=SENTRY_AUTH_TOKEN -t ${{ env.DOCKER_REPOSITORY }} .
           cd /root/applications
           docker-compose up -d --force-recreate ${{ env.SERVICE_NAME }}
           docker image prune -f

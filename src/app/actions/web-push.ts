@@ -10,8 +10,8 @@ import { COOKIE_NAME } from '@/server/hono'
 
 webpush.setVapidDetails(
   'mailto:hutyxxx@gmail.com',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!,
+  env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+  env.VAPID_PRIVATE_KEY,
 )
 
 /**

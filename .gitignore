@@ -52,3 +52,6 @@ prisma/seed.ts
 src/auto-typings
 
 .claude
+
+# Sentry Config File
+.env.sentry-build-plugin

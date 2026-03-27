@@ -57,38 +57,47 @@ globalSelf.addEventListener('notificationclick', (event) => {
   );
 });
 
-// 处理请求
 globalSelf.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 处理帮助中心域名下的所有 GET 请求
   if (url.origin === 'https://help.littleeleven.com' && event.request.method === 'GET') {
     event.respondWith(
-      caches.open(HELP_CENTER_CACHE_NAME)
-        .then((cache) => {
-          return cache.match(event.request)
-            .then((response) => {
-              if (response) {
-                return response;
-              }
+      (async () => {
+        const cache = await caches.open(HELP_CENTER_CACHE_NAME);
 
-              // 如果缓存中没有，则从网络获取并缓存
-              return fetch(event.request)
-                .then((networkResponse) => {
-                  if (networkResponse.ok) {
-                    cache.put(event.request, networkResponse.clone());
-                  }
-                  return networkResponse;
-                })
-                .catch(() => {
-                  // 网络请求失败的处理
-                  return new Response('Network error occurred', {
-                    status: 408,
-                    headers: { 'Content-Type': 'text/plain' }
-                  });
-                });
-            });
-        })
+        // 创建两个 Promise 进行竞速
+        const cachePromise = cache.match(event.request);
+        const networkPromise = fetch(event.request);
+
+        try {
+          // 使用 Promise.race 竞速
+          // 注意：通常我们需要对 Race 结果进行筛选，因为 cache.match 没命中会返回 undefined
+          const response = await Promise.race([
+            cachePromise.then(res => {
+              if (res) return res;
+              // 如果缓存没中，返回一个永远 pending 的 promise，把机会让给网络
+              return new Promise(() => { });
+            }),
+            networkPromise.then(networkRes => {
+              if (networkRes.ok) {
+                cache.put(event.request, networkRes.clone());
+              }
+              return networkRes;
+            })
+          ]);
+
+          return response;
+        } catch (error) {
+          // 如果两者都失败（或网络断开且缓存无数据）
+          const cachedResponse = await cachePromise;
+          if (cachedResponse) return cachedResponse;
+
+          return new Response('Network error and no cache', {
+            status: 408,
+            headers: { 'Content-Type': 'text/plain' }
+          });
+        }
+      })()
     );
   }
 });
