@@ -81,7 +81,7 @@ export default withSentryConfig(config, {
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
   org: "sentry",
-  project: "home",
+  project: "homepage",
   sentryUrl: "https://sentry.us4ever.com/",
 
   // Only print logs for uploading source maps in CI

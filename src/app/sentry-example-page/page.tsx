@@ -1,28 +1,28 @@
-'use client'
+"use client";
 
-import * as Sentry from '@sentry/nextjs'
-import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import * as Sentry from "@sentry/nextjs";
+import Head from "next/head";
+import { useEffect, useState } from "react";
 
 class SentryExampleFrontendError extends Error {
   constructor(message: string | undefined) {
-    super(message)
-    this.name = 'SentryExampleFrontendError'
+    super(message);
+    this.name = "SentryExampleFrontendError";
   }
 }
 
 export default function Page() {
-  const [hasSentError, setHasSentError] = useState(false)
-  const [isConnected, setIsConnected] = useState(true)
+  const [hasSentError, setHasSentError] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
-    Sentry.logger.info('Sentry example page loaded')
+    Sentry.logger.info("Sentry example page loaded");
     async function checkConnectivity() {
-      const result = await Sentry.diagnoseSdkConnectivity()
-      setIsConnected(result !== 'sentry-unreachable')
+      const result = await Sentry.diagnoseSdkConnectivity();
+      setIsConnected(result !== "sentry-unreachable");
     }
-    checkConnectivity()
-  }, [])
+    checkConnectivity();
+  }, []);
 
   return (
     <div>
@@ -49,8 +49,7 @@ export default function Page() {
         <h1>sentry-example-page</h1>
 
         <p className="description">
-          Click the button below, and view the sample error on the Sentry
-          {' '}
+          Click the button below, and view the sample error on the Sentry{" "}
           <a
             target="_blank"
             rel="noopener"
@@ -58,8 +57,7 @@ export default function Page() {
           >
             Issues Page
           </a>
-          . For more details about setting up Sentry,
-          {' '}
+          . For more details about setting up Sentry,{" "}
           <a
             target="_blank"
             rel="noopener"
@@ -73,51 +71,46 @@ export default function Page() {
         <button
           type="button"
           onClick={async () => {
-            Sentry.logger.info('User clicked the button, throwing a sample error')
+            Sentry.logger.info("User clicked the button, throwing a sample error");
             await Sentry.startSpan(
               {
-                name: 'Example Frontend/Backend Span',
-                op: 'test',
+                name: "Example Frontend/Backend Span",
+                op: "test",
               },
               async () => {
-                const res = await fetch('/api/sentry-example-api')
+                const res = await fetch("/api/sentry-example-api");
                 if (!res.ok) {
-                  setHasSentError(true)
+                  setHasSentError(true);
                 }
               },
-            )
+            );
             throw new SentryExampleFrontendError(
-              'This error is raised on the frontend of the example page.',
-            )
+              "This error is raised on the frontend of the example page.",
+            );
           }}
           disabled={!isConnected}
         >
           <span>Throw Sample Error</span>
         </button>
 
-        {hasSentError
-          ? (
-              <p className="success">Error sent to Sentry.</p>
-            )
-          : !isConnected
-              ? (
-                  <div className="connectivity-error">
-                    <p>
-                      It looks like network requests to Sentry are being blocked, which
-                      will prevent errors from being captured. Try disabling your
-                      ad-blocker to complete the test.
-                    </p>
-                  </div>
-                )
-              : (
-                  <div className="success_placeholder" />
-                )}
+        {hasSentError ? (
+          <p className="success">Error sent to Sentry.</p>
+        ) : !isConnected ? (
+          <div className="connectivity-error">
+            <p>
+              It looks like network requests to Sentry are being blocked, which
+              will prevent errors from being captured. Try disabling your
+              ad-blocker to complete the test.
+            </p>
+          </div>
+        ) : (
+          <div className="success_placeholder" />
+        )}
 
         <div className="flex-spacer" />
       </main>
 
-      <style jsx>
-        {`
+      <style>{`
         main {
           display: flex;
           min-height: 100vh;
@@ -183,14 +176,14 @@ export default function Page() {
           }
 
           &:disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
+	            cursor: not-allowed;
+	            opacity: 0.6;
 
-            & > span {
-              transform: translateY(0);
-              border: none;
-            }
-          }
+	            & > span {
+	              transform: translateY(0);
+	              border: none
+	            }
+	          }
         }
 
         .description {
@@ -238,8 +231,7 @@ export default function Page() {
           color: #FFFFFF;
           text-decoration: underline;
         }
-      `}
-      </style>
+      `}</style>
     </div>
-  )
+  );
 }
