@@ -51,6 +51,18 @@ export default async function RootLayout({ children }: Props) {
           src="https://umami.us4ever.com/script.js"
           data-website-id="650103e6-dc4e-4c71-902d-110fdc3fc4e6"
         />
+        <Script id="gtag" async src="https://www.googletagmanager.com/gtag/js?id=G-WCQH3VE45C"></Script>
+        <Script id="gtag-init">
+          {`if (typeof window !== 'undefined') {
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments)
+            }
+            gtag('js', new Date());
+
+            gtag('config', 'G-WCQH3VE45C');
+          }`}
+        </Script>
         <link rel="stylesheet" href="https://help.littleeleven.com/font.css" />
       </head>
       <body>
