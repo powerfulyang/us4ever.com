@@ -13,6 +13,22 @@ const config = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'public-1253520329.cos.ap-shanghai.myqcloud.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.us4ever.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'r2.powerfulyang.com',
+      },
+    ],
+  },
   turbopack: {
     rules: {
       ...codeInspectorPlugin({

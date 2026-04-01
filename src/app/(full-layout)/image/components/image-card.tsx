@@ -1,7 +1,8 @@
 'use client'
 
-import type { Image } from '@/server/api/routers/asset'
+import type { Image as ImageType } from '@/server/api/routers/asset'
 import { Info, Lock, Trash2, Unlock } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { cn, formatFileSize } from '@/utils'
@@ -14,7 +15,7 @@ interface Thumbnail {
 }
 
 interface ImageCardProps {
-  image: Image
+  image: ImageType
   onDelete?: () => void
 }
 
@@ -37,10 +38,12 @@ export function ImageCard({ image, onDelete }: ImageCardProps) {
     <>
       <Card hoverable className="group">
         <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
-          <img
+          <Image
             src={selectedUrl}
             alt={image.name}
-            className={cn('object-cover w-full h-full group-hover:scale-105 transition-transform duration-300', {
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className={cn('object-cover group-hover:scale-105 transition-transform duration-300', {
               'blur-[32px]': is_10x,
             })}
           />
@@ -103,10 +106,12 @@ export function ImageCard({ image, onDelete }: ImageCardProps) {
                 },
               )}
             >
-              <img
+              <Image
                 src={image.thumbnail_320x_url}
                 alt={thumb.label}
-                className="w-full h-full object-cover"
+                fill
+                sizes="60px"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-background/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="text-[10px] text-foreground font-medium">{thumb.label}</span>

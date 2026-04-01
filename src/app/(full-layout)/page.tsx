@@ -9,7 +9,7 @@ import {
   CheckSquare,
   Clock,
   FileImage,
-  Image,
+  Image as ImageIcon,
   List,
   MessageCircle,
   Network,
@@ -17,6 +17,7 @@ import {
   Video,
   Zap,
 } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import * as React from 'react'
 import { MomentCategoryMap } from '@/constants/moment'
@@ -100,7 +101,7 @@ const toyLinks: LinkProps[] = [
     description: '便捷的图片上传与管理工具',
     href: '/image/feed',
     target: '_blank',
-    icon: <Image className="w-6 h-6" />,
+    icon: <ImageIcon className="w-6 h-6" />,
   },
   {
     title: '图片转 Base64',
@@ -160,7 +161,7 @@ const toolLinks: LinkProps[] = [
     href: 'https://dify.us4ever.com',
     target: '_blank',
     icon: (
-      <img className="w-6 h-6" src="/icons/dify.avif" alt="" />
+      <Image className="w-6 h-6" src="/icons/dify.avif" alt="" width={24} height={24} />
     ),
   },
 ]

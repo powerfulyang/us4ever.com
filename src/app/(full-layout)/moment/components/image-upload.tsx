@@ -207,6 +207,7 @@ export function MediaUpload({
                   />
                 )
               : (
+                  // eslint-disable-next-line next/no-img-element
                   <img
                     src={media.preview}
                     alt="正在上传"

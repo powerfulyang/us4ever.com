@@ -1,6 +1,6 @@
 'use client'
 
-import type { Image } from '@/server/api/routers/asset'
+import type { Image as ImageType } from '@/server/api/routers/asset'
 import {
   Calendar,
   Camera,
@@ -17,6 +17,7 @@ import {
   Tag,
   X,
 } from 'lucide-react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -28,7 +29,7 @@ import { formatFileSize } from '@/utils'
 import { cn } from '@/utils/cn'
 
 interface ImageInfoModalProps {
-  image: Image
+  image: ImageType
   isOpen: boolean
   onCloseAction: () => void
 }
@@ -183,10 +184,12 @@ export function ImageInfoModal({ image, isOpen, onCloseAction }: ImageInfoModalP
         <div className="p-6 space-y-6">
           {/* 图片预览 */}
           <div className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-muted/50 to-muted border border-border/50 group">
-            <img
+            <Image
               src={image.thumbnail_768x_url || image.compressed_url}
               alt={image.name}
-              className="w-full h-full object-contain"
+              fill
+              sizes="(max-width: 768px) 100vw, 600px"
+              className="object-contain"
             />
           </div>
 

@@ -123,6 +123,7 @@ export const Markdown: FC<MarkdownProps> = ({ children, className, as: RootTag =
     // 图片
     img: ({ src, alt }: any) => (
       <figure className={styles.figure}>
+        {/* eslint-disable-next-line next/no-img-element */}
         <img src={src} alt={alt} loading="lazy" />
         {alt && <figcaption>{alt}</figcaption>}
       </figure>

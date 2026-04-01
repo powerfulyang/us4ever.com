@@ -39,7 +39,7 @@ export function Truncate({
       return
 
     const hasOverflow = element.scrollWidth > element.clientWidth
-    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
+
     setIsOverflow(hasOverflow)
   }, [children])
 

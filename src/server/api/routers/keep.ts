@@ -4,7 +4,7 @@ import { createKeepSchema, queryKeepPageSchema, queryKeepSchema, semanticSearchS
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { db } from '@/server/db'
 import { logger } from '@/server/logger'
-import { keepService } from '@/service/keep.service'
+import { keepService } from '@/service/keep'
 
 export type Keep = Awaited<ReturnType<typeof keepService.findPublicList>>[number]
 

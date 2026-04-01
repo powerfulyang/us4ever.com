@@ -37,6 +37,8 @@ export default antfu(
       // overrides
       'no-console': 'off',
       'node/prefer-global/process': 'off',
+      // useEffect 中同步外部状态是合理的模式
+      'react-hooks-extra/no-direct-set-state-in-use-effect': 'off',
     },
   },
 )
