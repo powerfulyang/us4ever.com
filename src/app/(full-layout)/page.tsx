@@ -171,7 +171,7 @@ function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
       <h2 className="text-base font-semibold text-foreground uppercase tracking-wider pl-1">
         {title}
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {links.map((link) => {
           const isExternal = link.target === '_blank'
           const LinkComponent = isExternal ? 'a' : Link
@@ -183,16 +183,17 @@ function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
             <LinkComponent
               key={link.title}
               {...linkProps}
-              className="group flex items-center gap-4 p-4 rounded-lg bg-card/50 dark:bg-card/30 backdrop-blur-md transition-all active:scale-[0.98]"
+              className="group relative flex items-center gap-5 p-5 rounded-2xl bg-white/70 dark:bg-[hsl(230_25%_9%/0.6)] backdrop-blur-xl border border-black/[0.04] dark:border-white/[0.06] hover:-translate-y-1 transition-all duration-500 active:scale-[0.98] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:bg-white/80 dark:hover:bg-[hsl(230_25%_12%/0.7)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] dark:hover:border-white/[0.1]"
             >
-              <div className="p-2.5 bg-primary/10 text-primary rounded-lg group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+
+              <div className="relative z-10 p-3 bg-primary/10 dark:bg-primary/20 text-primary rounded-[14px] group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-sm group-hover:shadow-[0_4px_20px_rgba(var(--primary-rgb),0.3)] group-hover:scale-110 shrink-0">
                 {link.icon}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[15px] font-semibold text-foreground truncate">
+              <div className="relative z-10 flex-1 min-w-0">
+                <div className="text-[16px] font-bold text-foreground truncate group-hover:text-primary transition-colors duration-300">
                   {link.title}
                 </div>
-                <div className="text-sm text-muted-foreground truncate mt-0.5">
+                <div className="text-[13px] text-muted-foreground truncate mt-1">
                   {link.description}
                 </div>
               </div>

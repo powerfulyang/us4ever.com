@@ -6,17 +6,19 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverable?: boolean
 }
 
-function Card({ ref, className, hoverable = false, ...props }: CardProps & { ref?: React.RefObject<HTMLDivElement | null> }) {
+function Card({ ref, className, hoverable = false, children, ...props }: CardProps & { ref?: React.RefObject<HTMLDivElement | null> }) {
   return (
     <div
       ref={ref}
       className={cn(
-        'rounded-lg border border-border/50 bg-background/50',
-        hoverable && 'hover:bg-background transition-all duration-300',
+        'relative rounded-2xl bg-white/70 dark:bg-[hsl(230_25%_9%/0.6)] backdrop-blur-xl border border-black/[0.04] dark:border-white/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-400',
+        hoverable && 'hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:-translate-y-1 group overflow-hidden',
         className,
       )}
       {...props}
-    />
+    >
+      <div className="relative z-10 w-full h-full">{children}</div>
+    </div>
   )
 }
 Card.displayName = 'Card'

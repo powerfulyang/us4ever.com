@@ -25,6 +25,8 @@ export function Starfield() {
     interface Star {
       x: number
       y: number
+      vx: number
+      vy: number
       radius: number
       baseOpacity: number
       /** 闪烁相位 */
@@ -53,9 +55,16 @@ export function Starfield() {
         const warmth = Math.random() < 0.08
           ? (Math.random() > 0.5 ? 1 : -1)
           : 0
+
+        // 生成一个整体的漂浮方向（大部分星星会顺着微弱的星流移动，但有随机偏差）
+        const angle = Math.random() * Math.PI * 2
+        const speed = Math.random() * 0.15 + 0.02
+
         return {
           x: Math.random() * window.innerWidth,
           y: Math.random() * window.innerHeight,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
           radius: Math.random() * 1.2 + 0.3,
           baseOpacity: Math.random() * 0.6 + 0.15,
           phase: Math.random() * Math.PI * 2,
@@ -69,9 +78,23 @@ export function Starfield() {
       ctx!.clearRect(0, 0, window.innerWidth, window.innerHeight)
 
       for (const star of stars) {
+        // 微弱漂浮
+        star.x += star.vx
+        star.y += star.vy
+
+        // 边界平滑消失/重生 (环绕)
+        if (star.x < -10)
+          star.x = window.innerWidth + 10
+        if (star.x > window.innerWidth + 10)
+          star.x = -10
+        if (star.y < -10)
+          star.y = window.innerHeight + 10
+        if (star.y > window.innerHeight + 10)
+          star.y = -10
+
         // Twinkle: 正弦波调制透明度
         const twinkle = Math.sin(time * star.speed + star.phase)
-        const opacity = star.baseOpacity + twinkle * star.baseOpacity * 0.6
+        const opacity = Math.max(0, star.baseOpacity + twinkle * star.baseOpacity * 0.6)
 
         if (opacity <= 0.02)
           continue

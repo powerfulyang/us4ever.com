@@ -8,15 +8,15 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <div className="space-y-2 mb-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="relative mb-8 rounded-[24px] p-6 lg:p-8 overflow-hidden backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+      <div className="relative z-10 flex items-center justify-between flex-wrap gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">{title}</h1>
           {description && (
-            <p className="text-muted-foreground mt-1">{description}</p>
+            <p className="text-muted-foreground mt-2 text-sm sm:text-base">{description}</p>
           )}
         </div>
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
+        {actions && <div className="flex items-center gap-3">{actions}</div>}
       </div>
     </div>
   )

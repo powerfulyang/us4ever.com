@@ -32,8 +32,8 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen">
       {/* 顶部栏 */}
-      <header className="fixed top-0 left-0 right-0 z-30 h-14 bg-background/30 backdrop-blur-lg border-b border-border/50">
-        <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto">
+      <header className="fixed top-0 left-0 right-0 z-30 h-14 backdrop-blur-lg">
+        <div className="flex items-center justify-between h-full px-6 max-w-7xl mx-auto border-b border-border/50">
           {/* 左侧：首页链接 + 搜索 */}
           <div className="flex items-center gap-3 sm:gap-4 flex-1 sm:flex-none min-w-0">
             <Link
