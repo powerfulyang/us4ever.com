@@ -5,7 +5,7 @@ import { handleFile, sync_telegram } from '@/lib/telegram'
 import { db } from '@/server/db'
 import { protectedRoutes } from '@/server/hono'
 import { logger } from '@/server/logger'
-import { createMoment } from '@/service/moment.service'
+import { createMoment } from '@/service/moment'
 
 export interface TelegramSyncItem {
   value: TelegramMessage & { ownerId: string }

@@ -120,13 +120,10 @@ export const Markdown: FC<MarkdownProps> = ({ children, className, as: RootTag =
       }
       return <p className={noMargin ? 'm-0' : ''}>{children}</p>
     },
-    // 图片
+    // 图片 - 默认 inline 显示
     img: ({ src, alt }: any) => (
-      <figure className={styles.figure}>
-        {/* eslint-disable-next-line next/no-img-element */}
-        <img src={src} alt={alt} loading="lazy" />
-        {alt && <figcaption>{alt}</figcaption>}
-      </figure>
+      // eslint-disable-next-line next/no-img-element
+      <img src={src} alt={alt} loading="eager" className="inline-block max-w-full h-auto" />
     ),
     // 表格
     table: ({ children }: any) => (

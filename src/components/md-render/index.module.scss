@@ -100,7 +100,6 @@
     }
 
     &::before {
-      font-family: Consolas, Monaco, 'Courier New', monospace;
       margin-right: 0.5em;
       color: var(--text-color);
     }
@@ -189,7 +188,6 @@
   }
 
   :not(pre) > code {
-    font-family: Consolas, Monaco, 'Courier New', monospace;
     background: var(--code-bg);
     color: var(--code-text);
     @apply rounded px-[0.25em] py-[0.1em] mx-[4px];

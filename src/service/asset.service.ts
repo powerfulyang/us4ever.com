@@ -457,7 +457,7 @@ async function uploadImage(
       name,
       type: thumbnail_mime_type,
       uploadedBy,
-      bucketName: 'thumbnails',
+      bucketName: 'uploads',
       path_prefix: `images/${category}/320x`,
       isPublic,
       category,

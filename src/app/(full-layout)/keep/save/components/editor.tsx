@@ -126,7 +126,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
 
   const { mutate: uploadImage, isPending: isUploading } = api.asset.uploadImage.useMutation({
     onSuccess: (data) => {
-      const markdownImage = `\n![${data.id || ''}](${data.original_url})\n`
+      const markdownImage = `\n![${data.id || ''}](${data.compressed_url})\n`
       insertText(markdownImage)
     },
   })
@@ -458,7 +458,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
                 viewMode === 'preview' && 'hidden',
               )}
             >
-              <div className="min-h-full">
+              <div className="h-full">
                 <Editor
                   ref={editorRef}
                   value={content}
@@ -466,12 +466,9 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
                   highlight={code => Prism.highlight(code, Prism.languages.markdown!, 'markdown')}
                   padding={24}
                   placeholder="开始输入 Markdown 内容..."
-                  className="font-mono text-[15px] leading-relaxed text-foreground min-h-full"
+                  className="text-[15px] leading-relaxed text-foreground min-h-full"
                   textareaClassName="outline-none focus:ring-0 shadow-none border-none resize-none caret-primary"
                   preClassName="whitespace-pre-wrap break-all pointer-events-none"
-                  style={{
-                    fontFamily: '\'Fira Code\', \'JetBrains Mono\', Consolas, Monaco, monospace, \'LXGW\'',
-                  }}
                   onKeyDown={handleKeyDown as any}
                   onPaste={handlePaste as any}
                 />

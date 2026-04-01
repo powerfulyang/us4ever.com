@@ -1,3 +1,5 @@
+@reference "#styles/globals.scss";
+
 .pre {
   @apply relative mb-4 overflow-hidden rounded-xl border;
   border-color: hsl(var(--border) / 0.5);
@@ -41,7 +43,7 @@
   }
 
   .toolbarLanguage {
-    @apply absolute left-1/2 -translate-x-1/2 font-mono text-[14px] text-muted-foreground/80 lowercase tracking-wider;
+    @apply absolute left-1/2 -translate-x-1/2  text-[14px] text-muted-foreground/80 lowercase tracking-wider;
     pointer-events: none;
   }
 

@@ -78,13 +78,18 @@ export default function RemoteMdx({
           pre: PreComponent,
           link: LinkComponent,
           // 表格包装
-          table: ({ children }: any) => (
+          table: ({ children }) => (
             <div className={styles.tableWrapper}>
               <table>{children}</table>
             </div>
           ),
+          // 图片 - 默认 inline 显示
+          img: ({ src, alt }) => (
+            // eslint-disable-next-line next/no-img-element
+            <img src={src} alt={alt} loading="eager" className="inline-block max-w-full h-auto" />
+          ),
           // 行内代码
-          code: ({ node, inline, className: codeClassName, children: codeChildren, ...props }: any) => {
+          code: ({ node, inline, className: codeClassName, children: codeChildren, ...props }) => {
             if (inline) {
               return (
                 <code className={styles.inlineCode} {...props}>

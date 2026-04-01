@@ -1,11 +1,11 @@
 import type { TelegramSyncItem } from '@/server/hono/routes/telegram'
-import type { MomentImage, MomentVideo } from '@/service/moment.service'
+import type { MomentImage, MomentVideo } from '@/service/moment'
 import * as path from 'node:path'
 import { env } from '@/env'
 import { db } from '@/server/db'
 import { assetService } from '@/service/asset.service'
 import { uploadVideo } from '@/service/file.service'
-import { addMomentAttachment } from '@/service/moment.service'
+import { addMomentAttachment } from '@/service/moment'
 
 export interface TelegramMessage {
   id: number

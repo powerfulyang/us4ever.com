@@ -101,7 +101,7 @@ function SemanticSearchResultCard({ result }: {
               {/* 相似度徽章 */}
               <Badge
                 variant={similarityPercent > 70 ? 'success' : 'secondary'}
-                className="text-[10px] h-5 px-1.5 flex items-center gap-1 font-mono"
+                className="text-[10px] h-5 px-1.5 flex items-center gap-1 "
               >
                 <Sparkles className="w-3 h-3" />
                 {similarityPercent}

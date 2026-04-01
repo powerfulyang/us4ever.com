@@ -64,7 +64,7 @@ export const PrismCode: React.FC<Props> = ({ language, children, maxHeight, clas
         PreTag="pre"
         codeTagProps={{
           style: {
-            fontFamily: `"Fira Code", "Fira Mono", "Roboto Mono", monospace`,
+            fontFamily: `"Fira Code"`,
             fontSize: '0.9rem',
             lineHeight: '1.5',
           },

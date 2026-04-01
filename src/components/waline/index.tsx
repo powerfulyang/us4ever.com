@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes'
 import { usePathname } from 'next/navigation'
 
 import { useEffect, useRef } from 'react'
+// @ts-expect-error waline client doesn't have type declarations for style import
 import '@waline/client/style'
 
 export type WalineOptions = Partial<Omit<WalineInitOptions, 'el'> & { path: string }>

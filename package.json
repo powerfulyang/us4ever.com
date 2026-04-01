@@ -9,6 +9,9 @@
   "repository": {
     "url": "https://github.com/powerfulyang/us4ever.com"
   },
+  "imports": {
+    "#styles/*": "./src/styles/*"
+  },
   "scripts": {
     "build": "cross-env SKIP_ENV_VALIDATION=true next build",
     "db:migrate:dev": "dotenv -e .env -- prisma migrate dev",
@@ -123,6 +126,7 @@
     "@antfu/eslint-config": "^7",
     "@eslint-react/eslint-plugin": "^2",
     "@next/eslint-plugin-next": "^16.2.2",
+    "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -148,7 +152,7 @@
     "jsdom": "^29.0.1",
     "postcss": "^8.5.8",
     "prisma": "^7.6.0",
-    "tailwindcss": "^4",
+    "tailwindcss": "^4.2.2",
     "typescript": "^6",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2",

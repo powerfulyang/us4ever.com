@@ -204,7 +204,7 @@ export function ImageInfoModal({ image, isOpen, onCloseAction }: ImageInfoModalP
               <InfoItem
                 icon={<Hash className="w-4 h-4" />}
                 label="图片 ID"
-                value={<span className="font-mono text-xs">{image.id}</span>}
+                value={<span className=" text-xs">{image.id}</span>}
               />
               <InfoItem
                 icon={<Package className="w-4 h-4" />}

@@ -38,7 +38,7 @@ export const Back: FC<
   return (
     <div
       {...props}
-      className={clsx(className, 'cursor-pointer')}
+      className={clsx(className, 'cursor-pointer animate-float-fast')}
       onClick={handleBack}
     />
   )

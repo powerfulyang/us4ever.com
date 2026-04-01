@@ -1,4 +1,5 @@
 import type { Prisma } from '@prisma/client'
+import type { TransformedMoment } from '@/service/moment/transformer'
 import { z } from 'zod'
 import {
   BaseCategoryField,
@@ -13,7 +14,7 @@ import { db } from '@/server/db'
 import { logger } from '@/server/logger'
 import { momentService } from '@/service/moment'
 
-export type Moment = Awaited<ReturnType<typeof momentService.listMoments>>[number]
+export type Moment = TransformedMoment
 
 export const momentRouter = createTRPCRouter({
   fetchPublicItems: publicProcedure.query(

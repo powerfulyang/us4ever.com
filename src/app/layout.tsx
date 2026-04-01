@@ -45,6 +45,11 @@ export default async function RootLayout({ children }: Props) {
         <title>
           {metadata.title as string}
         </title>
+        {/* 预加载关键字体 */}
+        <link rel="preload" href="https://help.littleeleven.com/FiraCode/FiraCode-Regular.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="https://help.littleeleven.com/FiraCode/FiraCode-Medium.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="https://help.littleeleven.com/FiraCode/FiraCode-SemiBold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" href="https://help.littleeleven.com/LXGW-WENKAI/LXGWWenKaiScreen.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
         <Script
           id="umami"
           defer
