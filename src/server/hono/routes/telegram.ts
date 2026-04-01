@@ -1,9 +1,11 @@
 import type { TelegramMessage } from '@/lib/telegram'
+import type { AppEnv } from '@/server/hono'
+import { Hono } from 'hono'
 import { get } from 'lodash-es'
 import { bufferTime, catchError, concatMap, distinct, EMPTY, from, mergeMap, Subject, tap } from 'rxjs'
 import { handleFile, sync_telegram } from '@/lib/telegram'
 import { db } from '@/server/db'
-import { protectedRoutes } from '@/server/hono'
+import { auth } from '@/server/hono/middleware/auth'
 import { logger } from '@/server/logger'
 import { createMoment } from '@/service/moment'
 
@@ -184,8 +186,9 @@ export async function handleSyncTelegram(
   return allPosts
 }
 
-export function loadSyncTelegramRouter() {
-  protectedRoutes.get('/telegram/:channel_name', async (ctx) => {
+export const telegramRouter = new Hono<AppEnv>()
+  .use(auth)
+  .get('/telegram/:channel_name', async (ctx) => {
     const channel_name = ctx.req.param('channel_name')
     const category = `telegram:${channel_name}`
 
@@ -201,5 +204,4 @@ export function loadSyncTelegramRouter() {
     return ctx.json({ success: true, count: allItems.length })
   })
 
-  logger.telegram.startup('Telegram router loaded')
-}
+logger.telegram.startup('Telegram router loaded')

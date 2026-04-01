@@ -91,7 +91,7 @@ export function TodoItem({ todo, onUpdate }: TodoItemProps) {
           hoverable
           className={cn(
             'p-4 transition-all duration-300 relative overflow-hidden',
-            todo.status && 'bg-emerald-50/30 dark:bg-emerald-950/10',
+            todo.status && 'opacity-60 hover:opacity-100',
           )}
         >
           {/* 完成状态装饰边框 */}

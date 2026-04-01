@@ -215,59 +215,76 @@ body {
     );
   }
 
-  /* 暗色模式 - 默认，Raycast 风格 + Teal 强调 */
+  /* 暗色模式 - 星际/星空感 (Starry Sky) */
   .dark {
-    /* 背景 - 从深黑到深灰的层级 */
-    --background: 220 15% 6%;
-    --background-secondary: 220 12% 9%;
-    --background-tertiary: 220 10% 12%;
-    --background-elevated: 220 8% 16%;
+    /* 背景 - 深邃无垠的宇宙夜空 (Midnight Blue-Black) */
+    --background: 230 30% 4%;
+    --background-secondary: 230 25% 6%;
+    --background-tertiary: 230 25% 8%;
+    --background-elevated: 230 25% 10%;
 
-    /* 前景 - 从白到灰的文字 */
-    --foreground: 0 0% 98%;
-    --foreground-secondary: 0 0% 65%;
-    --foreground-tertiary: 0 0% 45%;
+    /* 前景 - 星光般的柔和纯白 */
+    --foreground: 0 0% 95%;
+    --foreground-secondary: 230 15% 70%;
+    --foreground-tertiary: 230 15% 50%;
 
-    /* 卡片 */
-    --card: 220 12% 10%;
-    --card-foreground: 0 0% 98%;
+    /* 卡片 - 带一点清透的宇宙深蓝色 */
+    --card: 230 25% 6%;
+    --card-foreground: 0 0% 95%;
 
     /* 弹窗 */
-    --popover: 220 8% 14%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 230 25% 8%;
+    --popover-foreground: 0 0% 95%;
 
-    /* 强调色 - Teal 青色 */
+    /* 强调色 - Teal 青色保持，非常适合作为星际主题的亮色点缀 */
     --primary: 172 66% 50%;
-    --primary-foreground: 220 15% 6%;
+    --primary-foreground: 230 30% 4%;
 
     /* 次要 */
-    --secondary: 220 10% 18%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 230 25% 15%;
+    --secondary-foreground: 0 0% 95%;
 
     /* 静音 */
-    --muted: 220 10% 16%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 230 25% 12%;
+    --muted-foreground: 230 15% 60%;
 
-    /* 强调 - 用于悬停和激活状态 */
-    --accent: 172 55% 25%;
-    --accent-foreground: 0 0% 98%;
+    /* 强调 - 用于悬停和激活状态的幽蓝高光 */
+    --accent: 230 30% 18%;
+    --accent-foreground: 0 0% 95%;
 
     /* 语义色 */
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 70% 45%;
+    --success: 142 70% 42%;
     --success-foreground: 0 0% 100%;
-    --warning: 25 95% 53%;
-    --warning-foreground: 0 0% 100%;
+    --warning: 35 90% 55%;
+    --warning-foreground: 230 30% 4%;
 
-    /* 边框和输入 */
-    --border: 220 10% 20%;
-    --border-focus: 172 55% 35%;
-    --input: 220 10% 20%;
+    /* 边框和输入 - 融入黑暗星空 */
+    --border: 230 25% 14%;
+    --border-focus: 172 66% 50%;
+    --input: 230 25% 14%;
     --ring: 172 66% 50%;
 
-    /* Body 背景 - 暗色模式纯色 */
-    --body-bg: hsl(220 15% 6%);
+    /* Body 背景 - 深空渐变，配合 Canvas 星空动画 */
+    --body-bg: radial-gradient(
+      ellipse 120% 80% at 50% 0%,
+      hsl(230 40% 8%) 0%,
+      hsl(230 35% 4%) 50%,
+      hsl(230 45% 2%) 100%
+    );
+  }
+
+  .dark .light-mode-only {
+    display: none !important;
+  }
+
+  .dark-mode-only {
+    display: none !important;
+  }
+
+  .dark .dark-mode-only {
+    display: block !important;
   }
 
   /* Body 背景应用 */

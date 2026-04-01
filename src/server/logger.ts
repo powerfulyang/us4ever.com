@@ -254,6 +254,7 @@ export const logger = {
   telegram: createServiceLogger('Telegram'),
   tts: createServiceLogger('TTS'),
   lp: createServiceLogger('LP'),
+  admin: createServiceLogger('Admin'),
   internal: createServiceLogger('Internal'),
   server: createServiceLogger('Server'),
 

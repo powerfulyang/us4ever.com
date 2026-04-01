@@ -1,10 +1,14 @@
+import { Hono } from 'hono'
 import { db } from '@/server/db'
-import { internalRoutes } from '@/server/hono'
 import { handleSyncTelegram } from '@/server/hono/routes/telegram'
 import { logger } from '@/server/logger'
 
-export function loadInternalRouter() {
-  internalRoutes.get('/sync/telegram/:channel_name', async (ctx) => {
+/**
+ * Internal router - 内部服务调用路由（无认证）
+ * 自动使用第一个管理员用户执行操作
+ */
+export const internalRouter = new Hono()
+  .get('/sync/telegram/:channel_name', async (ctx) => {
     const channel_name = ctx.req.param('channel_name')
     const category = `telegram:${channel_name}`
     const force = ctx.req.query('force') !== undefined
@@ -30,18 +34,4 @@ export function loadInternalRouter() {
     return ctx.json({ success: true, count: allItems.length })
   })
 
-  internalRoutes.get('/generate/tags/batch', async (ctx) => {
-    const { updateAllMomentsTags, updateAllKeepsTags } = await import('@/service/tag.service')
-
-    logger.internal.info('Internal batch tag generation request starting')
-
-    const momentCount = await updateAllMomentsTags()
-    const keepCount = await updateAllKeepsTags()
-
-    logger.internal.info('Internal batch tag generation completed', { momentCount, keepCount })
-
-    return ctx.json({ success: true, momentCount, keepCount })
-  })
-
-  logger.internal.startup('Internal router loaded')
-}
+logger.internal.startup('Internal router loaded')

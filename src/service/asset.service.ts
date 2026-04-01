@@ -517,11 +517,7 @@ async function uploadImage(
     })
 
     // 只返回主记录和 320x 缩略图
-    // oss 跨地区复制需要时间，所以需要返回 base64 的 320x 缩略图
-    const result = transformImageToResponse(image)
-    const base64_320x = Buffer.from(thumbnail_320x_buffer).toString('base64')
-    result.thumbnail_320x_url = `data:image/avif;base64,${base64_320x}`
-    return result
+    return transformImageToResponse(image)
   }
   catch (e) {
     console.error(e)

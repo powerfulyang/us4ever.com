@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
 import webpush from 'web-push'
 import { env } from '@/env'
 import { db } from '@/server/db'
-import { COOKIE_NAME } from '@/server/hono'
+import { COOKIE_NAME } from '@/server/hono/middleware/auth'
 
 webpush.setVapidDetails(
   'mailto:hutyxxx@gmail.com',

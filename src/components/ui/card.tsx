@@ -11,8 +11,8 @@ function Card({ ref, className, hoverable = false, ...props }: CardProps & { ref
     <div
       ref={ref}
       className={cn(
-        'bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-md',
-        hoverable && 'transition-colors duration-150',
+        'rounded-lg border border-border/50 bg-background/50',
+        hoverable && 'hover:bg-background transition-all duration-300',
         className,
       )}
       {...props}

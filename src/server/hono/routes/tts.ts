@@ -1,13 +1,11 @@
 import { EdgeTTS, VoicesManager } from 'edge-tts-universal'
+import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { app } from '@/server/hono'
 import { logger } from '@/server/logger'
 
-export function loadTtsRouter() {
-  app.use('/tts', cors())
-  app.use('/tts/*', cors())
-
-  app.get('/tts', async (ctx) => {
+export const ttsRouter = new Hono()
+  .use(cors())
+  .get('/', async (ctx) => {
     const text = ctx.req.query('text')
     const voice = ctx.req.query('voice') || 'zh-CN-XiaoxiaoNeural'
     const rate = ctx.req.query('rate')
@@ -36,8 +34,7 @@ export function loadTtsRouter() {
       return ctx.json({ error: e.message }, 500)
     }
   })
-
-  app.post('/tts', async (ctx) => {
+  .post('/', async (ctx) => {
     const body = await ctx.req.json().catch(() => ({}))
     const { text, voice = 'zh-CN-XiaoxiaoNeural', rate, volume, pitch } = body
 
@@ -63,8 +60,7 @@ export function loadTtsRouter() {
       return ctx.json({ error: e.message }, 500)
     }
   })
-
-  app.get('/tts/voices', async (ctx) => {
+  .get('/voices', async (ctx) => {
     logger.tts.info('Fetching TTS voices')
     try {
       const manager = await VoicesManager.create()
@@ -84,5 +80,4 @@ export function loadTtsRouter() {
     }
   })
 
-  logger.tts.startup('TTS router loaded')
-}
+logger.tts.startup('TTS router loaded')

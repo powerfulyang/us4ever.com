@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client'
 import type { FileWithBucket } from '@/service/file.service'
 import { Buffer } from 'node:buffer'
 import { DeleteObjectCommand, ListObjectsV2Command, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { fileTypeFromBuffer } from 'file-type'
 import { sha1, sha256 } from 'hono/utils/crypto'
 import { db } from '@/server/db'
 
@@ -30,7 +31,10 @@ export async function upload_to_bucket(options: Options) {
   const size = buffer.byteLength
   const file_sha256 = (await sha256(buffer))!
   const file_sha1 = (await sha1(buffer))!
-  const path = path_prefix ? `${path_prefix}/${file_sha256}` : file_sha256
+  const fileType = await fileTypeFromBuffer(Buffer.from(buffer))
+  const ext = fileType?.ext || name.split('.').pop() || 'bin'
+  const filename = `${file_sha256}.${ext}`
+  const path = path_prefix ? `${path_prefix}/${filename}` : filename
 
   // 首先创建数据库记录
   const file = await db.file.create({

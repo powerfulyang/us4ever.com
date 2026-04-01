@@ -30,7 +30,7 @@ export function UserInfo({
 
   return (
     <div className={cn('flex items-center gap-3', className)}>
-      <Avatar className={cn(sizeMap[avatarSize], 'ring-2 ring-background shrink-0 shadow-sm')}>
+      <Avatar className={cn(sizeMap[avatarSize], 'shrink-0 shadow-sm')}>
         <AvatarImage src={user?.avatar ?? ''} alt={user?.nickname ?? 'Anonymous'} className="object-cover" />
         <AvatarFallback className="bg-muted text-[10px] font-medium text-muted-foreground">
           {user?.nickname?.charAt(0).toUpperCase() ?? '匿'}
