@@ -17,7 +17,7 @@ import { api } from '@/trpc/react'
 export default function AdminUsersPage() {
   const [page, setPage] = useState(1)
 
-  const { data, isLoading, isError } = api.user.list.useQuery({
+  const { data, isLoading, isError } = api.admin.listUsers.useQuery({
     page,
     pageSize: DEFAULT_PAGE_SIZE,
   })

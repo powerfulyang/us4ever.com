@@ -245,17 +245,19 @@ export function MomentItem({ moment, onDeleteSuccess }: MomentItemProps) {
         content="确定要删除这条动态吗？此操作不可逆"
       />
 
-      {/* 编辑弹窗 */}
       <Dialog open={showEdit} onOpenChange={setShowEdit}>
-        <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
-          <DialogHeader className="px-4 pt-4">
+        <DialogContent className="sm:max-w-2xl p-0 flex flex-col max-h-[85vh] overflow-hidden">
+          <DialogHeader className="px-6 py-4 border-b shrink-0">
             <DialogTitle>编辑动态</DialogTitle>
           </DialogHeader>
-          <MomentCreate
-            initialMoment={moment}
-            onSuccess={() => setShowEdit(false)}
-            onCancel={() => setShowEdit(false)}
-          />
+          <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/30">
+            <MomentCreate
+              initialMoment={moment}
+              onSuccess={() => setShowEdit(false)}
+              onCancel={() => setShowEdit(false)}
+              className="p-6"
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </>

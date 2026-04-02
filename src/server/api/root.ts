@@ -1,3 +1,4 @@
+import { adminRouter } from '@/server/api/routers/admin'
 import { assetRouter } from '@/server/api/routers/asset'
 import { keepRouter } from '@/server/api/routers/keep'
 import { mindMapRouter } from '@/server/api/routers/mindmap'
@@ -14,6 +15,7 @@ import { todoRouter } from './routers/todo'
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  admin: adminRouter,
   asset: assetRouter,
   user: userRouter,
   keep: keepRouter,
@@ -33,4 +35,4 @@ export type AppRouter = typeof appRouter
 export const createCaller = createCallerFactory(appRouter)
 
 // 记录路由注册完成
-logger.trpc.startup('tRPC router initialized with modules: asset, user, keep, todo, mindMap, moment, tag')
+logger.trpc.startup('tRPC router initialized with modules: admin, asset, user, keep, todo, mindMap, moment, tag')

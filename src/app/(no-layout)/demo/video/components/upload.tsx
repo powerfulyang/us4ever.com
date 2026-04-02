@@ -19,7 +19,7 @@ export function VideoUpload() {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const utils = api.useUtils()
 
-  const { mutate, isPending } = api.asset.uploadVideo.useMutation({
+  const { mutate, isPending } = api.admin.uploadVideo.useMutation({
     onSuccess: () => {
       void utils.asset.fetchVideosByCursor.invalidate()
     },

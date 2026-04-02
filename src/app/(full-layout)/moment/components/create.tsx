@@ -114,8 +114,9 @@ export function MomentCreate({ category, initialMoment, onSuccess, onCancel, cla
         onChange={e => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="分享此刻的想法..."
-        className="w-full rounded p-4 border-none focus:outline-none resize-none text-foreground placeholder:text-muted-foreground caret-primary transition-colors"
+        className="w-full rounded-lg p-4 bg-muted/30 border border-transparent focus:border-border/50 focus:bg-background focus:outline-none focus:ring-1 focus:ring-ring/20 resize-none text-foreground placeholder:text-muted-foreground caret-primary transition-all duration-200"
         minRows={3}
+        maxRows={10}
         autoFocus={isEditing}
       />
 

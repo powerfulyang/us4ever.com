@@ -37,15 +37,17 @@ import 'prismjs/themes/prism.css'
 
 interface KeepEditorProps {
   keep?: Keep | null
+  initialCategory?: string
 }
 
 type ViewMode = 'edit' | 'split' | 'preview'
 
-export default function KeepEditor({ keep }: KeepEditorProps) {
+export default function KeepEditor({ keep, initialCategory }: KeepEditorProps) {
   const id = keep?.id
   const router = useRouter()
   const [content, setContent] = useState(keep?.content ?? '')
   const [isPublic, setIsPublic] = useState(keep?.isPublic ?? false)
+  const [category, setCategory] = useState(keep?.category ?? initialCategory ?? 'default')
   const [viewMode, setViewMode] = useState<ViewMode>('edit')
 
   const isMobile = useMediaQuery('(max-width: 768px)', {
@@ -124,7 +126,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
     },
   })
 
-  const { mutate: uploadImage, isPending: isUploading } = api.asset.uploadImage.useMutation({
+  const { mutate: uploadImage, isPending: isUploading } = api.admin.uploadImage.useMutation({
     onSuccess: (data) => {
       const markdownImage = `\n![${data.id || ''}](${data.compressed_url})\n`
       insertText(markdownImage)
@@ -138,12 +140,12 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
       return
 
     if (id) {
-      updateMutate({ id, content, isPublic })
+      updateMutate({ id, content, isPublic, category })
     }
     else {
-      createMutate({ content, isPublic })
+      createMutate({ content, isPublic, category })
     }
-  }, [content, createMutate, id, isPublic, updateMutate])
+  }, [content, createMutate, id, isPublic, updateMutate, category])
 
   // 工具栏操作
   const toolbarActions = useMemo(() => ({
@@ -295,7 +297,23 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
 
           <div className="h-4 w-px bg-border" />
 
+          {/* 分类设置 */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm hidden sm:inline text-muted-foreground">分类:</span>
+            <input
+              type="text"
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              disabled={isPending}
+              placeholder="默认分类"
+              className="bg-transparent border-b border-border/50 px-1 py-0.5 text-sm focus:outline-none focus:border-primary transition-all w-24 sm:w-32"
+            />
+          </div>
+
+          <div className="h-4 w-px bg-border" />
+
           {/* 公开/私密切换 */}
+
           <div className="flex items-center gap-2">
             {isPublic
               ? (
@@ -448,7 +466,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 min-h-0 flex bg-background">
+          <div className="h-full flex bg-background">
             {/* 编辑区 */}
             <div
               onScroll={handleScroll}
@@ -466,7 +484,7 @@ export default function KeepEditor({ keep }: KeepEditorProps) {
                   highlight={code => Prism.highlight(code, Prism.languages.markdown!, 'markdown')}
                   padding={24}
                   placeholder="开始输入 Markdown 内容..."
-                  className="text-[15px] leading-relaxed text-foreground min-h-full"
+                  className="text-[15px] leading-relaxed text-foreground h-full"
                   textareaClassName="outline-none focus:ring-0 shadow-none border-none resize-none caret-primary"
                   preClassName="whitespace-pre-wrap break-all pointer-events-none"
                   onKeyDown={handleKeyDown as any}

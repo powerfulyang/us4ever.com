@@ -1,7 +1,6 @@
 import type { User } from '@/store/user'
 import { Hono } from 'hono'
 import { requestId } from 'hono/request-id'
-import { adminRouter } from '@/server/hono/routes/admin'
 import { internalRouter } from '@/server/hono/routes/internal'
 import { lpRouter } from '@/server/hono/routes/lp'
 import { telegramRouter } from '@/server/hono/routes/telegram'
@@ -30,6 +29,5 @@ app.route('/lp', lpRouter) // /api/lp
 app.route('/tts', ttsRouter) // /api/tts
 app.route('/sync', telegramRouter) // /api/sync/telegram/:channel_name (需认证)
 app.route('/internal', internalRouter) // /api/internal/sync/telegram/:channel_name (内部调用)
-app.route('/admin', adminRouter) // /api/admin/tags/batch, /api/admin/backfill/*
 
 logger.hono.startup('Hono routers loaded successfully ✅')

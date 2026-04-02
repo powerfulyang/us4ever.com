@@ -187,21 +187,28 @@ export default function SearchPage() {
   const { data: user } = api.user.current.useQuery()
 
   // 回填向量 Mutation
-  const backfillKeepMutation = api.keep.backfillVectors.useMutation({
+  const backfillKeepMutation = api.admin.backfillKeep.useMutation({
     onSuccess: (data) => {
       toast.success(`笔记回填成功: 处理了 ${data.processed} 条，剩余 ${data.remaining} 条`)
     },
   })
 
-  const backfillMomentMutation = api.moment.backfillVectors.useMutation({
+  const backfillMomentMutation = api.admin.backfillMoment.useMutation({
     onSuccess: (data) => {
       toast.success(`动态回填成功: 处理了 ${data.processed} 条，剩余 ${data.remaining} 条`)
+    },
+  })
+
+  const batchTagsMutation = api.admin.batchTags.useMutation({
+    onSuccess: (data) => {
+      toast.success(`标签生成成功: 动态 ${data.momentCount} 条，笔记 ${data.keepCount} 条`)
     },
   })
 
   const handleBackfill = () => {
     backfillKeepMutation.mutate()
     backfillMomentMutation.mutate()
+    batchTagsMutation.mutate()
   }
 
   // Keep 关键词搜索（mode=keyword 或 mode=hybrid/all+keep）
@@ -438,10 +445,10 @@ export default function SearchPage() {
             variant="outline"
             size="sm"
             onClick={handleBackfill}
-            disabled={backfillKeepMutation.isPending || backfillMomentMutation.isPending}
+            disabled={backfillKeepMutation.isPending || backfillMomentMutation.isPending || batchTagsMutation.isPending}
             className="gap-2"
           >
-            {backfillKeepMutation.isPending || backfillMomentMutation.isPending
+            {backfillKeepMutation.isPending || backfillMomentMutation.isPending || batchTagsMutation.isPending
               ? <Loader2 className="w-4 h-4 animate-spin" />
               : <Database className="w-4 h-4" />}
             回填向量

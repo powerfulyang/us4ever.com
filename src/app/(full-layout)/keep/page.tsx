@@ -49,12 +49,13 @@ export default async function KeepPage({
                 <AuthenticatedOnly>
                   <VisibilityFilter visibility={visibility} category={category} />
                 </AuthenticatedOnly>
-                <Link href="/keep/save">
+                <Link href={`/keep/save${category ? `?category=${category}` : ''}`}>
                   <Button size="sm" className="gap-1">
                     <Plus className="h-4 w-4" />
                     创建笔记
                   </Button>
                 </Link>
+
               </div>
             </AuthenticatedOnly>
             <ViewToggle category={category} />

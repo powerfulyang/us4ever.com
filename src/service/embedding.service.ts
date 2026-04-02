@@ -60,6 +60,6 @@ export async function getEmbedding(text: string): Promise<number[]> {
   const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
   const model = genAI.getGenerativeModel({ model: 'gemini-embedding-2-preview' })
 
-  const result = await model.embedContent(text)
+  const result = await model.embedContent(text || 'unknown')
   return result.embedding.values
 }

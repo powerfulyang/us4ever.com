@@ -18,7 +18,7 @@ export function ImageUpload({ category }: ImageUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File>()
   const uploadRef = useRef<UploadAreaRef>(null)
 
-  const uploadMutation = api.asset.uploadImage.useMutation({
+  const uploadMutation = api.admin.uploadImage.useMutation({
     onSuccess: () => {
       uploadRef.current?.reset()
       return utils.asset.fetchImagesByCursor.invalidate()

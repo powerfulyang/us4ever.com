@@ -48,13 +48,13 @@ export function MediaUpload({
   const [uploadingMedias, setUploadingMedias] = useState<UploadingMedia[]>([])
   const [error, setError] = useState<string>('')
 
-  const { mutate: uploadImage } = api.asset.uploadImage.useMutation({
+  const { mutate: uploadImage } = api.admin.uploadImage.useMutation({
     onSuccess: (data, variables) => {
       const tempId = (variables as FormData).get('tempId') as string
       if (tempId) {
         setUploadingMedias(prev => prev.filter(media => media.id !== tempId))
       }
-      onMediaSelectAction(data)
+      onMediaSelectAction(data as Media)
     },
     onError: (error, variables) => {
       const tempId = (variables as FormData).get('tempId') as string
@@ -70,13 +70,13 @@ export function MediaUpload({
     },
   })
 
-  const { mutate: uploadVideo } = api.asset.uploadVideo.useMutation({
+  const { mutate: uploadVideo } = api.admin.uploadVideo.useMutation({
     onSuccess: (data, variables) => {
       const tempId = (variables as FormData).get('tempId') as string
       if (tempId) {
         setUploadingMedias(prev => prev.filter(media => media.id !== tempId))
       }
-      onMediaSelectAction(data)
+      onMediaSelectAction(data as Media)
     },
     onError: (error, variables) => {
       const tempId = (variables as FormData).get('tempId') as string

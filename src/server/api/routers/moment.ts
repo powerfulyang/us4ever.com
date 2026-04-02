@@ -9,7 +9,7 @@ import {
   UpdateViewsSchema,
 } from '@/dto/base.dto'
 import { queryMomentPageSchema } from '@/dto/moment.dto'
-import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { db } from '@/server/db'
 import { logger } from '@/server/logger'
 import { momentService } from '@/service/moment'
@@ -221,10 +221,4 @@ export const momentRouter = createTRPCRouter({
       return tags
     }),
 
-  backfillVectors: adminProcedure.mutation(async () => {
-    logger.moment.info('Starting moment vector backfill process')
-    const result = await momentService.backfillVectors()
-    logger.moment.info('Moment vector backfill completed', { processed: result.processed })
-    return result
-  }),
 })

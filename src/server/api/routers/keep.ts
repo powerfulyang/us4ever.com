@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { BasePrimaryKeySchema, QuerySearchSchema, UpdateViewsSchema } from '@/dto/base.dto'
 import { createKeepSchema, queryKeepPageSchema, queryKeepSchema, semanticSearchSchema, updateKeepSchema } from '@/dto/keep.dto'
-import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '@/server/api/trpc'
 import { db } from '@/server/db'
 import { logger } from '@/server/logger'
 import { keepService } from '@/service/keep'
@@ -172,12 +172,4 @@ export const keepRouter = createTRPCRouter({
       return tags
     }),
 
-  // 管理员：批量回填向量
-  backfillVectors: adminProcedure
-    .mutation(async () => {
-      logger.keep.info('Starting vector backfill process')
-      const result = await keepService.backfillVectors()
-      logger.keep.info('Vector backfill completed', { processed: result.processed })
-      return result
-    }),
 })

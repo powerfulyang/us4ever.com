@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   robots: { index: false },
 }
 
-export default function SavePage() {
-  return <KeepEditor />
+export default async function SavePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>
+}) {
+  const { category } = await searchParams
+  return <KeepEditor initialCategory={category} />
 }

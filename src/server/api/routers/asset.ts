@@ -1,68 +1,17 @@
 import type { RouterOutputs } from '@/trpc/react'
-import { zfd } from 'zod-form-data'
-import { BaseFormDataCategoryField, BasePageQuerySchema, BasePrimaryKeySchema, BaseQuerySchema } from '@/dto/base.dto'
+import { BasePageQuerySchema, BasePrimaryKeySchema, BaseQuerySchema } from '@/dto/base.dto'
 import {
-  adminProcedure,
   createTRPCRouter,
   protectedProcedure,
   publicProcedure,
 } from '@/server/api/trpc'
 import { logger } from '@/server/logger'
 import { assetService } from '@/service/asset.service'
-import { uploadVideo } from '@/service/file.service'
 
 export type Image = RouterOutputs['asset']['fetchImagesByCursor']['items'][number]
 export type Video = RouterOutputs['asset']['fetchVideosByCursor']['items'][number]
 
 export const assetRouter = createTRPCRouter({
-  uploadImage: adminProcedure
-    .input(zfd.formData({
-      file: zfd.file(),
-      isPublic: zfd.text().default('false'),
-      category: BaseFormDataCategoryField,
-    }))
-    .mutation(async ({ input, ctx }) => {
-      const isPublic = input.isPublic === 'true'
-      logger.asset.info('Uploading image', {
-        fileName: input.file.name,
-        size: input.file.size,
-        category: input.category,
-        uploadedBy: ctx.user.id,
-      })
-      const result = await assetService.uploadImage({
-        file: input.file,
-        uploadedBy: ctx.user.id,
-        isPublic,
-        category: input.category,
-      })
-      logger.asset.info('Image uploaded successfully', { id: result.id })
-      return result
-    }),
-
-  uploadVideo: adminProcedure
-    .input(zfd.formData({
-      file: zfd.file(),
-      isPublic: zfd.text().default('false'),
-      category: BaseFormDataCategoryField,
-    }))
-    .mutation(async ({ input, ctx }) => {
-      const isPublic = input.isPublic === 'true'
-      logger.asset.info('Uploading video', {
-        fileName: input.file.name,
-        size: input.file.size,
-        category: input.category,
-        uploadedBy: ctx.user.id,
-      })
-      const result = await uploadVideo({
-        file: input.file,
-        uploadedBy: ctx.user.id,
-        isPublic,
-        category: input.category,
-      })
-      logger.asset.info('Video uploaded successfully', { id: result.id })
-      return result
-    }),
-
   fetchImagesByCursor: publicProcedure.input(BaseQuerySchema).query(
     async ({ ctx, input }) => {
       const { limit, cursor, category } = input
