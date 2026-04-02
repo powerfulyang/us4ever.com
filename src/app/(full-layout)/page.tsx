@@ -167,11 +167,11 @@ const toolLinks: LinkProps[] = [
 
 function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
   return (
-    <div className="space-y-4">
-      <h2 className="text-base font-semibold text-foreground uppercase tracking-wider pl-1">
+    <div className="space-y-3">
+      <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider pl-1">
         {title}
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {links.map((link) => {
           const isExternal = link.target === '_blank'
           const LinkComponent = isExternal ? 'a' : Link
@@ -183,17 +183,17 @@ function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
             <LinkComponent
               key={link.title}
               {...linkProps}
-              className="group relative flex items-center gap-5 p-5 rounded-lg bg-white/70 dark:bg-[hsl(230_25%_9%/0.6)] backdrop-blur-xl border border-black/[0.04] dark:border-white/[0.06] hover:-translate-y-1 transition-all duration-500 active:scale-[0.98] overflow-hidden hover:bg-white/80 dark:hover:bg-[hsl(230_25%_12%/0.7)] dark:hover:border-white/[0.1]"
+              className="group relative flex items-center gap-4 p-3.5 rounded-lg bg-white/90 dark:bg-[hsl(230_25%_12%/0.85)] backdrop-blur-xl hover:-translate-y-0.5 transition-all duration-300 active:scale-[0.98] overflow-hidden hover:bg-white dark:hover:bg-[hsl(230_25%_15%/0.9)]"
             >
 
-              <div className="relative z-10 p-3 bg-primary/10 dark:bg-primary/20 text-primary rounded-md group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 group-hover:scale-110 shrink-0">
+              <div className="relative z-10 p-2.5 bg-primary/10 dark:bg-primary/20 text-primary rounded-md group-hover:bg-primary group-hover:text-white transition-all duration-300 group-hover:scale-105 shrink-0">
                 {link.icon}
               </div>
               <div className="relative z-10 flex-1 min-w-0">
-                <div className="text-[16px] font-bold text-foreground truncate group-hover:text-primary transition-colors duration-300">
+                <div className="text-[15px] font-bold text-foreground truncate group-hover:text-primary transition-colors duration-300">
                   {link.title}
                 </div>
-                <div className="text-[13px] text-muted-foreground truncate mt-1">
+                <div className="text-[12px] text-muted-foreground truncate mt-0.5">
                   {link.description}
                 </div>
               </div>
@@ -208,14 +208,14 @@ function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
 export default function Home() {
   return (
     <div className="relative min-h-[calc(100vh-8rem)]">
-      <div className="space-y-16 relative pb-10">
+      <div className="space-y-10 relative pb-10">
         {/* 标题区域 - 带微妙装饰 */}
         <div className="relative">
-          <div className="absolute -left-4 -top-8 w-24 h-24 bg-gradient-to-br from-amber-200/20 to-orange-200/10 rounded-full blur-2xl" />
-          <h1 className="text-3xl font-bold text-foreground relative">
+          <div className="absolute -left-4 -top-6 w-20 h-20 bg-gradient-to-br from-amber-200/20 to-orange-200/10 rounded-full blur-2xl" />
+          <h1 className="text-2xl font-bold text-foreground relative">
             欢迎回来
           </h1>
-          <p className="text-base text-muted-foreground mt-2 relative">
+          <p className="text-sm text-muted-foreground mt-1.5 relative">
             这是你的个人工具集合
           </p>
         </div>
