@@ -117,7 +117,7 @@ export function TodoItem({ todo, onUpdate }: TodoItemProps) {
                   }}
                   disabled={toggleStatus.isPending || !isOwn}
                   className={cn(
-                    'relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200',
+                    'relative flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all duration-200',
                     todo.status
                       ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                       : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',

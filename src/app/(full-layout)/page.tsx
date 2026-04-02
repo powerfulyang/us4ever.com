@@ -183,10 +183,10 @@ function LinkGrid({ links, title }: { links: LinkProps[], title: string }) {
             <LinkComponent
               key={link.title}
               {...linkProps}
-              className="group relative flex items-center gap-5 p-5 rounded-2xl bg-white/70 dark:bg-[hsl(230_25%_9%/0.6)] backdrop-blur-xl border border-black/[0.04] dark:border-white/[0.06] hover:-translate-y-1 transition-all duration-500 active:scale-[0.98] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:bg-white/80 dark:hover:bg-[hsl(230_25%_12%/0.7)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] dark:hover:border-white/[0.1]"
+              className="group relative flex items-center gap-5 p-5 rounded-lg bg-white/70 dark:bg-[hsl(230_25%_9%/0.6)] backdrop-blur-xl border border-black/[0.04] dark:border-white/[0.06] hover:-translate-y-1 transition-all duration-500 active:scale-[0.98] overflow-hidden hover:bg-white/80 dark:hover:bg-[hsl(230_25%_12%/0.7)] dark:hover:border-white/[0.1]"
             >
 
-              <div className="relative z-10 p-3 bg-primary/10 dark:bg-primary/20 text-primary rounded-[14px] group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-sm group-hover:shadow-[0_4px_20px_rgba(var(--primary-rgb),0.3)] group-hover:scale-110 shrink-0">
+              <div className="relative z-10 p-3 bg-primary/10 dark:bg-primary/20 text-primary rounded-md group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 group-hover:scale-110 shrink-0">
                 {link.icon}
               </div>
               <div className="relative z-10 flex-1 min-w-0">

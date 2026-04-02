@@ -131,7 +131,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       label="命令面板"
       className={cn(
         'fixed left-1/2 top-[20%] z-50 w-full max-w-xl -translate-x-1/2',
-        'bg-background-elevated rounded-xl border border-border shadow-2xl',
+        'bg-background-elevated rounded-md border border-border',
         'overflow-hidden',
       )}
     >

@@ -82,7 +82,7 @@ export function CardSkeletonComponent({
 
   return (
     <div className={cn('animate-pulse', className)}>
-      <div className="bg-card rounded-lg shadow p-6 border border-border">
+      <div className="bg-card rounded-md p-6 border border-border">
         <div className="flex items-center space-x-4 mb-4">
           <div className="rounded-full bg-muted h-10 w-10"></div>
           <div className="space-y-2 flex-1">

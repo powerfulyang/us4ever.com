@@ -120,12 +120,12 @@ export default function ProfilePage() {
       </motion.div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-muted/50 rounded-lg p-1 w-full max-w-md inline-flex justify-start">
+        <TabsList className="bg-muted/50 rounded-md p-1 w-full max-w-md inline-flex justify-start">
           <TabsTrigger
             value="profile"
             className={cn(
               'gap-2 rounded-md text-sm font-medium transition-all px-4 py-2 flex-1 justify-center',
-              'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+              'data-[state=active]:bg-background data-[state=active]:text-foreground',
               'text-muted-foreground hover:text-foreground data-[state=active]:text-foreground',
             )}
           >
@@ -136,7 +136,7 @@ export default function ProfilePage() {
             value="notifications"
             className={cn(
               'gap-2 rounded-md text-sm font-medium transition-all px-4 py-2 flex-1 justify-center',
-              'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+              'data-[state=active]:bg-background data-[state=active]:text-foreground',
               'text-muted-foreground hover:text-foreground data-[state=active]:text-foreground',
             )}
           >
@@ -233,7 +233,7 @@ export default function ProfilePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-4 text-center hover:shadow-md transition-shadow">
+                <Card className="p-4 text-center transition-shadow">
                   <stat.icon className={cn('w-6 h-6 mx-auto mb-2', stat.color)} />
                   <div className="text-2xl font-bold">{stat.value}</div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>

@@ -11,8 +11,8 @@ function Card({ ref, className, hoverable = false, children, ...props }: CardPro
     <div
       ref={ref}
       className={cn(
-        'relative rounded-2xl bg-white/70 dark:bg-[hsl(230_25%_9%/0.6)] backdrop-blur-xl border border-black/[0.04] dark:border-white/[0.06] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-400',
-        hoverable && 'hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:-translate-y-1 group overflow-hidden',
+        'relative rounded-lg bg-white/70 dark:bg-[hsl(230_25%_9%/0.6)] backdrop-blur-xl border border-black/[0.04] dark:border-white/[0.06] transition-all duration-400',
+        hoverable && 'hover:-translate-y-1 group overflow-hidden',
         className,
       )}
       {...props}

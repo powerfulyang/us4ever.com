@@ -24,10 +24,10 @@ export function LinkGrid({ links, title }: LinkGridProps) {
             target={link.target}
             className="group"
           >
-            <Card className="h-full transition-all duration-200 hover:border-primary/50 hover:shadow-md">
+            <Card className="h-full transition-all duration-200 hover:border-primary/50">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <div className="p-2 bg-primary/10 rounded-md text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     {link.icon}
                   </div>
                   <CardTitle className="text-lg">

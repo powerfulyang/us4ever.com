@@ -16,7 +16,7 @@ export function ViewToggle() {
           className={cn(
             'inline-flex items-center gap-1.5 rounded-md text-xs font-medium transition-all px-2.5 py-1.5 whitespace-nowrap',
             !isFeed
-              ? 'bg-background text-foreground shadow-sm'
+              ? 'bg-background text-foreground'
               : 'text-muted-foreground hover:text-foreground',
           )}
         >
@@ -29,7 +29,7 @@ export function ViewToggle() {
           className={cn(
             'inline-flex items-center gap-1.5 rounded-md text-xs font-medium transition-all px-2.5 py-1.5 whitespace-nowrap',
             isFeed
-              ? 'bg-background text-foreground shadow-sm'
+              ? 'bg-background text-foreground'
               : 'text-muted-foreground hover:text-foreground',
           )}
         >

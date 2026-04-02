@@ -48,7 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               type="button"
               onClick={() => setCommandOpen(true)}
               className={cn(
-                'flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50',
+                'flex items-center gap-2 px-3 py-1.5 rounded-md border border-border/50',
                 'bg-muted/30 hover:bg-muted/60',
                 'text-sm text-muted-foreground',
                 'transition-colors flex-1 min-w-0 sm:w-56',

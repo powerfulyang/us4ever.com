@@ -27,7 +27,7 @@ export function Empty({
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'flex flex-col items-center justify-center text-center gap-6 py-16 px-6 rounded-3xl',
+        'flex flex-col items-center justify-center text-center gap-6 py-16 px-6 rounded-xl',
         'border border-muted/20 bg-muted/5 backdrop-blur-[2px]',
         className,
       )}
@@ -48,7 +48,7 @@ export function Empty({
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="relative z-10 flex items-center justify-center w-20 h-20 rounded-2xl bg-background border border-muted/50 shadow-xl shadow-primary/5 transition-all duration-500 group-hover:border-primary/40 group-hover:rotate-3 group-hover:scale-105"
+          className="relative z-10 flex items-center justify-center w-20 h-20 rounded-lg bg-background border border-muted/50 transition-all duration-500 group-hover:border-primary/40 group-hover:rotate-3 group-hover:scale-105"
         >
           {icon || (
             <Inbox className="h-10 w-10 text-muted-foreground/60 transition-colors duration-500 group-hover:text-primary/70" />

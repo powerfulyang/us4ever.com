@@ -1,7 +1,7 @@
 @reference "#styles/globals.scss";
 
 .pre {
-  @apply relative mb-4 overflow-hidden rounded-xl border;
+  @apply relative mb-4 overflow-hidden rounded-md border;
   border-color: hsl(var(--border) / 0.5);
 
   div {

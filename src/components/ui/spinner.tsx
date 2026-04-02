@@ -89,7 +89,7 @@ export function FullScreenLoading({
       backdrop && 'bg-black/20 backdrop-blur-sm',
     )}
     >
-      <div className="rounded-lg bg-white p-6 shadow-lg">
+      <div className="rounded-md bg-white p-6">
         <Loading vertical {...loadingProps} />
       </div>
     </div>

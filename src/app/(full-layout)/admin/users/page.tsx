@@ -73,7 +73,7 @@ export default function AdminUsersPage() {
                       {data?.users.map(user => (
                         <div
                           key={user.id}
-                          className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                          className="flex items-center gap-3 p-3 rounded-md border hover:bg-muted/50 transition-colors"
                         >
                           <Avatar className="h-10 w-10">
                             <AvatarImage src={user.avatar} alt={user.nickname} />

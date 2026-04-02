@@ -16,7 +16,7 @@ export default function NotFoundScreen() {
       </div>
 
       <div className="relative z-10 px-4">
-        <div className="bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-2xl p-8 md:p-12 shadow-xl max-w-md w-full text-center">
+        <div className="bg-white/40 dark:bg-black/20 backdrop-blur-md border border-white/20 dark:border-white/10 rounded-lg p-8 md:p-12 max-w-md w-full text-center">
           {/* 404 数字 */}
           <h1 className="text-8xl md:text-9xl font-bold bg-gradient-to-r from-primary to-secondary-foreground bg-clip-text text-transparent mb-2">
             404
@@ -29,7 +29,7 @@ export default function NotFoundScreen() {
           {/* 返回按钮 */}
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:scale-105 active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-medium text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:scale-105 active:scale-95"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

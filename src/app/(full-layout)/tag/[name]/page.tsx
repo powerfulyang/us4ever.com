@@ -123,7 +123,7 @@ function FilterToggle({ tag, filter }: { tag: string, filter: FilterType }) {
           href={key === 'all' ? `/tag/${encodeURIComponent(tag)}` : `/tag/${encodeURIComponent(tag)}?filter=${key}`}
           className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
             filter === key
-              ? 'bg-primary text-primary-foreground shadow-sm'
+              ? 'bg-primary text-primary-foreground'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted'
           }`}
         >
