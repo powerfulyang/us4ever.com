@@ -6,6 +6,7 @@ import { Brain, Database, FileText, Globe, Loader2, Lock, MessageSquare, Search,
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
+import { Suspense } from 'react'
 import { toast } from 'react-toastify'
 import { Container } from '@/components/layout/Container'
 import { Empty } from '@/components/layout/Empty'
@@ -154,7 +155,7 @@ function SemanticSearchResultCard({ result }: {
                   )}
 
           {/* 底部元信息 */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-4">
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               {result.category && (
                 <span className="flex items-center gap-1 text-blue-600/80 dark:text-blue-400/80">
@@ -177,7 +178,7 @@ function SemanticSearchResultCard({ result }: {
   )
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -784,5 +785,13 @@ export default function SearchPage() {
         )}
       </div>
     </Container>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={null}>
+      <SearchPageContent />
+    </Suspense>
   )
 }

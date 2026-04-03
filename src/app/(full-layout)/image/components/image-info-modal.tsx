@@ -185,11 +185,12 @@ export function ImageInfoModal({ image, isOpen, onCloseAction }: ImageInfoModalP
           {/* 图片预览 */}
           <div className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-muted/50 to-muted border border-border/50 group">
             <Image
-              src={image.thumbnail_768x_url || image.compressed_url}
+              src={image.compressed_url}
               alt={image.name}
               fill
               sizes="(max-width: 768px) 100vw, 600px"
               className="object-contain"
+              unoptimized
             />
           </div>
 
@@ -305,7 +306,7 @@ export function ImageInfoModal({ image, isOpen, onCloseAction }: ImageInfoModalP
           {image.address && (
             <Section title="拍摄位置" icon={<MapPin className="w-3.5 h-3.5" />}>
               <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
-                <div className="flex items-start gap-3">
+                <div className="flex items-center gap-3">
                   <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-primary" />
                   </div>

@@ -9,7 +9,7 @@ import { COOKIE_NAME, COOKIE_OPTIONS } from '@/server/hono/middleware/auth'
 import { logger } from '@/server/logger'
 import { createOrSignIn } from '@/service/user.service'
 
-export const lpRouter = new Hono().get('/lp', async (ctx) => {
+export const lpRouter = new Hono().get('/', async (ctx) => {
   const redirect = ctx.req.query('_redirect')
   if (!redirect) {
     logger.lp.error('Missing redirect parameter')

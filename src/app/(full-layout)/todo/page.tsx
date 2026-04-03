@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { TodoPaginationClient } from '@/app/(full-layout)/todo/components/pagination-client'
 import { TodoForm } from '@/app/(full-layout)/todo/components/TodoForm'
 import { ViewToggle } from '@/app/(full-layout)/todo/components/view-toggle'
@@ -36,7 +37,9 @@ export default async function TodoPage({
       >
         <div className="max-w-2xl mx-auto space-y-6">
           <TodoForm />
-          <TodoPaginationClient initialPage={Math.max(1, page)} />
+          <Suspense fallback={null}>
+            <TodoPaginationClient initialPage={Math.max(1, page)} />
+          </Suspense>
         </div>
       </Container>
     </HydrateClient>

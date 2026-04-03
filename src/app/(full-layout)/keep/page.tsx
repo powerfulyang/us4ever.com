@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { KeepCategoryServer } from '@/app/(full-layout)/keep/components/category'
 import { KeepPaginationClient } from '@/app/(full-layout)/keep/components/pagination-client'
 import { ViewToggle } from '@/app/(full-layout)/keep/components/view-toggle'
@@ -63,7 +64,9 @@ export default async function KeepPage({
         )}
       >
         <KeepCategoryServer currentCategory={category} basePath="/keep" visibility={visibility} />
-        <KeepPaginationClient category={category} visibility={visibility} initialPage={Math.max(1, page)} />
+        <Suspense fallback={null}>
+          <KeepPaginationClient category={category} visibility={visibility} initialPage={Math.max(1, page)} />
+        </Suspense>
       </Container>
     </HydrateClient>
   )

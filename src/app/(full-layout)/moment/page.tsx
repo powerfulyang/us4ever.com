@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { Container } from '@/components/layout/Container'
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
@@ -8,6 +9,7 @@ import { MomentCategoryServer } from './components/category'
 import { MomentCreate } from './components/create'
 import { MomentPaginationClient } from './components/pagination-client'
 import { ViewToggle } from './components/view-toggle'
+import 'react-photo-view/dist/react-photo-view.css'
 
 export const metadata: Metadata = {
   title: '动态',
@@ -52,7 +54,9 @@ export default async function MomentPage({
         <div className="max-w-2xl mx-auto space-y-4">
           <MomentCreate category={category} />
           <MomentCategoryServer currentCategory={category} basePath="/moment" visibility={visibility} />
-          <MomentPaginationClient category={category} visibility={visibility} initialPage={Math.max(1, page)} />
+          <Suspense fallback={null}>
+            <MomentPaginationClient category={category} visibility={visibility} initialPage={Math.max(1, page)} />
+          </Suspense>
         </div>
       </Container>
     </HydrateClient>

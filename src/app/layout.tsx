@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
 import Script from 'next/script'
 import * as React from 'react'
+import { Suspense } from 'react'
 import { UserProvider } from '@/components/auth/user-provider'
 import { PageProgress } from '@/components/page-progress'
 import ServiceWorkerRegister from '@/components/pwa/Register'
@@ -9,10 +10,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { BASE_URL } from '@/lib/constants'
 
 import { TRPCReactProvider } from '@/trpc/react'
-
-import { api } from '@/trpc/server'
 import '@/styles/globals.scss'
-import 'react-photo-view/dist/react-photo-view.css'
 
 export const metadata: Metadata = {
   title: 'Resource Hub',
@@ -24,7 +22,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#F8FAFC' },
     { media: '(prefers-color-scheme: dark)', color: '#020203' },
@@ -36,9 +33,7 @@ interface Props {
   children: ReactNode
 }
 
-export default async function RootLayout({ children }: Props) {
-  const user = await api.user.current()
-
+export default function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -50,14 +45,9 @@ export default async function RootLayout({ children }: Props) {
         <link rel="preload" href="https://help.littleeleven.com/FiraCode/FiraCode-Medium.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
         <link rel="preload" href="https://help.littleeleven.com/FiraCode/FiraCode-SemiBold.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
         <link rel="preload" href="https://help.littleeleven.com/LXGW-WENKAI/LXGWWenKaiScreen.ttf" as="font" type="font/ttf" crossOrigin="anonymous" />
-        <Script
-          id="umami"
-          defer
-          src="https://umami.us4ever.com/script.js"
-          data-website-id="650103e6-dc4e-4c71-902d-110fdc3fc4e6"
-        />
-        <Script id="gtag" async src="https://www.googletagmanager.com/gtag/js?id=G-WCQH3VE45C"></Script>
-        <Script id="gtag-init">
+        <Script id="umami" strategy="lazyOnload" src="https://umami.us4ever.com/script.js" data-website-id="650103e6-dc4e-4c71-902d-110fdc3fc4e6" />
+        <Script id="gtag" strategy="lazyOnload" src="https://www.googletagmanager.com/gtag/js?id=G-WCQH3VE45C" />
+        <Script id="gtag-init" strategy="lazyOnload">
           {`if (typeof window !== 'undefined') {
             window.dataLayer = window.dataLayer || [];
             function gtag() {
@@ -68,7 +58,9 @@ export default async function RootLayout({ children }: Props) {
             gtag('config', 'G-WCQH3VE45C');
           }`}
         </Script>
+        <link rel="preload" href="https://help.littleeleven.com/font.css" as="style" />
         <link rel="stylesheet" href="https://help.littleeleven.com/font.css" />
+        <noscript><link rel="stylesheet" href="https://help.littleeleven.com/font.css" /></noscript>
       </head>
       <body>
         <ThemeProvider
@@ -80,8 +72,10 @@ export default async function RootLayout({ children }: Props) {
         >
           <ServiceWorkerRegister />
           <TRPCReactProvider>
-            <UserProvider user={user} />
-            <PageProgress />
+            <UserProvider user={undefined} />
+            <Suspense fallback={null}>
+              <PageProgress />
+            </Suspense>
             {children}
           </TRPCReactProvider>
         </ThemeProvider>

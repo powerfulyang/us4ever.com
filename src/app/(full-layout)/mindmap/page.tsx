@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { MindMapPaginationClient } from '@/app/(full-layout)/mindmap/components/pagination-client'
 import { ViewToggle } from '@/app/(full-layout)/mindmap/components/view-toggle'
 import { Container } from '@/components/layout/Container'
@@ -39,7 +40,9 @@ export default async function MindMapPage({
           </div>
         )}
       >
-        <MindMapPaginationClient initialPage={Math.max(1, page)} />
+        <Suspense fallback={null}>
+          <MindMapPaginationClient initialPage={Math.max(1, page)} />
+        </Suspense>
       </Container>
     </HydrateClient>
   )

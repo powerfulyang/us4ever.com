@@ -5,10 +5,14 @@ import type { Image, Video } from '@/server/api/routers/asset'
 import { AlertTriangle, Plus, X } from 'lucide-react'
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { PhotoProvider, PhotoView } from 'react-photo-view'
+
 import { AssetImageWithData } from '@/app/(full-layout)/image/components/image'
 import { AuthenticatedOnly } from '@/components/auth/owner-only'
 import { api } from '@/trpc/react'
 import { cn } from '@/utils/cn'
+
+import 'react-photo-view/dist/react-photo-view.css'
 
 // 媒体类型联合类型
 type Media = Image | Video
@@ -160,108 +164,145 @@ export function MediaUpload({
         <div className="text-red-500 text-sm">{error}</div>
       )}
 
-      <div className={cn('grid grid-cols-3 gap-1', className)}>
-        {/* 已上传的媒体 */}
-        {medias.map(media => (
-          <div key={media.id} className="relative aspect-square group rounded-lg overflow-hidden">
-            {isVideo(media)
-              ? (
-                  <video
-                    src={media.file_url}
-                    className="object-cover w-full h-full"
-                    muted
-                    preload="metadata"
-                  />
-                )
-              : (
-                  <AssetImageWithData
-                    image={media}
-                    className="object-cover"
-                  />
-                )}
-            <button
-              onClick={() => onMediaRemoveAction(media)}
-              className="absolute top-1 right-1 p-1 rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-              type="button"
-            >
-              <X className="w-4 h-4" />
-            </button>
-            {isVideo(media) && (
-              <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/60 text-white text-xs rounded">
-                视频
-              </div>
-            )}
-          </div>
-        ))}
-
-        {/* 正在上传的媒体 */}
-        {uploadingMedias.map(media => (
-          <div key={media.id} className="relative aspect-square rounded-lg overflow-hidden">
-            {media.type === 'video'
-              ? (
-                  <video
-                    src={media.preview}
-                    className="object-cover w-full h-full opacity-50"
-                    muted
-                    preload="metadata"
-                  />
-                )
-              : (
-                  // eslint-disable-next-line next/no-img-element
-                  <img
-                    src={media.preview}
-                    alt="正在上传"
-                    className="object-cover w-full h-full opacity-50"
-                  />
-                )}
-            {media.error
-              ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 cursor-pointer" onClick={() => handleRemoveUploadingMedia(media.id)}>
-                    <AlertTriangle className="w-8 h-8 text-red-500" />
-                    <span className="text-xs text-white px-2 text-center">{media.error}</span>
-                  </div>
-                )
-              : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-6 h-6 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
-                  </div>
-                )}
-            {media.type === 'video' && !media.error && (
-              <div className="absolute bottom-1 left-1 px-1 py-0.5 bg-black/60 text-white text-xs rounded">
-                上传中
-              </div>
-            )}
-          </div>
-        ))}
-
-        {/* 上传按钮 */}
-        {(medias.length + uploadingMedias.length) < maxMedias && Boolean(medias.length || uploadingMedias.length) && (
-          <div className="relative aspect-square">
-            <AuthenticatedOnly disableChildren>
+      <PhotoProvider>
+        <div className={cn('grid grid-cols-3 gap-1', className)}>
+          {/* 已上传的媒体 */}
+          {medias.map(media => (
+            <div key={media.id} className="relative aspect-square group rounded-lg overflow-hidden border border-border/50">
+              {isVideo(media)
+                ? (
+                    <video
+                      src={media.file_url}
+                      className="object-cover w-full h-full cursor-pointer"
+                      muted
+                      preload="metadata"
+                      onClick={(e) => {
+                        const video = e.currentTarget
+                        if (video.paused) {
+                          video.play()
+                          video.requestFullscreen?.()
+                        }
+                        else {
+                          video.pause()
+                        }
+                      }}
+                    />
+                  )
+                : (
+                    <PhotoView src={(media as Image).original_url}>
+                      <div className="w-full h-full cursor-zoom-in">
+                        <AssetImageWithData
+                          image={media as Image}
+                          className="object-cover"
+                        />
+                      </div>
+                    </PhotoView>
+                  )}
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => onMediaRemoveAction(media)}
                 className={cn(
-                  'w-full h-full border-2 border-dashed border-gray-500 rounded-lg',
-                  'hover:border-white/50 transition-colors flex items-center justify-center',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  'absolute top-1 right-1 p-1.5 rounded-full bg-black/60 text-white transition-all z-10',
+                  'sm:opacity-0 sm:group-hover:opacity-100 hover:bg-red-500/80',
                 )}
                 type="button"
+                title="删除"
               >
-                <Plus className="w-6 h-6 text-gray-500" />
+                <X className="w-3.5 h-3.5" />
               </button>
-            </AuthenticatedOnly>
-          </div>
-        )}
+              {isVideo(media) && (
+                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 text-white text-[10px] rounded backdrop-blur-sm pointer-events-none">
+                  视频
+                </div>
+              )}
+            </div>
+          ))}
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/*,video/*"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-      </div>
+          {/* 正在上传的媒体 */}
+          {uploadingMedias.map(media => (
+            <div key={media.id} className="relative aspect-square rounded-lg overflow-hidden border border-border/50 group">
+              {media.type === 'video'
+                ? (
+                    <video
+                      src={media.preview}
+                      className="object-cover w-full h-full opacity-50"
+                      muted
+                      preload="metadata"
+                    />
+                  )
+                : (
+                    <PhotoView src={media.preview}>
+                      <div className="w-full h-full cursor-zoom-in">
+                        {/* eslint-disable-next-line next/no-img-element */}
+                        <img
+                          src={media.preview}
+                          alt="正在上传"
+                          className="object-cover w-full h-full opacity-50"
+                        />
+                      </div>
+                    </PhotoView>
+                  )}
+              {media.error
+                ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 cursor-pointer" onClick={() => handleRemoveUploadingMedia(media.id)}>
+                      <AlertTriangle className="w-8 h-8 text-red-500" />
+                      <span className="text-xs text-white px-2 text-center">{media.error}</span>
+                    </div>
+                  )
+                : (
+                    <>
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-6 h-6 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
+                      </div>
+                      <button
+                        onClick={() => handleRemoveUploadingMedia(media.id)}
+                        className={cn(
+                          'absolute top-1 right-1 p-1.5 rounded-full bg-black/60 text-white transition-all z-10',
+                          'sm:opacity-0 sm:group-hover:opacity-100 hover:bg-red-500/80',
+                        )}
+                        type="button"
+                        title="取消上传"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  )}
+              {media.type === 'video' && !media.error && (
+                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 text-white text-[10px] rounded backdrop-blur-sm">
+                  上传中
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* 上传按钮 */}
+          {(medias.length + uploadingMedias.length) < maxMedias && Boolean(medias.length || uploadingMedias.length) && (
+            <div className="relative aspect-square">
+              <AuthenticatedOnly disableChildren>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className={cn(
+                    'w-full h-full border-2 border-dashed border-gray-500 rounded-lg',
+                    'hover:border-white/50 transition-colors flex items-center justify-center',
+                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                  )}
+                  type="button"
+                >
+                  <Plus className="w-6 h-6 text-gray-500" />
+                </button>
+              </AuthenticatedOnly>
+            </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept="image/*,video/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </div>
+      </PhotoProvider>
     </div>
   )
 }

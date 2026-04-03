@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { Container } from '@/components/layout/Container'
 import { DEFAULT_PAGE_SIZE } from '@/lib/constants'
 import { api, HydrateClient } from '@/trpc/server'
@@ -39,7 +40,9 @@ export default async function ImagePage({
         <div className="max-w-5xl mx-auto">
           <ImageUpload />
           <ImageCategoryServer currentCategory={category} basePath="/image" />
-          <ImagePaginationClient category={category} initialPage={Math.max(1, page)} />
+          <Suspense fallback={null}>
+            <ImagePaginationClient category={category} initialPage={Math.max(1, page)} />
+          </Suspense>
         </div>
       </Container>
     </HydrateClient>

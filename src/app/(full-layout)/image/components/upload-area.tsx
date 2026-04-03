@@ -7,6 +7,7 @@ import { useImperativeHandle, useRef } from 'react'
 import { PhotoProvider, PhotoView } from 'react-photo-view'
 import { useImageUpload } from '@/hooks/use-image-upload'
 import { cn } from '@/utils/cn'
+import 'react-photo-view/dist/react-photo-view.css'
 
 export interface UploadAreaRef {
   reset: () => void

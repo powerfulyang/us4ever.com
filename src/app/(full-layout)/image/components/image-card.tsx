@@ -43,9 +43,10 @@ export function ImageCard({ image, onDelete }: ImageCardProps) {
             alt={image.name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className={cn('object-cover group-hover:scale-105 transition-transform duration-300', {
+            className={cn('object-cover group-hover:scale-105 transition-transform duration-300 cursor-zoom-in', {
               'blur-[32px]': is_10x,
             })}
+            unoptimized
           />
           {/* 状态指示器 */}
           <div className="absolute top-2 left-2 p-1.5 bg-background/80 backdrop-blur-sm rounded-md">
@@ -112,6 +113,7 @@ export function ImageCard({ image, onDelete }: ImageCardProps) {
                 fill
                 sizes="60px"
                 className="object-cover"
+                unoptimized
               />
               <div className="absolute inset-0 bg-background/60 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="text-[10px] text-foreground font-medium">{thumb.label}</span>
