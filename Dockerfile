@@ -64,9 +64,10 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --prod --frozen-lockfile
 
 #
-COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone .
 #
 COPY public ./public
 
 # 启动命令
-CMD ["pnpm", "run", "start"]
+CMD ["node", "server.js"]
