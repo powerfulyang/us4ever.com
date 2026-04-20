@@ -58,6 +58,14 @@ export default function RootLayout({ children }: Props) {
             gtag('config', 'G-WCQH3VE45C');
           }`}
         </Script>
+        <Script
+          id="adsbygoogle"
+          strategy="lazyOnload"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9168111994170008"
+          crossOrigin="anonymous"
+        >
+        </Script>
         <link rel="preload" href="https://help.littleeleven.com/font.css" as="style" />
         <link rel="stylesheet" href="https://help.littleeleven.com/font.css" />
         <noscript><link rel="stylesheet" href="https://help.littleeleven.com/font.css" /></noscript>
