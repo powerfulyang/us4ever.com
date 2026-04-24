@@ -8,7 +8,7 @@ export async function createOrSignIn(user: User) {
     create: user,
     update: user,
     where: {
-      id: user.id,
+      email: user.email,
     },
   })
 }
